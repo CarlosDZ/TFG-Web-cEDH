@@ -1,3 +1,5 @@
+const moongose = require('mongoose');
+
 const tag_schema = new moongose.schema({
     name: {
         type: String,

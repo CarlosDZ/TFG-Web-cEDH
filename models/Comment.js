@@ -1,3 +1,5 @@
+const moongose = requiere('moongose');
+
 const comment_schema = new moongose.schema({
     authorId: {
         type: moongose.Schema.Types.ObjectId,
