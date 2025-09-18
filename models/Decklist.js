@@ -18,7 +18,10 @@ const decklist_schema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    tags: [String],
+    tags: [{
+        type: moongose.Schema.Types.ObjectId,
+        ref: 'Tag',
+    }],
     isPublic: {
         type: Boolean,
         default: true
