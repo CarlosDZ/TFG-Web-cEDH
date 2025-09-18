@@ -9,6 +9,7 @@ const decklist_schema = new mongoose.Schema({
 
     commander: [String],
     description: String,
+    decktech_markdown: String,
     cards: [String],
     alternative_choices: [String],
     scryfallQuery: String,
@@ -26,7 +27,7 @@ const decklist_schema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    createdAt: {
+    lastChangeDate: {
         type: Date,
         default: Date.now
     },
