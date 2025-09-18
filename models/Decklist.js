@@ -39,15 +39,8 @@ const decklist_schema = new mongoose.Schema({
         default: 0
     },
     comments: [{
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User' 
-        },
-        text: String,
-        createdAt: {
-            type: Date,
-            default: Date.now
-        }
+        type: moongose.Schema.Types.ObjectId,
+        ref: 'Comment'
     }]
 });
 
