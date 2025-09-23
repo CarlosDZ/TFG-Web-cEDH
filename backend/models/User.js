@@ -12,6 +12,10 @@ const user_schema = new mongoose.Schema({
         required: true,
         unique: true,
         lowercase: true
+    },                          //NAME AND EMAIL VERIFICATION ON FRONTEND... NO @ IN NAME PLS
+    emailIsVerified:{
+        type: Boolean,
+        default: false
     },
     salt:{
         type: String,
