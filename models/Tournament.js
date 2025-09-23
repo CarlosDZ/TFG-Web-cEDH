@@ -6,7 +6,10 @@ const tournament_schema = new moongose.schema({
         ref: 'User',
         requiered: true
     },
-    //ubication: {},
+    ubication: {
+        type: String,
+        required: true
+    },
     name: {
         type: String,
         requiered: true
@@ -31,11 +34,10 @@ const tournament_schema = new moongose.schema({
         }
     }],
     ruling_markdown: String,
-    tournament_date: {
+    tournament_date_hour: {
         type: Date,
         required: true
     },
-    //tournament_hour: {},
     isFull: {
         type: Boolean,
         default: False
