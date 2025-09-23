@@ -27,6 +27,10 @@ const commanderTech_schema = new moongose.schema({
         type: Number,
         default: 0
     },
+    likedBy: [{
+        type: moongose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     comments: [{
         type: moongose.Schema.Types.ObjectId,
         ref: 'Comment'

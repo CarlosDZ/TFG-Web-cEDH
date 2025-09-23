@@ -23,7 +23,11 @@ const comment_schema = new moongose.schema({
     likes: {
         type: Number,
         default: 0
-    }
+    },
+    likedBy: [{
+        type: moongose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 })
 
 module.exports = moongose.model('Comment', comment_schema);
