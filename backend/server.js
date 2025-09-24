@@ -14,7 +14,7 @@ app.use('/api/decklist', require ('./routes/decklist'));
 app.use('/api/commandertech', require('./routes/commandertech'));
 app.use('/api/tournament', require('./routes/tournament'));
 app.use('/api/comment', require('./routes/comment'));
-
+app.use('/api/user', require('./routes/user'));
 
 //LISTENER
 app.listen(process.env.BACKEND_PORT, () => {
