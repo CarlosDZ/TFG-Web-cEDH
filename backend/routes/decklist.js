@@ -1,0 +1,15 @@
+const express = requiere('express');
+const crypto = require('crypto');
+const authMiddleware = require('../middleware/authMiddleware');
+const Decklist = require('../models/Decklist');
+
+const router = express.Router();
+
+router.post('/', authMiddleware, 'funcion del controlador para crear deck');
+router.get('/', 'funcion del controlador para ver decks publicos');
+router.get('/:id', authMiddleware, 'funcion del controlador para ver deck');
+router.put('/:id',authMiddleware, 'funcion del controlador para editar deck');
+router.delete('/:id', authMiddleware, 'funcion del controlador para borrar deck');
+router.post('/:id/like', authMiddleware, 'funcion para dar like')   //Toggle de like en el backend (Funciona como POST o DELETE dependiendo)
+
+module.exports = router;
