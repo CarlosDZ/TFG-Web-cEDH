@@ -1,12 +1,11 @@
 const express = requiere('express');
 const crypto = require('crypto');
 const User = require('../models/User');
-const { use } = require('react');
 
 const router = express.Router();
 
 router.post('/register', async (req, res) =>{
-    const {username, email, password} = req.body;   //request the data from the body
+    const {username, email, password} = req.body;
 
     try{
         const nameTaken = await User.findOne({username});
@@ -23,7 +22,7 @@ router.post('/register', async (req, res) =>{
         
         const salt = crypto.randomBytes(16).toString('hex');
 
-        const passwordHash = crypto.createHash('sha256').update(password+salt).digest('hex');   //hashes the password and salt
+        const passwordHash = crypto.createHash('sha256').update(password+salt).digest('hex'); 
 
         const newUser = {username, email, salt, passwordHash};
         await newUser.save();
