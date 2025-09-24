@@ -12,6 +12,7 @@ moongose.connect(process.env.MONGODB_URL);
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/decklist', require ('./routes/decklist'));
 app.use('/api/commandertech', require('./routes/commandertech'));
+app.use('/api/tournament', require('./routes/tournament'));
 
 //LISTENER
 app.listen(process.env.BACKEND_PORT, () => {
