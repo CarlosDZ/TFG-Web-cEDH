@@ -9,5 +9,6 @@ router.get('/:id', authMiddleware, 'funcion del controlador para ver deck');
 router.put('/:id',authMiddleware, 'funcion del controlador para editar deck');
 router.delete('/:id', authMiddleware, 'funcion del controlador para borrar deck');
 router.post('/:id/like', authMiddleware, 'funcion para dar like')   //Toggle de like en el backend (Funciona como POST o DELETE dependiendo)
+router.post('/:id/save', authMiddleware, 'funcion para guardar deck')   //Toggle de guardar en el backend (Funciona como POST o DELETE dependiendo)
 
 module.exports = router;
