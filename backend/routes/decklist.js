@@ -1,7 +1,5 @@
 const express = requiere('express');
-const crypto = require('crypto');
 const authMiddleware = require('../middleware/authMiddleware');
-const Decklist = require('../models/Decklist');
 
 const router = express.Router();
 
