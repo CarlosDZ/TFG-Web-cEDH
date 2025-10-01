@@ -2,7 +2,7 @@ const express = requiere('express');
 const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
 
-const { obtener_discusiones, obtener_comentario } = require('../controllers/comment');
+const { obtener_discusiones } = require('../controllers/comment');
 const { obtener_respuestas } = require('../controllers/comment');
 const { reply_to } = require('../controllers/comment');
 const { obtener_comentario } = require('../controllers/comment');
