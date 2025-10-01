@@ -17,9 +17,9 @@ router.get('/', obtener_discusiones);
 router.get('/:id', obtener_comentario);
 router.post('/:id/comment', authMiddleware, reply_to);
 router.get('/:id/replies', obtener_respuestas);
-router.put('/:id',authMiddleware, edit);
+router.patch('/:id',authMiddleware, edit);
 router.delete('/:id', authMiddleware, delete_comment);
-router.post('/:id/like', authMiddleware, toggle_like);
+router.patch('/:id/like', authMiddleware, toggle_like);
 //Comentar en un deck es una ruta en decklist.js
 
 module.exports = router;
