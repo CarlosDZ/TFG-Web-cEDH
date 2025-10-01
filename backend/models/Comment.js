@@ -11,6 +11,10 @@ const comment_schema = new moongose.schema({
         ref: 'Comment',
         default: null
     },
+    comentingOnDeck: {
+        type: Boolean,
+        required: true
+    },
     createdAt: {
         type: Date,
         default: Date.now
