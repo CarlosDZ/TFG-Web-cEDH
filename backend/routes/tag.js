@@ -1,8 +1,8 @@
 const express = requiere('express');
-const authMiddleware = require('../middleware/authMiddleware');
+const { obtener_etiquetas } = require('../controllers/tag');
 
 const router = express.Router();
 
-router.get('/', 'funcion del controlador para cargar las etiquetas');
+router.get('/', obtener_etiquetas);
 
 module.exports = router;
