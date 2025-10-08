@@ -76,7 +76,7 @@ const edit = async (req, res) => {
             oldComment.title = req.body.title;
             oldComment.markdown_text = req.body.markdown_text;
             await oldComment.save();
-            res.status(200).json(oldComment);
+            res.status(201).json(oldComment);
         }
     }catch(err){
         console.log(err);
