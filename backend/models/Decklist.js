@@ -19,7 +19,7 @@ const decklist_schema = new mongoose.Schema({
         required: true
     },
     tags: [{
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Tag',
     }],
     isPublic: {
@@ -39,11 +39,11 @@ const decklist_schema = new mongoose.Schema({
         default: 0
     },
     likedBy: [{
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
     comments: [{
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment'
     }]
 });

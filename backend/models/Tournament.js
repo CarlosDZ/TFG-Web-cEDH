@@ -1,8 +1,8 @@
-const moongose = requiere('moongose');
+const mongoose = require('mongoose');
 
-const tournament_schema = new moongose.schema({
+const tournament_schema = new mongoose.schema({
     authorId: {
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         requiered: true
     },

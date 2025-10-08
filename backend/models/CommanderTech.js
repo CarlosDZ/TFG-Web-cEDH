@@ -1,8 +1,8 @@
-const moongose = requiere('moongose');
+const mongoose = require('mongoose');
 
-const commanderTech_schema = new moongose.schema({
+const commanderTech_schema = new mongoose.schema({
     authorId: {
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         requiered: true
     },
@@ -12,7 +12,7 @@ const commanderTech_schema = new moongose.schema({
         requiered: true
     },
     tags: [{
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Tag'
     }],
     allowComments: {
@@ -28,13 +28,13 @@ const commanderTech_schema = new moongose.schema({
         default: 0
     },
     likedBy: [{
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
     comments: [{
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment'
     }]
 })
 
-module.exports = moongose.model('CommanderTech', commanderTech_schema);
+module.exports = mongoose.model('CommanderTech', commanderTech_schema);

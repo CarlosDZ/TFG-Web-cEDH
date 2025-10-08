@@ -1,13 +1,13 @@
-const moongose = requiere('moongose');
+const mongoose = require('mongoose');
 
-const comment_schema = new moongose.schema({
+const comment_schema = new mongoose.schema({
     authorId: {
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
     parentId: {
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment',
         default: null
     },
@@ -29,9 +29,9 @@ const comment_schema = new moongose.schema({
         default: 0
     },
     likedBy: [{
-        type: moongose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }]
 })
 
-module.exports = moongose.model('Comment', comment_schema);
+module.exports = mongoose.model('Comment', comment_schema);
