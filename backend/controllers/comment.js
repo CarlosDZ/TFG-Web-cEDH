@@ -1,6 +1,6 @@
 const Comentario = require('../models/Comment');
 
-const obtener_discusiones = async (res) => {
+const obtener_discusiones = async (req, res) => {
     try{
         const comentarios = await Comentario.find({
             parentId:null,

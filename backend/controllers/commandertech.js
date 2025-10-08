@@ -18,7 +18,7 @@ const post_commandertech = async (req, res) => {
     }
 };
 
-const obtener_commandertechs = async (res) => {
+const obtener_commandertechs = async (req, res) => {
     try{
         const commandertechs = await CommanderTech.find().populate('authorId', 'username');
         res.status(200).json(commandertechs);

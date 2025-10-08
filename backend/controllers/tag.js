@@ -1,6 +1,6 @@
 const Etiqueta = require('../models/Tag');
 
-const obtener_etiquetas = async (res) => {
+const obtener_etiquetas = async (req, res) => {
     try{
         const etiquetas = await Etiqueta.find({active:true});
         res.status(200).json(etiquetas);
