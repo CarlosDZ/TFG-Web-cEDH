@@ -110,7 +110,7 @@ const toggle_like = async (req, res) => {
         }
         else{
             comentarioToLike.likedBy.push(req.user.id);
-            comentarioToLike.likes++;https://www.gravatar.com/avatar/cf2447a508bd13e52a13f717bafb49fd?s=64&d=robohash
+            comentarioToLike.likes++;
             await comentarioToLike.save();
             res.status(200).json('Like procesado con exito');
         }
