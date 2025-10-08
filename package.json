@@ -1,14 +1,14 @@
 {
   "name": "cedh-web",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A community web aimed for the cEDH enjoyers of the Spanish MTG community",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified. We arent yet on a phase where we can test anything valuable\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["express","fullstack","backend","frontend","rest","mongodb","auth","user-management"],
+  "author": "Carlos Delgado Zambrana",
+  "license": "AGPL-3.0-or-later",
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.5",
