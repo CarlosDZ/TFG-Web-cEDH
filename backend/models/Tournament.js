@@ -44,6 +44,6 @@ const tournament_schema = new mongoose.schema({
     }
 
     //i may put winner data on here if i have time to pull it off without it depending on decks and users not being changed.
-})
+});
 
 module.exports = mongoose.model('Tournament', tournament_schema);
