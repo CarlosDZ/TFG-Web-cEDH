@@ -1,4 +1,5 @@
 const CommanderTech = require('../models/CommanderTech');
+const  User  = require('../models/User');
 
 const post_commandertech = async (req, res) => {
     try{
@@ -105,11 +106,33 @@ const edit = async (req, res) => {
     }
 };
 
+const delete_commandertech = async (req, res) => {
+    try{
+        const commandertech_to_delete = await CommanderTech.findById(req.params.id);
+        const myself = await User.findById(req.user.id);
+        if(!commandertech_to_delete) return res.status(404).json('Commander Tech no encontrada');
+        else if(!myself) return res.status(401).json('No se ha podido determinar el usuario de la sesion');
+        else if(!myself.isAdmin && !commandertech_to_delete.authorId.equals(myself._id)) return res.status(403).json('No tienes permiso para borrar eso');
+        else{
+            await User.updateMany(
+                {fav_commanderTech: commandertech_to_delete._id},
+                { $pull: {fav_commanderTech: commandertech_to_delete._id}}
+            );
+            await commandertech_to_delete.deleteOne();
+            res.status(200).json('Borrado con exito');
+        }
+    }catch(err){
+        console.log(err);
+        res.status(500).json('Error interno del server');
+    }
+};
+
 module.exports = {
     post_commandertech,
     obtener_commandertechs,
     obtener_commandertech,
     toggle_like,
     toggle_fav,
-    edit
+    edit,
+    delete_commandertech
 }

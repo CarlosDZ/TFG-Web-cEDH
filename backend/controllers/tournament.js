@@ -72,7 +72,7 @@ const delete_tournament = async (req, res) => {
         const myself = await Usuario.findById(req.user.id);
         if(!torneoToDelete) return res.status(404).json('Recurso no encontrado');
         else if (!myself) return res.status(401).json('No se ha podido determinar el usuario de la sesion');
-        else if(!myself.isAdmin && !torneoToDelete.authorId.equals(myself._id)) return res.status(403).json('No tienes permiso para borrar eso.');
+        else if(!myself.isAdmin && !torneoToDelete.authorId.equals(myself._id)) return res.status(403).json('No tienes permiso para borrar eso');
         else{
             await Usuario.updateMany(
                 {fav_tournament: torneoToDelete._id},
