@@ -46,6 +46,7 @@ const toggle_like = async (req, res) => {
         else if(commandertechToLike.likedBy.some(userId => userId.toString() === req.user.id)){
             commandertechToLike.likedBy = commandertechToLike.likedBy.filter(id => id.toString() !== req.user.id);
             commandertechToLike.likes--;
+            await commandertechToLike.save();
             res.status(200).json('Eliminacion de like procesado con exito');
         }
         else{
@@ -63,19 +64,19 @@ const toggle_like = async (req, res) => {
 const toggle_fav = async (req, res) => {
     try{
         const commandertechToFav = await CommanderTech.findById(req.params.id);
-        const myself = await delete_usuario.findById(req.user.id);
+        const myself = await User.findById(req.user.id);
         if(!commandertechToFav) return res.status(404).json('Commander Tech no encontrado');
         else if(!myself) return res.status(401).json('No se ha podido determinar el usuario de la sesion');
         
         else if(myself.fav_commanderTech.some(fav_commandertech_obj => fav_commandertech_obj._id.toString() === commandertechToFav._id.toString())){
-                    await Usuario.updateOne(
+                    await User.updateOne(
                         {_id:req.user.id},
                         { $pull: { fav_commanderTech: { _id: commandertechToFav._id } } }
                     );
                     res.status(200).json('Eliminacion de favorito procesado con exito');
                 }
                 else{
-                    await Usuario.updateOne(
+                    await User.updateOne(
                         { _id: req.user.id },
                         { $push: { fav_commanderTech: commandertechToFav } }
                     );
