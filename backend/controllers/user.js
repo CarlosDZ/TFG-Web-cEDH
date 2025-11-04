@@ -86,7 +86,7 @@ const edit_user = async(req, res) => {
 
             if(await Usuario.findOne({username:newName}) &&  req.user.username != newName) return res.status(409).json('El nombre de usuario no esta disponible.');
             else{
-                const usuarioObjetivo = await Usuario.findById(req.params.id);
+                const usuarioObjetivo = await Usuario.findById(req.params.id).select('username bio');
                 usuarioObjetivo.bio = newBio;
                 usuarioObjetivo.username = newName;
                 await usuarioObjetivo.save();
