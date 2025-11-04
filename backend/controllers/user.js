@@ -44,7 +44,7 @@ const toggle_fav = async (req, res) => {
         else if(myself.fav_user.some(fav_user_obj => fav_user_obj._id.toString() === userToFav._id.toString())){
             await Usuario.updateOne(
                 {_id:req.user.id},
-                { $pull: { fav_user: { _id: userToFav._id } } }
+                { $pull: { fav_user: userToFav._id } }
             );
             res.status(200).json('Eliminacion de favorito procesado con exito');
         }
