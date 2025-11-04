@@ -1,4 +1,4 @@
-const express = requiere('express');
+const express = require('express');
 const { obtener_etiquetas } = require('../controllers/tag');
 
 const router = express.Router();

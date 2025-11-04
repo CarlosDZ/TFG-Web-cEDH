@@ -1,6 +1,6 @@
 const moongose = require('mongoose');
 
-const tag_schema = new moongose.schema({
+const tag_schema = new moongose.Schema({
     name: {
         type: String,
         trim: true,

@@ -4,7 +4,7 @@
   "description": "A community web aimed for the cEDH enjoyers of the Spanish MTG community",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified. We arent yet on a phase where we can test anything valuable\" && exit 1"
+    "dev-backend": "node --env-file=.env backend/server.js"
   },
   "keywords": ["express","fullstack","backend","frontend","rest","mongodb","auth","user-management"],
   "author": "Carlos Delgado Zambrana",

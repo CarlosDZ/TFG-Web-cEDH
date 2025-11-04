@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const tournament_schema = new mongoose.schema({
+const tournament_schema = new mongoose.Schema({
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -40,7 +40,7 @@ const tournament_schema = new mongoose.schema({
     },
     isFull: {
         type: Boolean,
-        default: False
+        default: false
     }
 
     //i may put winner data on here if i have time to pull it off without it depending on decks and users not being changed.

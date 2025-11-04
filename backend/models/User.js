@@ -43,19 +43,19 @@ const user_schema = new mongoose.Schema({
     },
 
     fav_commanderTech: [{
-        type: mongoose.Schema.types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'CommanderTech'
     }],
     fav_decklist: [{
-        type: mongoose.Schema.types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Decklist'
     }],
     fav_user:[{
-        type: mongoose.Schema.types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
     fav_tournament:[{
-        type: mongoose.Schema.types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Tournament'
     }]
 });     //I dont know if i would add a favorite option to all these 4 but i include them from the start to dodge consistency problems later on

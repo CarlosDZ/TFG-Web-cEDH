@@ -1,13 +1,13 @@
 require('dotenv').config();
 
+const mongoose = require('mongoose');
 const express = require('express');
-const authMiddleware = require('./middlewares/authMiddleware');
 
 const app = express();
 app.use(express.json());
 app.use(require('cors')());
 
-moongose.connect(process.env.MONGODB_URL);
+mongoose.connect(process.env.MONGODB_URL);
 //RUTAS
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/decklist', require ('./routes/decklist'));

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const commanderTech_schema = new mongoose.schema({
+const commanderTech_schema = new mongoose.Schema({
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -8,7 +8,7 @@ const commanderTech_schema = new mongoose.schema({
     },
     commander: [String],
     text_markdown: {
-        type: text,
+        type: String,
         requiered: true
     },
     tags: [{

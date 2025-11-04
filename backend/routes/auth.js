@@ -1,4 +1,4 @@
-const express = requiere('express');
+const express = require('express');
 const crypto = require('crypto');
 const User = require('../models/User');
 
@@ -22,9 +22,9 @@ router.post('/register', async (req, res) =>{
         
         const salt = crypto.randomBytes(16).toString('hex');
 
-        const passwordHash = crypto.createHash('sha256').update(password+salt).digest('hex'); 
+        const password_hash = crypto.createHash('sha256').update(password+salt).digest('hex'); 
 
-        const newUser = {username, email, salt, passwordHash};
+        const newUser = new User({username, email, salt, password_hash});
         await newUser.save();
 
         res.status(201).json({mensaje: 'Usuario registrado con exito.'});
@@ -51,7 +51,7 @@ router.post('/login', async (req, res) => {
             {id: user._id, email: user.email, username: user.username, isAdmin: user.isAdmin, isVerified: user.isVerified, emailVerified: user.emailIsVerified}, process.env.JWT_SECRET_KEY_MIDDLEWARE, {expiresIn: '8h'}
         );
 
-        res.json({token});
+        res.json({jwtToken});
     }catch (err){
         console.error(err);
         res.status(500).json({error: 'Error interno del server.'});
