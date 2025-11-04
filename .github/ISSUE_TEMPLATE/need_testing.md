@@ -1,7 +1,21 @@
+---
 name: Testing request
-description: Requiere de testeo para una funcion nueva
-title: "[TESTEAR] Nombre de la funcion"
+about: Requiere de testeo para una función nueva
+title: "[TESTEAR] Nombre de la función"
 labels: toTest
-assignees: 
+assignees:
   - CarlosDZ
-body:
+---
+
+## Descripción
+
+Describe qué función necesita testeo y por qué.
+
+## Pasos para testear
+
+1. Paso uno
+2. Paso dos
+
+## Resultado esperado
+
+¿Qué debería pasar si todo funciona correctamente?
