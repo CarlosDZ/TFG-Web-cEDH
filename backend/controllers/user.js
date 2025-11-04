@@ -6,7 +6,7 @@ const Torneo = require('../models/Tournament');
 
 const obtener_usuario = async (req, res) => {
     try{
-        const usuario = await Usuario.findById(req.params.id);
+        const usuario = await Usuario.findById(req.params.id).select('-password_hash -salt -__v');
         res.status(200).json(usuario);
     }catch(err){
         console.log(err);
