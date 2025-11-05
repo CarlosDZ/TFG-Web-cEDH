@@ -28,7 +28,7 @@ const obtener_respuestas = async (req, res) => {
 const reply_to = async (req, res) => {
     try{
         const newComment = new Comentario({
-            markdown_text: req.body.contenido,
+            markdown_text: req.body.markdown_text,
             authorId: req.user.id,
             parentId: req.params.id,
             comentingOnDeck: false
@@ -37,6 +37,7 @@ const reply_to = async (req, res) => {
         await newComment.save();
         res.status(201).json(newComment);
     }catch(err){
+        console.log(err);
         res.status(500).json('Error interno del server');
     }
 };
@@ -44,10 +45,11 @@ const reply_to = async (req, res) => {
 const obtener_comentario = async (req, res) =>{
     try{
         const comentario = await Comentario.findById(req.params.id).populate('authorId', 'username');
+        
         res.status(200).json(comentario);
     }catch(err){
         console.log(err);
-        res.status(500).json('Error interno del server');
+        res.status(404).json('Comentario no encontrado');
     }
 };
 
@@ -73,8 +75,8 @@ const edit = async (req, res) => {
         if(!oldComment) return res.status(404).json('Comentario no encontrado');
         else if(oldComment.authorId.toString() !== req.user.id) return res.status(403).json('No tienes permiso para editar esto');
         else{
-            oldComment.title = req.body.title;
-            oldComment.markdown_text = req.body.markdown_text;
+            oldComment.title = req.body.title ? req.body.title : oldComment.title;
+            oldComment.markdown_text = req.body.markdown_text ? req.body.markdown_text : oldComment.markdown_text;
             await oldComment.save();
             res.status(201).json(oldComment);
         }
@@ -106,6 +108,7 @@ const toggle_like = async (req, res) => {
         else if(comentarioToLike.likedBy.some(userId => userId.toString() === req.user.id)){
             comentarioToLike.likedBy = comentarioToLike.likedBy.filter(id => id.toString() !== req.user.id);
             comentarioToLike.likes--;
+            await comentarioToLike.save();
             res.status(200).json('Eliminacion de like procesado con exito');
         }
         else{
