@@ -1,61 +1,82 @@
-const express = require('express');
-const crypto = require('crypto');
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const express = require("express");
+const crypto = require("crypto");
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 
-router.post('/register', async (req, res) =>{
-    const {username, email, password} = req.body;
+router.post("/register", async (req, res) => {
+  const { username, email, password } = req.body;
 
-    try{
-        const nameTaken = await User.findOne({username});
-        if(nameTaken) return res.status(409).json({error: 'Nombre de usuario en uso.'});
+  try {
+    const nameTaken = await User.findOne({ username });
+    if (nameTaken)
+      return res.status(409).json({ error: "Nombre de usuario en uso." });
 
-        const mailTaken = await User.findOne({email});
-        if(mailTaken) return res.status(409).json({error: 'Email en uso.'}); 
-        
-        const forbiddenCharsName = /[@;"'¡¿!:?{}]/;
-        if(forbiddenCharsName.test(username)) return res.status(400).json({error: 'Caracteres invalidos en el nombre'});
+    const mailTaken = await User.findOne({ email });
+    if (mailTaken) return res.status(409).json({ error: "Email en uso." });
 
-        const mailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if(!mailFormat.test(email)) return res.status(400).json({error: 'Formato de Email invalido'});
-        
-        const salt = crypto.randomBytes(16).toString('hex');
+    const forbiddenCharsName = /[@;"'¡¿!:?{}]/;
+    if (forbiddenCharsName.test(username))
+      return res
+        .status(400)
+        .json({ error: "Caracteres invalidos en el nombre" });
 
-        const password_hash = crypto.createHash('sha256').update(password+salt).digest('hex'); 
+    const mailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!mailFormat.test(email))
+      return res.status(400).json({ error: "Formato de Email invalido" });
 
-        const newUser = new User({username, email, salt, password_hash});
-        await newUser.save();
+    const salt = crypto.randomBytes(16).toString("hex");
 
-        res.status(201).json({mensaje: 'Usuario registrado con exito.'});
-    }catch (err){
+    const password_hash = crypto
+      .createHash("sha256")
+      .update(password + salt)
+      .digest("hex");
+
+    const newUser = new User({ username, email, salt, password_hash });
+    await newUser.save();
+
+    res.status(201).json({ mensaje: "Usuario registrado con exito." });
+  } catch (err) {
     console.error(err);
-    res.status(500).json({error: 'Error interno del server.'});
-    }
+    res.status(500).json({ error: "Error interno del server." });
+  }
 });
 
-router.post('/login', async (req, res) => {
-    const {nameOrMail, password} = req.body;
+router.post("/login", async (req, res) => {
+  const { nameOrMail, password } = req.body;
 
-    try{
-        const user = await User.findOne({
-            $or: [{email: nameOrMail}, {username: nameOrMail}]
-        });
-        if(!user)return res.status(404).json({error: 'Usuario no encontrado.'});
-        
-        const inputHash = crypto.createHash('sha256').update(password+user.salt).digest('hex');
+  try {
+    const user = await User.findOne({
+      $or: [{ email: nameOrMail }, { username: nameOrMail }],
+    });
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado." });
 
-        if(inputHash !== user.password_hash) return res.status(401).json({error: 'Contraseña incorrecta.'});
+    const inputHash = crypto
+      .createHash("sha256")
+      .update(password + user.salt)
+      .digest("hex");
 
-        const jwtToken = jwt.sign(
-            {id: user._id, email: user.email, username: user.username, isAdmin: user.isAdmin, isVerified: user.isVerified, emailVerified: user.emailIsVerified}, process.env.JWT_SECRET_KEY_MIDDLEWARE, {expiresIn: '8h'}
-        );
+    if (inputHash !== user.password_hash)
+      return res.status(401).json({ error: "Contraseña incorrecta." });
 
-        res.json({jwtToken});
-    }catch (err){
-        console.error(err);
-        res.status(500).json({error: 'Error interno del server.'});
-    }
+    const jwtToken = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        isAdmin: user.isAdmin,
+        isVerified: user.isVerified,
+        emailVerified: user.emailIsVerified,
+      },
+      process.env.JWT_SECRET_KEY_MIDDLEWARE,
+      { expiresIn: "8h" }
+    );
+
+    res.json({ jwtToken });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error interno del server." });
+  }
 });
 
 module.exports = router;
