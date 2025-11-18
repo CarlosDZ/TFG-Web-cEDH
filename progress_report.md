@@ -20,3 +20,6 @@ He hecho un middleware basico para comprobar un deck usando la API de Scryfall e
     - El uso de una API similar a la de Google Maps en la seccion de torneos
     - La verificacion de correo electronico
 A demas de estas tambien se recortara complejidad en aspectos tecnicos como el manejo de errores en el backend para proteger contra request directas a la API. Estos se implementaran de primeras en el frontend ya que existe la maravillosa posibilidad de que el profesor que nos corrige el TFG no sea de nuestra area de especializacion, asi que toca priorizar lo vistoso por encima de lo bien hecho. 
+
+Acabo de hacer que todo lo relativo al JWT token se gestione con una http-only cookie y no con el header "Bearer". A demas, he creado una ruta "/api/session" que llama a un middleware muy similar al de "authMiddleware" con la diferencia de que este esta pensado para dejar pasar la peticion simpre simplemente definiendo el campo req.session, mientras que "authMiddleware" gestiona rutas que requieren un usuario claro y devuelve errores 400 en caso de no poder determinar al usuario de la sesion. Ahora voy a implementarlo en el frontend para que al entrar a la raiz de este te mande siempre a la pagina de home con la diferencia de tener o no la sesion inciada.
+
