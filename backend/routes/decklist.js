@@ -1,11 +1,12 @@
 const express = require('express');
 const authMiddleware = require('../middleware/authMiddleware');
+const createDeckValidationMiddleware = require('../middleware/deckMiddleware');
 
 const router = express.Router();
 
 const { post_decklist, obtener_decklist, obtener_decklists, toggle_fav, toggle_like, edit, delete_decklist, reply_to } = require('../controllers/decklist');
 
-router.post('/', authMiddleware, post_decklist);
+router.post('/', authMiddleware, createDeckValidationMiddleware, post_decklist);
 router.get('/', obtener_decklists);
 router.get('/:id', authMiddleware, obtener_decklist);
 router.patch('/:id',authMiddleware, edit);
