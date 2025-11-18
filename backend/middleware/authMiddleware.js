@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = (req, res, next) => {
-    const token = req.header("Authorization")?.split(" ")[1]; //Pillo el token de la cabecera HTTP y si no es nulo le quito Bearer
+    const token = req.cookies.spaincEDH_auth_token;
 
     if (!token) {
         return res.status(401).json({ error: "Token nulo" });

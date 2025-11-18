@@ -5,78 +5,81 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-  try {
-    const nameTaken = await User.findOne({ username });
-    if (nameTaken)
-      return res.status(409).json({ error: "Nombre de usuario en uso." });
+    try {
+        const nameTaken = await User.findOne({ username });
+        if (nameTaken) return res.status(409).json({ error: "Nombre de usuario en uso." });
 
-    const mailTaken = await User.findOne({ email });
-    if (mailTaken) return res.status(409).json({ error: "Email en uso." });
+        const mailTaken = await User.findOne({ email });
+        if (mailTaken) return res.status(409).json({ error: "Email en uso." });
 
-    const forbiddenCharsName = /[@;"'¡¿!:?{}]/;
-    if (forbiddenCharsName.test(username))
-      return res
-        .status(400)
-        .json({ error: "Caracteres invalidos en el nombre" });
+        const forbiddenCharsName = /[@;"'¡¿!:?{}]/;
+        if (forbiddenCharsName.test(username))
+            return res.status(400).json({ error: "Caracteres invalidos en el nombre" });
 
-    const mailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!mailFormat.test(email))
-      return res.status(400).json({ error: "Formato de Email invalido" });
+        const mailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!mailFormat.test(email))
+            return res.status(400).json({ error: "Formato de Email invalido" });
 
-    const salt = crypto.randomBytes(16).toString("hex");
+        const salt = crypto.randomBytes(16).toString("hex");
 
-    const password_hash = crypto
-      .createHash("sha256")
-      .update(password + salt)
-      .digest("hex");
+        const password_hash = crypto
+            .createHash("sha256")
+            .update(password + salt)
+            .digest("hex");
 
-    const newUser = new User({ username, email, salt, password_hash });
-    await newUser.save();
+        const newUser = new User({ username, email, salt, password_hash });
+        await newUser.save();
 
-    res.status(201).json({ mensaje: "Usuario registrado con exito." });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error interno del server." });
-  }
+        res.status(201).json({ mensaje: "Usuario registrado con exito." });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error interno del server." });
+    }
 });
 
 router.post("/login", async (req, res) => {
-  const { nameOrMail, password } = req.body;
+    const { nameOrMail, password } = req.body;
 
-  try {
-    const user = await User.findOne({
-      $or: [{ email: nameOrMail }, { username: nameOrMail }],
-    });
-    if (!user) return res.status(404).json({ error: "Usuario no encontrado." });
+    try {
+        const user = await User.findOne({
+            $or: [{ email: nameOrMail }, { username: nameOrMail }],
+        });
+        if (!user) return res.status(404).json({ error: "Usuario no encontrado." });
 
-    const inputHash = crypto
-      .createHash("sha256")
-      .update(password + user.salt)
-      .digest("hex");
+        const inputHash = crypto
+            .createHash("sha256")
+            .update(password + user.salt)
+            .digest("hex");
 
-    if (inputHash !== user.password_hash)
-      return res.status(401).json({ error: "Contraseña incorrecta." });
+        if (inputHash !== user.password_hash)
+            return res.status(401).json({ error: "Contraseña incorrecta." });
 
-    const jwtToken = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        username: user.username,
-        isAdmin: user.isAdmin,
-        isVerified: user.isVerified,
-        emailVerified: user.emailIsVerified,
-      },
-      process.env.JWT_SECRET_KEY_MIDDLEWARE,
-      { expiresIn: "8h" }
-    );
+        const token_user = {
+            id: user._id,
+            email: user.email,
+            username: user.username,
+            isAdmin: user.isAdmin,
+            isVerified: user.isVerified,
+            emailVerified: user.emailIsVerified,
+        };
 
-    res.json({ jwtToken });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error interno del server." });
-  }
+        const jwtToken = jwt.sign(token_user, process.env.JWT_SECRET_KEY_MIDDLEWARE, {
+            expiresIn: "30d",
+        });
+
+        res.cookie("spaincEDH_auth_token", jwtToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
+        return res.json({ message: "Login completado" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error interno del server." });
+    }
 });
 
 module.exports = router;
