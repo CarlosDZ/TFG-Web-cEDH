@@ -32,6 +32,6 @@ const comment_schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }]
-})
+});
 
 module.exports = mongoose.model('Comment', comment_schema);
