@@ -8,5 +8,6 @@
     "prettier.trailingComma": "es5",
     "prettier.semi": true,
     "prettier.printWidth": 100,
-    "prettier.tabWidth": 4
+    "prettier.tabWidth": 4,
+    "css.lint.unknownAtRules": "ignore"
 }

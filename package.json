@@ -1,30 +1,35 @@
 {
-  "name": "cedh-web",
-  "version": "1.0.0",
-  "description": "A community web aimed for the cEDH enjoyers of the Spanish MTG community",
-  "main": "server.js",
-  "scripts": {
-    "dev-backend": "node --env-file=.env backend/server.js"
-  },
-  "keywords": [
-    "express",
-    "fullstack",
-    "backend",
-    "frontend",
-    "rest",
-    "mongodb",
-    "auth",
-    "user-management"
-  ],
-  "author": "Carlos Delgado Zambrana",
-  "license": "AGPL-3.0-or-later",
-  "type": "commonjs",
-  "dependencies": {
-    "axios": "^1.13.2",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
-    "mongoose": "^8.18.1",
-    "p-queue": "^9.0.1"
-  }
+    "name": "cedh-web",
+    "version": "1.0.0",
+    "description": "A community web aimed for the cEDH enjoyers of the Spanish MTG community",
+    "main": "server.js",
+    "scripts": {
+        "dev-backend": "node --env-file=.env backend/server.js"
+    },
+    "keywords": [
+        "express",
+        "fullstack",
+        "backend",
+        "frontend",
+        "rest",
+        "mongodb",
+        "auth",
+        "user-management"
+    ],
+    "author": "Carlos Delgado Zambrana",
+    "license": "AGPL-3.0-or-later",
+    "type": "commonjs",
+    "dependencies": {
+        "autoprefixer": "^10.4.22",
+        "axios": "^1.13.2",
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.2",
+        "express": "^5.1.0",
+        "mongoose": "^8.18.1",
+        "p-queue": "^9.0.1",
+        "postcss": "^8.5.6"
+    },
+    "devDependencies": {
+        "tailwindcss": "^4.1.17"
+    }
 }
