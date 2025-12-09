@@ -4,7 +4,10 @@
     "description": "A community web aimed for the cEDH enjoyers of the Spanish MTG community",
     "main": "server.js",
     "scripts": {
-        "dev-backend": "node --env-file=.env backend/server.js"
+        "dev-backend": "node --env-file=.env backend/server.js",
+        "preview-frontend": "vite preview",
+        "build-frontend": "vite build",
+        "dev-frontend": "vite"
     },
     "keywords": [
         "express",
@@ -27,9 +30,14 @@
         "express": "^5.1.0",
         "mongoose": "^8.18.1",
         "p-queue": "^9.0.1",
-        "postcss": "^8.5.6"
+        "postcss": "^8.5.6",
+        "vite": "^7.2.6",
+        "vue": "^3.5.25",
+        "vue-router": "^4.6.3"
     },
     "devDependencies": {
+        "@tailwindcss/postcss": "^4.1.17",
+        "@vitejs/plugin-vue": "^6.0.2",
         "tailwindcss": "^4.1.17"
     }
 }

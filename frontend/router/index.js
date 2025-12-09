@@ -1,14 +1,11 @@
-const { createRouter, createWebHistory } = require("vue-router");
+import { createRouter, createWebHistory } from "vue-router";
+import Login from "../views/Login.vue";
 
-const Home = require("../views/Home.vue").default;
-
-const routes = [
-    // {path: "/", component: Home},
-];
+const routes = [{ path: "/login", name: "Login", component: Login }];
 
 const router = createRouter({
     history: createWebHistory(),
     routes,
 });
 
-module.exports = router;
+export default router;

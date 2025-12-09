@@ -23,3 +23,5 @@ A demas de estas tambien se recortara complejidad en aspectos tecnicos como el m
 
 Acabo de hacer que todo lo relativo al JWT token se gestione con una http-only cookie y no con el header "Bearer". A demas, he creado una ruta "/api/session" que llama a un middleware muy similar al de "authMiddleware" con la diferencia de que este esta pensado para dejar pasar la peticion simpre simplemente definiendo el campo req.session, mientras que "authMiddleware" gestiona rutas que requieren un usuario claro y devuelve errores 400 en caso de no poder determinar al usuario de la sesion. Ahora voy a implementarlo en el frontend para que al entrar a la raiz de este te mande siempre a la pagina de home con la diferencia de tener o no la sesion inciada.
 
+## 09-12-2025
+Ya he "acabado" gran parte del backend. Me he dado una pequeña pausa por los examenes. Ahora estoy empezando el frontend, he hecho un intento de usar tailwindcss pero por limitaciones de tiempo me ceñire a lo que ya conozco en el apartado de estilos.

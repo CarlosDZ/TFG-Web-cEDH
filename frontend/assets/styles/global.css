@@ -1,0 +1,8 @@
+@import url(login_form.css);
+* {
+    margin: 0px;
+    padding: 0px;
+}
+body {
+    height: 100%;
+}

@@ -1,0 +1,103 @@
+:root {
+    /*Env variables regarding color scheme*/
+    @media (prefers-color-scheme: dark) {
+        --bg-color-1: #0d1b2a;
+        --txt-color: #e0e1dd;
+        --form-data-bg: #1b263b;
+        --form-border: #1c60dd;
+        --form-data-border: #778da9;
+        --form-outline-valid: rgb(11, 202, 11);
+        --form-outline-invalid: rgb(238, 18, 18);
+        --bg-color-percent: 45%;
+    }
+
+    @media (prefers-color-scheme: light) {
+        --bg-color-1: #b0c4d8;
+        --txt-color: black;
+        --form-data-bg: #aecbeb;
+        --form-border: #d72be7;
+        --form-data-border: #71a5de;
+        --form-outline-valid: rgb(11, 202, 11);
+        --form-outline-invalid: rgb(238, 18, 18);
+        --bg-color-percent: 30%;
+    }
+}
+
+#mainContainer {
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+#loginFormBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    padding-top: 6%;
+    form {
+        width: 100%;
+        height: 100%;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+    input {
+        width: 67%;
+        padding: 5px;
+        height: 7%;
+        background-color: var(--form-data-bg);
+        border: solid 2px var(--form-data-border);
+        border-radius: 20px;
+        color: var(--txt-color);
+    }
+    button {
+        width: 45%;
+        padding: 5px;
+        height: 10%;
+        background-color: var(--form-data-bg);
+        border: solid 2px var(--form-data-border);
+        border-radius: 20px;
+        color: var(--txt-color);
+    }
+    h1 {
+        color: var(--txt-color);
+    }
+}
+
+/*Styles regarding screeen sizes*/
+@media (min-width: 850px) {
+    #mainContainer {
+        background-image: linear-gradient(
+                105deg,
+                var(--bg-color-1) var(--bg-color-percent),
+                rgba(0, 0, 0, 0.36)
+            ),
+            url("../images/tymna_the_weaver.webp");
+        background-size: cover, auto 100%;
+        background-position: center, calc(100% + 80px) center;
+        background-repeat: no-repeat, no-repeat;
+        /*I would really like to make a image carrusel with thrasios sisay kinnan etc but i dont have the time right now*/
+    }
+    #loginFormBox {
+        border: 5px solid var(--form-border);
+        border-radius: 60px;
+        width: 30%;
+        height: 60vh;
+        margin-left: 7%;
+        input {
+            font-size: large;
+        }
+        button {
+            font-size: larger;
+        }
+    }
+}
+@media (max-width: 849px) {
+    #mainContainer {
+        background-color: var(--bg-color-1);
+    }
+}
