@@ -28,3 +28,5 @@ Ya he "acabado" gran parte del backend. Me he dado una pequeña pausa por los ex
 
 ## 10-12-2025
 Estoy intentando que la cookie se guarde en firefox entre sesiones. No puedo mas. Es imposible. La cookie se guarda en la sesion correctamente, pero cuando cierro y abro el navegador esta se borra. 
+Actualizacion: It was Firefox all along. En mi sqt+sear va perfectamente y seguramente en cualquier otra build que no se dedique a comerse las cookies tambien. Respecto a el resto que la cookie sea de sesion y ya, tampoco puedo hacer milagros.
+Lo siguiente que hacer es la pagina de registro y los mensajes segun err code (passwd incorrecta, usuario no encontrado, usuario ya registrado, etc etc etc)
