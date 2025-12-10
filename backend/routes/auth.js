@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
 
         res.cookie("spaincEDH_auth_token", jwtToken, {
             httpOnly: true,
-            secure: true,
+            secure: false,
             sameSite: "strict",
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
