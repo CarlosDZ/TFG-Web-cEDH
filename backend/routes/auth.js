@@ -72,7 +72,7 @@ router.post("/login", async (req, res) => {
         res.cookie("spaincEDH_auth_token", jwtToken, {
             httpOnly: true,
             secure: false,
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
         return res.json({ message: "Login completado" });

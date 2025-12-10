@@ -25,3 +25,6 @@ Acabo de hacer que todo lo relativo al JWT token se gestione con una http-only c
 
 ## 09-12-2025
 Ya he "acabado" gran parte del backend. Me he dado una pequeña pausa por los examenes. Ahora estoy empezando el frontend, he hecho un intento de usar tailwindcss pero por limitaciones de tiempo me ceñire a lo que ya conozco en el apartado de estilos. Tengo una idea inicial de la pagina del login ya hecha y tambien he decidido hacer bastante mala praxis respecto a los issues y drafts de github pues a falta de menos de 3 meses para entregarlo todo gracias a la decision del centro simplemente me sale mas a cuenta hartarme a meter codigo. Tambien dejare bastante de lado estos reportes.
+
+## 10-12-2025
+Estoy intentando que la cookie se guarde en firefox entre sesiones. No puedo mas. Es imposible. La cookie se guarda en la sesion correctamente, pero cuando cierro y abro el navegador esta se borra. 
