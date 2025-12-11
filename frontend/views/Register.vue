@@ -1,7 +1,7 @@
 <template>
     <div id="mainContainer">
         <div id="loginFormBox">
-            <h1>Iniciar sesión</h1>
+            <h1>Crear Cuenta</h1>
             <form @submit.prevent="login">
                 <div class="inputContainer">
                     <span class="icon">
@@ -18,10 +18,32 @@
                         </picture>
                     </span>
                     <input
-                        placeholder="Username or Email"
+                        placeholder="Username"
                         type="text"
                         v-model="username"
                         id="username"
+                        required
+                    />
+                </div>
+                <div class="inputContainer">
+                    <span class="icon">
+                        <picture>
+                            <source
+                                srcset="../assets/images/mail-darkmode.svg"
+                                media="(prefers-color-scheme: dark)"
+                            />
+                            <source
+                                srcset="../assets/images/mail-lightmode.svg"
+                                media="(prefers-color-scheme: light)"
+                            />
+                            <img src="../assets/images/mail-lightmode.svg" alt="Mail icon" />
+                        </picture>
+                    </span>
+                    <input
+                        placeholder="Email"
+                        type="text"
+                        v-model="email"
+                        id="email"
                         required
                     />
                 </div>
@@ -48,7 +70,7 @@
                     />
                 </div>
 
-                <button type="submit">ENTRAR</button>
+                <button type="submit">REGISTRAR</button>
             </form>
         </div>
     </div>
@@ -60,13 +82,15 @@ import axios from "axios";
 import dotenv from "dotenv";
 function login() {
     let username = document.getElementById("username").value;
+    let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
     const backend_url = import.meta.env.VITE_BACKEND_URL;
     // Add shitty comprobations
 
     axios
-        .post(`http://${backend_url}/api/auth/login`, {
-            nameOrMail: username,
+        .post(`http://${backend_url}/api/auth/register`, {
+            username: username,
+            email: email,
             password: password
         })
         .then(function (response) {
