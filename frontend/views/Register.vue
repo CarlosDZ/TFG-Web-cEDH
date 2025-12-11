@@ -2,7 +2,7 @@
     <div id="mainContainer-register">
         <div id="loginFormBox">
             <h1>Crear Cuenta</h1>
-            <form @submit.prevent="login">
+            <form @submit.prevent="register">
                 <div class="inputContainer">
                     <span class="icon">
                         <picture>
@@ -79,7 +79,7 @@ import axios from "axios";
 const username = ref("");
 const email = ref("");
 const password = ref("");
-function login() {
+function register() {
     const backend_url = import.meta.env.VITE_BACKEND_URL;
     // Add shitty comprobations
 
