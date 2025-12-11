@@ -74,11 +74,16 @@
 </template>
 
 <script setup>
+
 import { ref } from "vue";
 import axios from "axios";
+import { authState } from "../utils/auth";
+
+const auth = authState();
 const username = ref("");
 const email = ref("");
 const password = ref("");
+
 function register() {
     const backend_url = import.meta.env.VITE_BACKEND_URL;
     // Add shitty comprobations
@@ -90,8 +95,9 @@ function register() {
             password: password.value
         })
         .then(function (response) {
-            //Aqui vas al home con la sesion iniciada broski
             console.log(response);
+            auth.setUser(response.data.user);
+            //ahora navegamos a home
         })
         .catch(function (error) {
             alert(error.response.data.error);

@@ -32,7 +32,17 @@ router.post("/register", async (req, res) => {
         const newUser = new User({ username, email, salt, password_hash });
         await newUser.save();
 
-        res.status(201).json({ mensaje: "Usuario registrado con exito." });
+        return res.status(201).json({ 
+            mensaje: "Usuario registrado con exito.",
+            user: {
+                id: newUser._id,
+                email: newUser.email,
+                username: newUser.username,
+                isAdmin: newUser.isAdmin,
+                isVerified: newUser.isVerified,
+                emailVerified: newUser.emailIsVerified,
+            }
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Error interno del servidor. Por favor intentalo mas tarde. Sentimos las molestias!" });
@@ -75,7 +85,10 @@ router.post("/login", async (req, res) => {
             sameSite: "lax",
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
-        return res.json({ message: "Login completado" });
+        return res.status(200).json({ 
+            message: "Login completado",
+            user: token_user
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Error interno del servidor. Por favor intentalo mas tarde. Sentimos las molestias!" });
