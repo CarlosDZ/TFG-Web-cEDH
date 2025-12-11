@@ -29,14 +29,14 @@
                     <span class="icon">
                         <picture>
                             <source
-                                srcset="../assets/images/mail-darkmode.svg"
+                                srcset="../assets/images/email-darkmode.svg"
                                 media="(prefers-color-scheme: dark)"
                             />
                             <source
-                                srcset="../assets/images/mail-lightmode.svg"
+                                srcset="../assets/images/email-lightmode.svg"
                                 media="(prefers-color-scheme: light)"
                             />
-                            <img src="../assets/images/mail-lightmode.svg" alt="Mail icon" />
+                            <img src="../assets/images/email-lightmode.svg" alt="Email icon" />
                         </picture>
                     </span>
                     <input
