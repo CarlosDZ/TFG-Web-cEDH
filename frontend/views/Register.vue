@@ -1,5 +1,5 @@
 <template>
-    <div id="mainContainer">
+    <div id="mainContainer-register">
         <div id="loginFormBox">
             <h1>Crear Cuenta</h1>
             <form @submit.prevent="login">
@@ -94,10 +94,11 @@ function login() {
             password: password
         })
         .then(function (response) {
+            //Aqui vas al home con la sesion iniciada broski
             console.log(response);
         })
         .catch(function (error) {
-            console.log(error);
+            alert(error.response.data.error);
         });
 }
 </script>

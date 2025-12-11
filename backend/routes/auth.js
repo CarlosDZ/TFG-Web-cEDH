@@ -35,7 +35,7 @@ router.post("/register", async (req, res) => {
         res.status(201).json({ mensaje: "Usuario registrado con exito." });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Error interno del server." });
+        res.status(500).json({ error: "Error interno del servidor. Por favor intentalo mas tarde. Sentimos las molestias!" });
     }
 });
 
@@ -78,7 +78,7 @@ router.post("/login", async (req, res) => {
         return res.json({ message: "Login completado" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Error interno del server." });
+        res.status(500).json({ error: "Error interno del servidor. Por favor intentalo mas tarde. Sentimos las molestias!" });
     }
 });
 
