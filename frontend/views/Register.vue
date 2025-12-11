@@ -21,7 +21,6 @@
                         placeholder="Username"
                         type="text"
                         v-model="username"
-                        id="username"
                         required
                     />
                 </div>
@@ -41,9 +40,8 @@
                     </span>
                     <input
                         placeholder="Email"
-                        type="text"
+                        type="email"
                         v-model="email"
-                        id="email"
                         required
                     />
                 </div>
@@ -65,7 +63,6 @@
                         placeholder="Password"
                         type="password"
                         v-model="password"
-                        id="password"
                         required
                     />
                 </div>
@@ -79,19 +76,18 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
-import dotenv from "dotenv";
+const username = ref("");
+const email = ref("");
+const password = ref("");
 function login() {
-    let username = document.getElementById("username").value;
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
     const backend_url = import.meta.env.VITE_BACKEND_URL;
     // Add shitty comprobations
 
     axios
         .post(`http://${backend_url}/api/auth/register`, {
-            username: username,
-            email: email,
-            password: password
+            username: username.value,
+            email: email.value,
+            password: password.value
         })
         .then(function (response) {
             //Aqui vas al home con la sesion iniciada broski
