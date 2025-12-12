@@ -1,8 +1,8 @@
 <template>
-    <div id="mainContainer-login">
+    <div id="mainContainer-register">
         <div id="loginFormBox">
-            <h1>Iniciar sesión</h1>
-            <form @submit.prevent="login">
+            <h1>Crear Cuenta</h1>
+            <form @submit.prevent="register">
                 <div class="inputContainer">
                     <span class="icon">
                         <picture>
@@ -18,9 +18,30 @@
                         </picture>
                     </span>
                     <input
-                        placeholder="Username or Email"
+                        placeholder="Username"
                         type="text"
                         v-model="username"
+                        required
+                    />
+                </div>
+                <div class="inputContainer">
+                    <span class="icon">
+                        <picture>
+                            <source
+                                srcset="../assets/images/email-darkmode.svg"
+                                media="(prefers-color-scheme: dark)"
+                            />
+                            <source
+                                srcset="../assets/images/email-lightmode.svg"
+                                media="(prefers-color-scheme: light)"
+                            />
+                            <img src="../assets/images/email-lightmode.svg" alt="Email icon" />
+                        </picture>
+                    </span>
+                    <input
+                        placeholder="Email"
+                        type="email"
+                        v-model="email"
                         required
                     />
                 </div>
@@ -46,7 +67,7 @@
                     />
                 </div>
 
-                <button type="submit">ENTRAR</button>
+                <button type="submit">REGISTRAR</button>
             </form>
         </div>
     </div>
@@ -58,17 +79,19 @@ import { ref } from "vue";
 import axios from "axios";
 import { authState } from "../utils/auth";
 
-const username = ref("");
-const password = ref("");
-const backend_url = import.meta.env.VITE_BACKEND_URL;
 const auth = authState();
+const username = ref("");
+const email = ref("");
+const password = ref("");
 
-function login() {
+function register() {
+    const backend_url = import.meta.env.VITE_BACKEND_URL;
     // Add shitty comprobations
 
     axios
-        .post(`http://${backend_url}/api/auth/login`, {
-            nameOrMail: username.value,
+        .post(`http://${backend_url}/api/auth/register`, {
+            username: username.value,
+            email: email.value,
             password: password.value
         })
         .then(function (response) {
