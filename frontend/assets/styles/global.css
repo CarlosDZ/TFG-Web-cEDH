@@ -4,25 +4,31 @@
 :root {
     /*Env variables regarding color scheme*/
     @media (prefers-color-scheme: dark) {
-        --login-bg-color-1: #0d1b2a;
-        --login-txt-color: #e0e1dd;
-        --login-form-data-bg: #1b263b;
-        --login-form-border: #1c60dd;
-        --login-form-data-border: #778da9;
-        --login-form-outline-valid: rgb(11, 202, 11);
-        --login-form-outline-invalid: rgb(238, 18, 18);
-        --login-bg-color-percent: 45%;
+        #mainContainer-login,
+        #mainContainer-register {
+            --login-bg-color-1: #0d1b2a;
+            --login-txt-color: #e0e1dd;
+            --login-form-data-bg: #1b263b;
+            --login-form-border: #1c60dd;
+            --login-form-data-border: #778da9;
+            --login-form-outline-valid: rgb(11, 202, 11);
+            --login-form-outline-invalid: rgb(238, 18, 18);
+            --login-bg-color-percent: 45%;
+        }
     }
 
     @media (prefers-color-scheme: light) {
-        --login-bg-color-1: #b0c4d8;
-        --login-txt-color: black;
-        --login-form-data-bg: #aecbeb;
-        --login-form-border: #d72be7;
-        --login-form-data-border: #5893d3;
-        --login-form-outline-valid: rgb(11, 202, 11);
-        --login-form-outline-invalid: rgb(238, 18, 18);
-        --login-bg-color-percent: 30%;
+        #mainContainer-login,
+        #mainContainer-register {
+            --login-bg-color-1: #b0c4d8;
+            --login-txt-color: black;
+            --login-form-data-bg: #aecbeb;
+            --login-form-border: #d72be7;
+            --login-form-data-border: #5893d3;
+            --login-form-outline-valid: rgb(11, 202, 11);
+            --login-form-outline-invalid: rgb(238, 18, 18);
+            --login-bg-color-percent: 30%;
+        }
     }
 }
 
