@@ -2,6 +2,7 @@
     <div id="mainContainer-register">
         <div id="loginFormBox">
             <h1>Crear Cuenta</h1>
+            <a href="/login">Iniciar sesion</a>
             <form @submit.prevent="register">
                 <div class="inputContainer">
                     <span class="icon">

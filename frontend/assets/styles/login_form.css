@@ -90,10 +90,15 @@
         margin-left: 7%;
         input {
             font-size: large;
+            transition: transform ease 0.23s;
+        }
+        input:focus {
+            transform: scale(1.05);
+            outline: none;
         }
         button {
             font-size: larger;
-            transition: transform ease 0.5s;
+            transition: transform ease 0.28s;
         }
         button:hover {
             transform: scale(1.1);
