@@ -3,8 +3,9 @@ import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 
 const routes = [
+    { path: "/", redirect: "/login" },
     { path: "/login", name: "Login", component: Login },
-    { path: "/register", name: "Registro", component: Register}
+    { path: "/register", name: "Registro", component: Register },
 ];
 
 const router = createRouter({

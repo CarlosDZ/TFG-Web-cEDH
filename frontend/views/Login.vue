@@ -38,12 +38,7 @@
                             <img src="../assets/images/lock-lightmode.svg" alt="User icon" />
                         </picture>
                     </span>
-                    <input
-                        placeholder="Password"
-                        type="password"
-                        v-model="password"
-                        required
-                    />
+                    <input placeholder="Password" type="password" v-model="password" required />
                 </div>
 
                 <button type="submit">ENTRAR</button>
@@ -53,7 +48,6 @@
 </template>
 
 <script setup>
-
 import { ref } from "vue";
 import axios from "axios";
 import { authState } from "../utils/auth";
@@ -69,11 +63,13 @@ function login() {
     axios
         .post(`http://${backend_url}/api/auth/login`, {
             nameOrMail: username.value,
-            password: password.value
+            password: password.value,
         })
         .then(function (response) {
             console.log(response);
-            auth.setUser(response.data.user);
+            if (response.data.user) {
+                auth.setUser(response.data.user);
+            }
             //ahora navegamos a home
         })
         .catch(function (error) {
