@@ -1,5 +1,6 @@
 @import url(login_form.css);
 @import url(register_form.css);
+@import url(dashboard.css);
 
 :root {
     /*Env variables regarding color scheme*/
@@ -15,6 +16,9 @@
             --login-form-outline-invalid: rgb(238, 18, 18);
             --login-bg-color-percent: 45%;
         }
+        --navigation-dashboard-bg: #15bba5;
+        --navigation-dashboard-input-bg: #1e033f;
+        --navigation-dashboard-input-text: rgb(255, 255, 255);
     }
 
     @media (prefers-color-scheme: light) {
@@ -29,13 +33,20 @@
             --login-form-outline-invalid: rgb(238, 18, 18);
             --login-bg-color-percent: 30%;
         }
+        --navigation-dashboard-bg: #640c4e;
+        --navigation-dashboard-input-bg: #e7dcdc;
+        --navigation-dashboard-input-text: black;
     }
 }
 
 * {
     margin: 0px;
     padding: 0px;
+    min-width: 0;
 }
-body {
+html,
+body,
+#app {
     height: 100%;
+    width: 100%;
 }
