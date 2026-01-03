@@ -5,15 +5,25 @@
     display: flex;
     align-items: center;
 }
-
+#loginFormBox-container {
+    display: flex;
+    --r: 60px;
+    -webkit-mask: radial-gradient(var(--r) at var(--r) var(--r), #0000 98%, #000)
+        calc(-1 * var(--r)) calc(-1 * var(--r));
+    background-color: var(--login-form-border);
+    align-items: center;
+    justify-content: center;
+}
 #loginFormBox {
-    border: 5px solid var(--login-form-border);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
-    padding-top: 6%;
-    border-radius: 0px;
+    background-color: var(--login-bg-color-1);
+    height: 99%;
+    width: 99%;
+    -webkit-mask: radial-gradient(var(--r) at var(--r) var(--r), #0000 98%, #000)
+        calc(-1 * var(--r)) calc(-1 * var(--r));
     form {
         width: 100%;
         height: 100%;
@@ -86,10 +96,12 @@
         background-repeat: no-repeat, no-repeat;
         /*I would really like to make a image carrusel with thrasios sisay kinnan etc but i dont have the time right now*/
     }
-    #loginFormBox {
+    #loginFormBox-container {
         width: 30%;
         height: 60vh;
         margin-left: 7%;
+    }
+    #loginFormBox {
         input {
             font-size: large;
             transition: transform ease 0.23s;
@@ -117,7 +129,7 @@
         flex-direction: row;
         justify-content: center;
     }
-    #loginFormBox {
+    #loginFormBox-container {
         height: 67%;
     }
     .inputContainer {
