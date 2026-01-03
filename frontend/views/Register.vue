@@ -3,7 +3,6 @@
         <div id="loginFormBox-container">
             <div id="loginFormBox">
                 <h1>Crear Cuenta</h1>
-                <a href="/login">Iniciar sesion</a>
                 <form @submit.prevent="register">
                     <div class="inputContainer">
                         <span class="icon">
@@ -56,6 +55,8 @@
 
                     <button type="submit">REGISTRAR</button>
                 </form>
+                <hr />
+                <a href="/login">Iniciar sesion</a>
             </div>
         </div>
     </div>

@@ -80,6 +80,16 @@
             height: 100%;
         }
     }
+    a {
+        margin-bottom: 3%;
+        margin-top: 3%;
+    }
+    hr {
+        background-color: var(--login-form-data-border);
+        border: none;
+        width: 80%;
+        height: 3px;
+    }
 }
 
 /*Styles regarding screeen sizes*/
