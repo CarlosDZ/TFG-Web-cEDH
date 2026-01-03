@@ -2,6 +2,14 @@
 @import url(register_form.css);
 @import url(dashboard.css);
 
+@font-face {
+    font-family: "Por Siempre Gotica";
+    src: url("../fonts/por-siempre-gotica.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     /*Env variables regarding color scheme*/
     @media (prefers-color-scheme: dark) {
