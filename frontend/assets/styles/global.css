@@ -23,6 +23,7 @@
             --login-form-outline-valid: rgb(11, 202, 11);
             --login-form-outline-invalid: rgb(238, 18, 18);
             --login-bg-color-percent: 45%;
+            --login-urls: #d72be7;
         }
         --navigation-dashboard-bg: #15bba5;
         --navigation-dashboard-input-bg: #1e033f;
@@ -35,11 +36,12 @@
             --login-bg-color-1: #b0c4d8;
             --login-txt-color: black;
             --login-form-data-bg: #aecbeb;
-            --login-form-border: #d72be7;
+            --login-form-border: black;
             --login-form-data-border: #5893d3;
             --login-form-outline-valid: rgb(11, 202, 11);
             --login-form-outline-invalid: rgb(238, 18, 18);
-            --login-bg-color-percent: 30%;
+            --login-bg-color-percent: 25%;
+            --login-urls: blue;
         }
         --navigation-dashboard-bg: #640c4e;
         --navigation-dashboard-input-bg: #e7dcdc;

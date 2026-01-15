@@ -82,11 +82,14 @@
         }
     }
     a {
-        margin-bottom: 7%;
+        margin-bottom: 5%;
         margin-top: 3%;
+        font-family: "Por Siempre Gotica";
+        font-size: 34px;
+        color: var(--login-urls);
     }
     hr {
-        background-color: var(--login-form-data-border);
+        background-color: var(--login-form-border);
         border: none;
         width: 80%;
         height: 3px;
