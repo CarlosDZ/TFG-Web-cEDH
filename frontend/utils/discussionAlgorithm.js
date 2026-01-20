@@ -6,3 +6,9 @@ function importanceScore(comment) {
 
     return Math.log(1 + likes) / (1 + hrs_alive) ** TIME_ALIVE_WEIGHT;
 }
+
+function orderCommentArray(comment_array) {
+    comment_array.sort((a, b) => importanceScore(a) - importanceScore(b));
+
+    return comment_array;
+}
