@@ -6,8 +6,14 @@ import Dashboard from "../views/Dashboard.vue";
 const routes = [
     { path: "/", redirect: "/dashboard" },
     { path: "/dashboard", name: "Dashboard", component: Dashboard },
+
     { path: "/login", name: "Login", component: Login },
     { path: "/register", name: "Registro", component: Register },
+
+    { path: "/torneos", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
+    { path: "/decklists", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
+    { path: "/commander-techs", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
+    { path: "/jugadores", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
 ];
 
 const router = createRouter({
