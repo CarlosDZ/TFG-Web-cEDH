@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const express = require("express");
 const path = require("path");
@@ -8,6 +9,7 @@ const app = express();
 app.use(express.json());
 mongoose.connect(process.env.MONGODB_URL);
 app.use(express.static(path.join(__dirname, "../dist")));
+app.use(cookieParser());
 
 //RUTAS
 app.use("/api/auth", require("./routes/auth"));

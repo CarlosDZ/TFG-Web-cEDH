@@ -54,11 +54,13 @@
 import { ref } from "vue";
 import axios from "axios";
 import { authState } from "../utils/auth";
+import { useRouter } from "vue-router";
 
 const username = ref("");
 const password = ref("");
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 const auth = authState();
+const router = useRouter();
 
 function login() {
     // Add shitty comprobations
@@ -73,7 +75,7 @@ function login() {
             if (response.data.user) {
                 auth.setUser(response.data.user);
             }
-            //ahora navegamos a home
+            router.push("/dashboard");
         })
         .catch(function (error) {
             alert(error.response.data.error);

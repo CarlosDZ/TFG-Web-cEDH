@@ -5,6 +5,7 @@ import { authState } from "../utils/auth";
 
 import mainFeed from "../components/discussions/mainFeed.component.vue";
 import sectionNavMenu from "../components/sectionNavMenu.component.vue";
+import personalNavMenu from "../components/personalNavMenu.component.vue";
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 const auth = authState();
@@ -35,7 +36,7 @@ const auth = authState();
         <main>
             <sectionNavMenu />
             <mainFeed />
-            <aside id="my-content"></aside>
+            <personalNavMenu />
         </main>
     </div>
 </template>
