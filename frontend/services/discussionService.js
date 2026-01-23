@@ -1,8 +1,8 @@
-import { orderByScore } from "../utils/discussionAlgorithm.js";
+import { orderCommentArray } from "../utils/discussionAlgorithm.js";
 
-export async function getOrderedDiscussionPanel() {
+export async function getOrderedDiscussions() {
     const res = await fetch("/api/comment/");
     const unordered_data = await res.json();
 
-    return orderByScore(unordered_data);
+    return orderCommentArray(unordered_data);
 }

@@ -1,3 +1,13 @@
+<script setup>
+import { ref } from "vue";
+import axios from "axios";
+import { authState } from "../utils/auth";
+import mainFeed from "../components/discussions/mainFeed.component.vue";
+
+const backend_url = import.meta.env.VITE_BACKEND_URL;
+const auth = authState();
+</script>
+
 <template>
     <div id="mainContainer-dashboard">
         <header>
@@ -22,17 +32,8 @@
 
         <main>
             <aside id="my-content"></aside>
-            <section id="disscussion-board"></section>
+            <mainFeed />
             <aside id="navigation-list"></aside>
         </main>
     </div>
 </template>
-
-<script setup>
-import { ref } from "vue";
-import axios from "axios";
-import { authState } from "../utils/auth";
-
-const backend_url = import.meta.env.VITE_BACKEND_URL;
-const auth = authState();
-</script>
