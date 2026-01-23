@@ -29,6 +29,12 @@
         --navigation-dashboard-bg: #15bba5;
         --navigation-dashboard-input-bg: #1e033f;
         --navigation-dashboard-input-text: rgb(255, 255, 255);
+
+        #mainContainer-personalNavMenu {
+            --background-color: rgb(46, 42, 42);
+            --txt-color: white;
+            --button-hover-light: rgba(0, 150, 255, 0.6);
+        }
     }
 
     @media (prefers-color-scheme: light) {
@@ -47,6 +53,12 @@
         --navigation-dashboard-bg: #640c4e;
         --navigation-dashboard-input-bg: #e7dcdc;
         --navigation-dashboard-input-text: black;
+
+        #mainContainer-personalNavMenu {
+            --background-color: rgb(146, 146, 233);
+            --txt-color: black;
+            --button-hover-light: rgba(0, 150, 255, 0.6);
+        }
     }
 }
 
