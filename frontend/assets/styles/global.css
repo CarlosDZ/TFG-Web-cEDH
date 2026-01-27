@@ -2,6 +2,7 @@
 @import url(register_form.css);
 @import url(dashboard.css);
 @import url(./component-styles/personalNavMenu.css);
+@import url(./component-styles/sectionNavMenu.css);
 
 @font-face {
     font-family: "Por Siempre Gotica";
