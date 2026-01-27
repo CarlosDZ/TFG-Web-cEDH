@@ -85,3 +85,50 @@
         transform: scale(1);
     }
 }
+
+#mainContainer-personalNavMenu .content2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+
+    a {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    button {
+        border-radius: 999px;
+        padding-left: 10px;
+        padding-right: 10px;
+        border: solid 2px var(--txt-color);
+        background-color: var(--background-color);
+        transition:
+            box-shadow 0.25s ease,
+            transform 0.32s ease;
+        cursor: pointer;
+
+        padding: 40px 20px;
+
+        width: 80%;
+
+        margin: 10% auto;
+
+        h1 {
+            color: var(--txt-color);
+            text-align: center;
+        }
+    }
+
+    button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 12px var(--button-hover-light);
+    }
+    button:active {
+        transform: scale(1);
+    }
+}
