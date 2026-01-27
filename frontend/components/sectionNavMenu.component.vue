@@ -1,16 +1,8 @@
 <template>
     <div id="mainContainer-sectionNavMenu">
-        <RouterLink to="/torneos"
-            ><button><h1>Torneos</h1></button></RouterLink
-        >
-        <RouterLink to="/decklists"
-            ><button><h1>Decklists</h1></button></RouterLink
-        >
-        <RouterLink to="/commander-techs"
-            ><button><h1>Commander Techs</h1></button></RouterLink
-        >
-        <RouterLink to="/jugadores"
-            ><button><h1>Jugadores</h1></button></RouterLink
-        >
+        <RouterLink to="/torneos" class="bttnWrapper"><h1>Torneos</h1></RouterLink>
+        <RouterLink to="/decklists" class="bttnWrapper"><h1>Decklists</h1></RouterLink>
+        <RouterLink to="/commander-techs" class="bttnWrapper"><h1>Commander Techs</h1></RouterLink>
+        <RouterLink to="/jugadores" class="bttnWrapper"><h1>Jugadores</h1></RouterLink>
     </div>
 </template>
