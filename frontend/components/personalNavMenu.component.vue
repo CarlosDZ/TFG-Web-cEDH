@@ -28,20 +28,20 @@ function togglePanel() {
             >
         </div>
         <div class="content2" v-else>
-            <RouterLink to="/torneos"
-                ><button><h1>Torneos</h1></button></RouterLink
+            <RouterLink to="/mis-decks"
+                ><button><h1>Mis Decks</h1></button></RouterLink
             >
             <!--Cambiar todo esto cuando haga las vistas del area personal-->
-            <RouterLink to="/decklists"
-                ><button><h1>Decklists</h1></button></RouterLink
+            <RouterLink to="/mis-commandertech"
+                ><button><h1>Mis Commander Techs</h1></button></RouterLink
             >
             <!--Cambiar todo esto cuando haga las vistas del area personal-->
-            <RouterLink to="/commander-techs"
-                ><button><h1>Commander Techs</h1></button></RouterLink
+            <RouterLink to="/mis-discusiones"
+                ><button><h1>Mis Discusiones</h1></button></RouterLink
             >
             <!--Cambiar todo esto cuando haga las vistas del area personal-->
-            <RouterLink to="/jugadores"
-                ><button><h1>Jugadores</h1></button></RouterLink
+            <RouterLink to="/mis-torneos-pendientes"
+                ><button><h1>Proximos Torneos</h1></button></RouterLink
             >
             <!--Cambiar todo esto cuando haga las vistas del area personal-->
         </div>

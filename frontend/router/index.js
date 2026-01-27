@@ -14,6 +14,11 @@ const routes = [
     { path: "/decklists", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
     { path: "/commander-techs", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
     { path: "/jugadores", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
+
+    { path: "/mis-decks", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
+    { path: "/mis-commandertech", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
+    { path: "/mis-discusiones", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
+    { path: "/mis-torneos-pendientes", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
 ];
 
 const router = createRouter({
