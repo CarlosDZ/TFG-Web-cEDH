@@ -77,18 +77,4 @@
         display: flex;
         position: relative;
     }
-
-    #my-content {
-        background-color: red;
-        width: 15%;
-        border-right: solid 2px black;
-    }
-    #disscussion-board {
-        background-color: blue;
-        width: 70%;
-    }
-    #navigation-list {
-        background-color: green;
-        width: 15%;
-    }
 }
