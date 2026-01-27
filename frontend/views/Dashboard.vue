@@ -34,9 +34,11 @@ const auth = authState();
         </header>
 
         <main>
-            <sectionNavMenu />
             <mainFeed />
             <personalNavMenu />
         </main>
+        <footer>
+            <sectionNavMenu />
+        </footer>
     </div>
 </template>

@@ -37,6 +37,11 @@
         --txt-color: white;
         --button-hover-light: rgba(0, 150, 255, 0.6);
     }
+    #mainContainer-sectionNavMenu {
+        --background-color: rgb(46, 42, 42);
+        --txt-color: white;
+        --button-hover-light: rgba(0, 150, 255, 0.6);
+    }
 }
 
 @media (prefers-color-scheme: light) {
@@ -59,6 +64,12 @@
     }
 
     #mainContainer-personalNavMenu {
+        --background-color: rgb(146, 146, 233);
+        --txt-color: black;
+        --button-hover-light: rgba(0, 0, 0, 0.7);
+    }
+
+    #mainContainer-sectionNavMenu {
         --background-color: rgb(146, 146, 233);
         --txt-color: black;
         --button-hover-light: rgba(0, 0, 0, 0.7);
