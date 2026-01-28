@@ -5,6 +5,7 @@
     padding: 1rem;
     border-radius: 40px;
     border: solid 2px var(--comment-border);
+    
 
     div {
         display: flex;
@@ -56,11 +57,11 @@
     background: none;
     cursor: pointer;
 }
-#likeBttn {
+.unliked {
     fill: transparent;
     stroke: var(--like-svg-border);
-
-    .liked {
-        fill: var(--like-svg-background);
-    }
+}
+.liked {
+    fill: var(--like-svg-background);
+    stroke: var(--like-svg-background);
 }

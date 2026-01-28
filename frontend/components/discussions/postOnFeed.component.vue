@@ -22,6 +22,42 @@ const autor = computed(() => props.discusionElement.authorId.username);
 const likes = computed(() => props.discusionElement.likes);
 const fechaFormateada = computed(() => new Date(props.discusionElement.createdAt).toLocaleString());
 const body = computed(() => props.discusionElement.markdown_text);
+
+const likedLocal = ref(false);
+onMounted(async () => {
+    try {
+        const res = await fetch(`/api/comment/${props.discusionElement._id}/isLiked`, {
+            credentials: "include",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        likedLocal.value = data.liked;
+    } catch (err) {
+        console.error("Error comprobando like:", err);
+    }
+});
+
+const likesLocal = ref(likes.value);
+
+const toggleLike = async () => {
+    try {
+        const res = await fetch(`/api/comment/${props.discusionElement._id}/like`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!res.ok) throw new Error("Error al hacer like");
+
+        const data = await res.json();
+        likesLocal.value = data.likes;
+        likedLocal.value = data.liked;
+    } catch (err) {
+        console.error("Error al hacer like:", err);
+    }
+};
 </script>
 
 <template>
@@ -35,9 +71,9 @@ const body = computed(() => props.discusionElement.markdown_text);
         </div>
         <p class="main-body">{{ body }}</p>
         <div>
-            <button class="like-btn">
+            <button class="like-btn" @click="toggleLike">
                 <svg
-                    id="likeBttn"
+                    :class="likedLocal ? 'liked' : 'unliked'"
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                     width="48px"
@@ -61,7 +97,7 @@ const body = computed(() => props.discusionElement.markdown_text);
                     </g>
                 </svg>
             </button>
-            <h3>{{ likes }}</h3>
+            <h3>{{ likesLocal }}</h3>
         </div>
     </article>
 </template>
