@@ -47,7 +47,7 @@
         --button-background-color-hovered: rgb(34, 26, 26);
     }
     #mainContainer-dashboard main{
-        --background-color: rgb(201, 15, 15);
+        --background-color: #00171f;
     }
 }
 
@@ -84,7 +84,7 @@
         --button-background-color-hovered: rgb(154, 154, 228);
     }
     #mainContainer-dashboard main{
-        --background-color: rgb(204, 14, 14);
+        --background-color: #a0c1b9;
     }
 }
 
