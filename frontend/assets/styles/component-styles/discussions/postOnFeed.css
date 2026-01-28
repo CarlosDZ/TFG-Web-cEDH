@@ -1,14 +1,22 @@
 .discusion {
+    margin: 15px 10px 15px 25px;
     max-width: 90%;
     width: fit-content;
-    padding: 70px;
+    padding: 1rem;
     border-radius: 40px;
     border: solid 2px var(--comment-border);
+
     div {
         display: flex;
         flex-direction: row;
     }
-    div .vertical-container{
+    .header-div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+    div .vertical-container {
         display: flex;
         flex-direction: column;
     }
@@ -17,22 +25,35 @@
         height: 48px;
         border-radius: 100%;
     }
-
+    .main-body {
+        margin: 10px 15px 10px 15px;
+        text-align: center;
+        color: var(--txt-color);
+        font-size: 22px;
+    }
     h2 {
         margin-left: 16px;
         color: var(--txt-color);
+        font-size: 36px;
     }
-    .author{
+    .author {
         margin-left: 16px;
         color: var(--txt-color);
     }
     h3 {
+        text-align: center;
+        line-height: 48px;
+        font-size: 36px;
+        font-weight: bolder;
+        margin-left: 20px;
+        color: var(--like-svg-background);
     }
 }
 
 .like-btn {
     border: none;
     background: none;
+    cursor: pointer;
 }
 #likeBttn {
     fill: transparent;

@@ -26,14 +26,14 @@ const body = computed(() => props.discusionElement.markdown_text);
 
 <template>
     <article class="discusion">
-        <div>
+        <div class="header-div">
             <img :src="image_url" alt="avatar" />
             <div class="vertical-container">
                 <h2>{{ titulo }}</h2>
                 <p class="author">Por {{ autor }} · {{ fechaFormateada }}</p>
             </div>
         </div>
-        <p>{{ body }}</p>
+        <p class="main-body">{{ body }}</p>
         <div>
             <button class="like-btn">
                 <svg
@@ -65,10 +65,3 @@ const body = computed(() => props.discusionElement.markdown_text);
         </div>
     </article>
 </template>
-
-<style scoped>
-.discusion {
-    padding: 1rem;
-    border-bottom: 1px solid #ddd;
-}
-</style>
