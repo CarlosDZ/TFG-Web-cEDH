@@ -46,8 +46,16 @@
         --button-hover-light: rgba(0, 150, 255, 0.6);
         --button-background-color-hovered: rgb(34, 26, 26);
     }
-    #mainContainer-dashboard main{
+    #mainContainer-dashboard main {
         --background-color: #00171f;
+    }
+    #mainContainer-commentFeed {
+        .discusion {
+            --like-svg-background: red;
+            --like-svg-border: white;
+            --comment-border: rgb(100, 100, 231);
+            --txt-color: white;
+        }
     }
 }
 
@@ -83,8 +91,16 @@
         --button-hover-light: rgba(0, 0, 0, 0.7);
         --button-background-color-hovered: rgb(154, 154, 228);
     }
-    #mainContainer-dashboard main{
+    #mainContainer-dashboard main {
         --background-color: #a0c1b9;
+    }
+    #mainContainer-commentFeed {
+        .discusion {
+            --like-svg-background: red;
+            --like-svg-border: black;
+            --comment-border: black;
+            --txt-color: black;
+        }
     }
 }
 

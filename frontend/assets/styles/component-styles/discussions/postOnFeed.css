@@ -1,0 +1,44 @@
+.discusion {
+    max-width: 90%;
+    width: fit-content;
+    padding: 70px;
+    border-radius: 40px;
+    border: solid 2px var(--comment-border);
+    div {
+        display: flex;
+        flex-direction: row;
+    }
+    div .vertical-container{
+        display: flex;
+        flex-direction: column;
+    }
+    img {
+        width: 48px;
+        height: 48px;
+        border-radius: 100%;
+    }
+
+    h2 {
+        margin-left: 16px;
+        color: var(--txt-color);
+    }
+    .author{
+        margin-left: 16px;
+        color: var(--txt-color);
+    }
+    h3 {
+    }
+}
+
+.like-btn {
+    border: none;
+    background: none;
+}
+#likeBttn {
+    fill: transparent;
+    stroke: var(--like-svg-border);
+
+    .liked {
+        fill: var(--like-svg-background);
+    }
+}
