@@ -3,6 +3,8 @@
 @import url(dashboard.css);
 @import url(./component-styles/personalNavMenu.css);
 @import url(./component-styles/sectionNavMenu.css);
+@import url(./component-styles/discussions/mainFeed.css);
+@import url(./component-styles/discussions/postOnFeed.css);
 
 @font-face {
     font-family: "Por Siempre Gotica";
@@ -44,6 +46,9 @@
         --button-hover-light: rgba(0, 150, 255, 0.6);
         --button-background-color-hovered: rgb(34, 26, 26);
     }
+    #mainContainer-dashboard main{
+        --background-color: rgb(201, 15, 15);
+    }
 }
 
 @media (prefers-color-scheme: light) {
@@ -77,6 +82,9 @@
         --txt-color: black;
         --button-hover-light: rgba(0, 0, 0, 0.7);
         --button-background-color-hovered: rgb(154, 154, 228);
+    }
+    #mainContainer-dashboard main{
+        --background-color: rgb(204, 14, 14);
     }
 }
 

@@ -1,13 +1,12 @@
 #mainContainer-personalNavMenu {
-    position: absolute;
     top: 0;
     right: 0;
-    width: 20vw;
-    height: 100%;
+    width: 0;
+    height: 84vh;
     background: var(--background-color, #1e1e1e);
     border-left: 1px solid #333;
     transform: translateX(0);
-    transition: transform 0.3s ease;
+    transition: transform 0.7s ease, width 0.7s ease;
     display: flex;
     flex-direction: row;
     z-index: 999;
@@ -16,6 +15,7 @@
 
 #mainContainer-personalNavMenu.open {
     transform: translateX(0);
+    width: 20vw;
 }
 #mainContainer-personalNavMenu:not(.open) {
     transform: translateX(100%);
