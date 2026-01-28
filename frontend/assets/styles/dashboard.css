@@ -73,7 +73,13 @@
 
     main {
         width: 100%;
-        min-height: 90vh;
+        min-height: 84vh;
+        display: flex;
+        position: relative;
+    }
+    footer {
+        width: 100%;
+        min-height: 6vh;
         display: flex;
         position: relative;
     }
