@@ -38,9 +38,11 @@
         --button-hover-light: rgba(0, 150, 255, 0.6);
     }
     #mainContainer-sectionNavMenu {
+        --button-background-color: rgb(101, 89, 89);
         --background-color: rgb(46, 42, 42);
         --txt-color: white;
         --button-hover-light: rgba(0, 150, 255, 0.6);
+        --button-background-color-hovered: rgb(34, 26, 26);
     }
 }
 
@@ -70,9 +72,11 @@
     }
 
     #mainContainer-sectionNavMenu {
+        --button-background-color: rgb(92, 92, 178);
         --background-color: rgb(146, 146, 233);
         --txt-color: black;
         --button-hover-light: rgba(0, 0, 0, 0.7);
+        --button-background-color-hovered: rgb(154, 154, 228);
     }
 }
 
