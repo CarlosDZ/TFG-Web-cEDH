@@ -5,6 +5,7 @@
 @import url(./component-styles/sectionNavMenu.css);
 @import url(./component-styles/discussions/mainFeed.css);
 @import url(./component-styles/discussions/postOnFeed.css);
+@import url(./component-styles/headerSearchBar.css);
 
 @font-face {
     font-family: "Por Siempre Gotica";
