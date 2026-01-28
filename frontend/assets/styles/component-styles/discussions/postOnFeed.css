@@ -14,7 +14,7 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
     }
     div .vertical-container {
         display: flex;
@@ -30,6 +30,7 @@
         text-align: center;
         color: var(--txt-color);
         font-size: 22px;
+        white-space: pre-line;
     }
     h2 {
         margin-left: 16px;
