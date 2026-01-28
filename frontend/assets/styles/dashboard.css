@@ -76,6 +76,8 @@
         min-height: 84vh;
         display: flex;
         position: relative;
+        overflow: hidden;
+        background-color: var(--background-color);
     }
     footer {
         width: 100%;

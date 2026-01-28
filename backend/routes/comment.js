@@ -10,6 +10,7 @@ const { post_discusion } = require('../controllers/comment');
 const { edit } = require('../controllers/comment');
 const { delete_comment } = require('../controllers/comment');
 const { toggle_like } = require('../controllers/comment');
+const { is_liked } = require('../controllers/comment');
 
 
 router.post('/', authMiddleware, post_discusion);
@@ -20,6 +21,7 @@ router.get('/:id/replies', obtener_respuestas);
 router.patch('/:id',authMiddleware, edit);
 router.delete('/:id', authMiddleware, delete_comment);
 router.post('/:id/like', authMiddleware, toggle_like);
+router.get('/:id/isLiked', authMiddleware, is_liked)
 //Comentar en un deck es una ruta en decklist.js
 
 module.exports = router;

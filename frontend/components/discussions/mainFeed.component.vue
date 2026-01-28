@@ -6,7 +6,7 @@ const { discussions, loading } = useDiscussions();
 </script>
 
 <template>
-    <div>
+    <div id="mainContainer-commentFeed">
         <p v-if="loading">Cargando...</p>
 
         <postOnFeed
