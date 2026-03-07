@@ -19,30 +19,30 @@ function togglePanel() {
         <div class="content1" v-if="!auth.isLogged">
             <h1>Estas en modo invitado...</h1>
             <h1>Inicia sesion para ver tu area personal.</h1>
-            <RouterLink to="/login"
-                ><button><h1>Iniciar Sesion</h1></button></RouterLink
-            >
+            <RouterLink to="/login">
+                <button><h1>Iniciar Sesion</h1></button>
+            </RouterLink>
             <h2>o si no tienes una cuenta...</h2>
-            <RouterLink to="/register"
-                ><button><h1>Crear Cuenta</h1></button></RouterLink
-            >
+            <RouterLink to="/register">
+                <button><h1>Crear Cuenta</h1></button>
+            </RouterLink>
         </div>
         <div class="content2" v-else>
-            <RouterLink to="/mis-decks"
-                ><button><h1>Mis Decks</h1></button></RouterLink
-            >
+            <RouterLink to="/mis-decks">
+                <button><h1>Mis Decks</h1></button>
+            </RouterLink>
             <!--Cambiar todo esto cuando haga las vistas del area personal-->
-            <RouterLink to="/mis-commandertech"
-                ><button><h1>Mis Commander Techs</h1></button></RouterLink
-            >
+            <RouterLink to="/mis-commandertech">
+                <button><h1>Mis Commander Techs</h1></button>
+            </RouterLink>
             <!--Cambiar todo esto cuando haga las vistas del area personal-->
-            <RouterLink to="/mis-discusiones"
-                ><button><h1>Mis Discusiones</h1></button></RouterLink
-            >
+            <RouterLink to="/mis-discusiones">
+                <button><h1>Mis Discusiones</h1></button>
+            </RouterLink>
             <!--Cambiar todo esto cuando haga las vistas del area personal-->
-            <RouterLink to="/mis-torneos-pendientes"
-                ><button><h1>Proximos Torneos</h1></button></RouterLink
-            >
+            <RouterLink to="/mis-torneos-pendientes">
+                <button><h1>Proximos Torneos</h1></button>
+            </RouterLink>
             <!--Cambiar todo esto cuando haga las vistas del area personal-->
         </div>
     </div>
@@ -50,32 +50,32 @@ function togglePanel() {
 
 <style scoped>
 #mainContainer-personalNavMenu {
-    top: 0;
+    height: 90%;
+    width: 20vw;
+    top: 50%;
+    transform: translateY(-50%);
     right: 0;
-    width: 0;
-    height: 84vh;
+    position: absolute;
     background: var(--background-color, #1e1e1e);
-    border-left: 1px solid #333;
-    transform: translateX(0);
+    border: 1px solid #333;
     transition:
         transform 0.7s ease,
         width 0.7s ease;
     display: flex;
     flex-direction: row;
     z-index: 999;
-    border-radius: 60px 0 0 60px;
+    border-radius: 30px 0 0 30px;
 }
 
 #mainContainer-personalNavMenu.open {
-    transform: translateX(0);
-    width: 20vw;
+    transform: translateY(-50%) translateX(0);
     .content1,
     .content2 {
         transform: translateX(0);
     }
 }
 #mainContainer-personalNavMenu:not(.open) {
-    transform: translateX(100%);
+    transform: translateY(-50%) translateX(100%);
     .content1,
     .content2 {
         transform: translateX(200%);
@@ -195,5 +195,4 @@ function togglePanel() {
         transform: scale(1);
     }
 }
-
 </style>

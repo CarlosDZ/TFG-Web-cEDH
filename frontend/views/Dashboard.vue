@@ -32,21 +32,21 @@ const auth = authState();
 #mainContainer-dashboard {
     height: 100%;
     width: 100%;
+    display: flex;
+    flex-direction: column;
 
     header {
-        height: 10vh;
+        height: 7vh;
         width: 100%;
         display: flex;
-
         background-color: var(--navigation-dashboard-bg);
         position: sticky;
         top: 0;
         z-index: 1000;
     }
-
     main {
         width: 100%;
-        min-height: 84vh;
+        flex: 1;
         display: flex;
         position: relative;
         overflow: hidden;
@@ -59,5 +59,4 @@ const auth = authState();
         position: relative;
     }
 }
-
 </style>
