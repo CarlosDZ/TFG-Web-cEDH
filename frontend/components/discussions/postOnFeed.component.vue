@@ -101,3 +101,74 @@ const toggleLike = async () => {
         </div>
     </article>
 </template>
+
+<style scoped>
+
+.discusion {
+    margin: 15px 10px 15px 25px;
+    max-width: 90%;
+    width: fit-content;
+    padding: 1rem;
+    border-radius: 40px;
+    border: solid 2px var(--comment-border);
+
+    div {
+        display: flex;
+        flex-direction: row;
+    }
+    .header-div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    div .vertical-container {
+        display: flex;
+        flex-direction: column;
+    }
+    img {
+        width: 48px;
+        height: 48px;
+        border-radius: 100%;
+    }
+    .main-body {
+        margin: 10px 15px 10px 15px;
+        text-align: left;
+        color: var(--txt-color);
+        font-size: 22px;
+        white-space: pre-line;
+    }
+    h2 {
+        margin-left: 16px;
+        color: var(--txt-color);
+        font-size: 36px;
+    }
+    .author {
+        margin-left: 16px;
+        color: var(--txt-color);
+    }
+    h3 {
+        text-align: center;
+        line-height: 48px;
+        font-size: 36px;
+        font-weight: bolder;
+        margin-left: 20px;
+        color: var(--like-svg-background);
+    }
+}
+
+.like-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+.unliked {
+    fill: transparent;
+    stroke: var(--like-svg-border);
+}
+.liked {
+    fill: var(--like-svg-background);
+    stroke: var(--like-svg-background);
+}
+
+</style>

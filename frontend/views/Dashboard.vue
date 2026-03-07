@@ -27,3 +27,37 @@ const auth = authState();
         </footer>
     </div>
 </template>
+
+<style scoped>
+#mainContainer-dashboard {
+    height: 100%;
+    width: 100%;
+
+    header {
+        height: 10vh;
+        width: 100%;
+        display: flex;
+
+        background-color: var(--navigation-dashboard-bg);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    main {
+        width: 100%;
+        min-height: 84vh;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+        background-color: var(--background-color);
+    }
+    footer {
+        width: 100%;
+        min-height: 6vh;
+        display: flex;
+        position: relative;
+    }
+}
+
+</style>

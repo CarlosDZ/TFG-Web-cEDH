@@ -21,3 +21,70 @@
         </button>
     </div>
 </template>
+
+<style scoped>
+
+#mainContainer-headerSearchBar {
+    grid-template-columns: 10% minmax(30%, 70%) 10%;
+    gap: 5%;
+    align-items: center;
+    padding: 0 2% 0 2%;
+    justify-content: center;
+    display: grid;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    > * {
+        min-height: 0;
+        max-height: 100%;
+    }
+    .search-area {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 10px;
+        align-items: center;
+        height: 60%;
+    }
+
+    .search-area input,
+    .search-area select,
+    .search-area .search-btn {
+        height: 100%;
+        min-height: 0;
+        box-sizing: border-box;
+        border-radius: 999px;
+        padding: 0 12px;
+        border: none;
+    }
+
+    .search-area input {
+        background-color: var(--navigation-dashboard-input-bg);
+        color: var(--navigation-dashboard-input-text);
+    }
+
+    .search-area select {
+        background-color: var(--navigation-dashboard-input-bg);
+        color: var(--navigation-dashboard-input-text);
+        border-radius: 999px;
+    }
+
+    .search-area .search-btn {
+        background-color: var(--navigation-dashboard-input-bg);
+        color: var(--navigation-dashboard-input-text);
+        cursor: pointer;
+    }
+
+    #profile-button {
+        height: 80%;
+        max-width: 80%;
+        aspect-ratio: 1 / 1;
+        border: none;
+        border-radius: 100%;
+
+        img {
+            height: 100%;
+            border-radius: 100%;
+        }
+    }
+}
+</style>

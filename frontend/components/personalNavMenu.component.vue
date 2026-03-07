@@ -47,3 +47,153 @@ function togglePanel() {
         </div>
     </div>
 </template>
+
+<style scoped>
+#mainContainer-personalNavMenu {
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 84vh;
+    background: var(--background-color, #1e1e1e);
+    border-left: 1px solid #333;
+    transform: translateX(0);
+    transition:
+        transform 0.7s ease,
+        width 0.7s ease;
+    display: flex;
+    flex-direction: row;
+    z-index: 999;
+    border-radius: 60px 0 0 60px;
+}
+
+#mainContainer-personalNavMenu.open {
+    transform: translateX(0);
+    width: 20vw;
+    .content1,
+    .content2 {
+        transform: translateX(0);
+    }
+}
+#mainContainer-personalNavMenu:not(.open) {
+    transform: translateX(100%);
+    .content1,
+    .content2 {
+        transform: translateX(200%);
+    }
+}
+
+#mainContainer-personalNavMenu .tab {
+    position: absolute;
+    left: -32px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 80px;
+    background: var(--background-color, #1e1e1e);
+    border: 1px solid #333;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    color: var(--txt-color);
+    font-weight: bolder;
+}
+
+#mainContainer-personalNavMenu .content1,
+#mainContainer-personalNavMenu .content2 {
+    overflow-y: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: transparent;
+    justify-content: center;
+    transition: transform 0.7s ease;
+}
+
+#mainContainer-personalNavMenu .content1 {
+    padding-left: 16px;
+    padding-right: 16px;
+
+    h1,
+    h2 {
+        color: var(--txt-color);
+        margin-top: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    button {
+        border-radius: 999px;
+        padding-left: 10px;
+        padding-right: 10px;
+        border: solid 2px var(--txt-color);
+        background-color: var(--background-color);
+        transition:
+            box-shadow 0.25s ease,
+            transform 0.32s ease;
+        cursor: pointer;
+        h1 {
+            color: var(--txt-color);
+            text-align: center;
+        }
+    }
+    button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 12px var(--button-hover-light);
+    }
+    button:active {
+        transform: scale(1);
+    }
+}
+
+#mainContainer-personalNavMenu .content2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+
+    a {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    button {
+        border-radius: 999px;
+        padding-left: 10px;
+        padding-right: 10px;
+        border: solid 2px var(--txt-color);
+        background-color: var(--background-color);
+        transition:
+            box-shadow 0.25s ease,
+            transform 0.32s ease;
+        cursor: pointer;
+
+        padding: 40px 20px;
+
+        width: 80%;
+
+        margin: 10% auto;
+
+        h1 {
+            color: var(--txt-color);
+            text-align: center;
+        }
+    }
+
+    button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 12px var(--button-hover-light);
+    }
+    button:active {
+        transform: scale(1);
+    }
+}
+
+</style>
