@@ -1,5 +1,9 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
+import { authState } from "../../utils/auth";
+
+const auth = authState();
+
 const svgBackground = ref("");
 const svgBorder = ref("");
 onMounted(() => {
@@ -23,6 +27,17 @@ const likes = computed(() => props.discusionElement.likes);
 const fechaFormateada = computed(() => new Date(props.discusionElement.createdAt).toLocaleString());
 const body = computed(() => props.discusionElement.markdown_text);
 
+const notification = ref(false);
+let notifTimeout = null;
+
+const showNotification = () => {
+    notification.value = true;
+    clearTimeout(notifTimeout);
+    notifTimeout = setTimeout(() => {
+        notification.value = false;
+    }, 3000);
+};
+
 const likedLocal = ref(false);
 onMounted(async () => {
     try {
@@ -40,6 +55,11 @@ onMounted(async () => {
 const likesLocal = ref(likes.value);
 
 const toggleLike = async () => {
+    if (!auth.isLogged) {
+        showNotification();
+        return;
+    }
+
     try {
         const res = await fetch(`/api/comment/${props.discusionElement._id}/like`, {
             method: "POST",
@@ -99,11 +119,16 @@ const toggleLike = async () => {
             </button>
             <h3>{{ likesLocal }}</h3>
         </div>
+
+        <Transition name="notif">
+            <div v-if="notification" class="notification">
+                Estas en modo invitado. Inicia sesion para interactuar con posts.
+            </div>
+        </Transition>
     </article>
 </template>
 
 <style scoped>
-
 .discusion {
     margin: 15px 10px 15px 25px;
     max-width: 90%;
@@ -111,6 +136,7 @@ const toggleLike = async () => {
     padding: 1rem;
     border-radius: 40px;
     border: solid 2px var(--comment-border);
+    position: relative;
 
     div {
         display: flex;
@@ -171,4 +197,30 @@ const toggleLike = async () => {
     stroke: var(--like-svg-background);
 }
 
+.notification {
+    position: absolute;
+    bottom: 1rem;
+    right: 1.2rem;
+    background-color: #1e1e2e;
+    color: #f38ba8;
+    border: 1px solid #f38ba8;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    font-weight: 500;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.notif-enter-active,
+.notif-leave-active {
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
+}
+.notif-enter-from,
+.notif-leave-to {
+    opacity: 0;
+    transform: translateY(6px);
+}
 </style>
