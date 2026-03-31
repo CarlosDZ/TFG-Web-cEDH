@@ -125,6 +125,9 @@ function togglePanel() {
         margin-bottom: 20px;
         text-align: center;
     }
+    h1 {
+        font-size: 1.6rem;
+    }
     button {
         border-radius: 999px;
         padding-left: 10px;

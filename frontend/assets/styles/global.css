@@ -20,11 +20,6 @@
         --login-bg-color-percent: 45%;
         --login-urls: #d72be7;
     }
-    :root {
-        --navigation-dashboard-bg: #15bba5;
-        --navigation-dashboard-input-bg: #1e033f;
-        --navigation-dashboard-input-text: rgb(255, 255, 255);
-    }
 
     #mainContainer-personalNavMenu {
         --background-color: rgb(46, 42, 42);
@@ -63,11 +58,6 @@
         --login-form-outline-invalid: rgb(238, 18, 18);
         --login-bg-color-percent: 25%;
         --login-urls: blue;
-    }
-    :root {
-        --navigation-dashboard-bg: #640c4e;
-        --navigation-dashboard-input-bg: #e7dcdc;
-        --navigation-dashboard-input-text: black;
     }
 
     #mainContainer-personalNavMenu {

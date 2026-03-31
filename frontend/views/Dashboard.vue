@@ -36,10 +36,9 @@ const auth = authState();
     flex-direction: column;
 
     header {
-        height: 7vh;
+        height: 9vh;
         width: 100%;
         display: flex;
-        background-color: var(--navigation-dashboard-bg);
         position: sticky;
         top: 0;
         z-index: 1000;

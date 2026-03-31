@@ -19,8 +19,17 @@
                 <input type="text" placeholder="Buscar en Spain cEDH..." class="search-input" />
             </div>
             <button class="search-submit" title="Buscar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
@@ -34,6 +43,23 @@
     </div>
 </template>
 <style scoped>
+@media (prefers-color-scheme: dark) {
+    #header-search-bar {
+        --navigation-dashboard-bg: #1a1b2e;
+        --navigation-dashboard-input-bg: #2a2b42;
+        --navigation-dashboard-input-text: #e8e6f0;
+        --search-button-bg: #7c9ef5;
+    }
+}
+@media (prefers-color-scheme: light) {
+    #header-search-bar {
+        --navigation-dashboard-bg: #f4f0eb;
+        --navigation-dashboard-input-bg: #ffffff;
+        --navigation-dashboard-input-text: #3a3541;
+        --search-button-bg: #6b8aed;
+    }
+}
+
 #header-search-bar {
     display: flex;
     align-items: center;
@@ -42,8 +68,8 @@
     height: 100%;
     padding: 0 1.5rem;
     box-sizing: border-box;
+    background-color: var(--navigation-dashboard-bg);
 }
-/* Sección de Logo */
 .brand-section {
     flex: 0 0 120px;
     display: flex;
@@ -54,7 +80,6 @@
     object-fit: contain;
     border-radius: 8px;
 }
-/* Contenedor central de búsqueda */
 .search-wrapper {
     flex: 1;
     display: flex;
@@ -79,7 +104,6 @@
     box-shadow: 0 0 0 2px var(--navigation-dashboard-input-text);
     border-color: transparent;
 }
-/* Estilos de los inputs internos */
 .search-filter {
     background: transparent;
     color: var(--navigation-dashboard-input-text);
@@ -112,16 +136,22 @@
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background-color: var(--navigation-dashboard-input-text);
+    background-color: var(--search-button-bg);
     color: var(--navigation-dashboard-bg);
     border: none;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition:
+        opacity 0.2s,
+        transform 0.3s ease;
+
+    &:hover {
+        opacity: 0.7;
+        transform: scale(1.2);
+    }
+    &:active {
+        transform: scale(0.8);
+    }
 }
-.search-submit:hover {
-    opacity: 0.9;
-}
-/* Sección Perfil */
 .profile-section {
     flex: 0 0 120px;
     display: flex;
@@ -147,7 +177,6 @@
     border-radius: 50%;
     object-fit: cover;
 }
-/* Responsive básico */
 @media (max-width: 768px) {
     .brand-section {
         display: none;
