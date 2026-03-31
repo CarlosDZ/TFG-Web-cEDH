@@ -22,8 +22,16 @@ const { discussions, loading } = useDiscussions();
     background: transparent;
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     transition: flex 0.3s ease;
-    scrollbar-gutter: left;
+    scrollbar-gutter: stable;
+    padding: 1rem 0.5rem 1rem 1rem;
 }
 
+#mainContainer-commentFeed p {
+    font-size: 13px;
+    color: var(--txt-color);
+    opacity: 0.5;
+    padding: 2rem 1.5rem;
+}
 </style>
