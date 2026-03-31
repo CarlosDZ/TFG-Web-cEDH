@@ -16,3 +16,14 @@ const { discussions, loading } = useDiscussions();
         />
     </div>
 </template>
+<style scoped>
+#mainContainer-commentFeed {
+    height: 84vh;
+    background: transparent;
+    flex: 1;
+    overflow-y: auto;
+    transition: flex 0.3s ease;
+    scrollbar-gutter: left;
+}
+
+</style>

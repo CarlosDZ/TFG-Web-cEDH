@@ -1,11 +1,3 @@
-@import url(login_form.css);
-@import url(register_form.css);
-@import url(dashboard.css);
-@import url(./component-styles/personalNavMenu.css);
-@import url(./component-styles/sectionNavMenu.css);
-@import url(./component-styles/discussions/mainFeed.css);
-@import url(./component-styles/discussions/postOnFeed.css);
-
 @font-face {
     font-family: "Por Siempre Gotica";
     src: url("../fonts/por-siempre-gotica.ttf") format("truetype");
@@ -27,11 +19,6 @@
         --login-form-outline-invalid: rgb(238, 18, 18);
         --login-bg-color-percent: 45%;
         --login-urls: #d72be7;
-    }
-    :root {
-        --navigation-dashboard-bg: #15bba5;
-        --navigation-dashboard-input-bg: #1e033f;
-        --navigation-dashboard-input-text: rgb(255, 255, 255);
     }
 
     #mainContainer-personalNavMenu {
@@ -71,11 +58,6 @@
         --login-form-outline-invalid: rgb(238, 18, 18);
         --login-bg-color-percent: 25%;
         --login-urls: blue;
-    }
-    :root {
-        --navigation-dashboard-bg: #640c4e;
-        --navigation-dashboard-input-bg: #e7dcdc;
-        --navigation-dashboard-input-text: black;
     }
 
     #mainContainer-personalNavMenu {

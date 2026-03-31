@@ -6,6 +6,7 @@ import { authState } from "../utils/auth";
 import mainFeed from "../components/discussions/mainFeed.component.vue";
 import sectionNavMenu from "../components/sectionNavMenu.component.vue";
 import personalNavMenu from "../components/personalNavMenu.component.vue";
+import headersSearchBar from "../components/headerSearchBar.component.vue";
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 const auth = authState();
@@ -14,23 +15,7 @@ const auth = authState();
 <template>
     <div id="mainContainer-dashboard">
         <header>
-            <img src="../assets/images/texture_placeholder.jpg" alt="Spain cEDH" />
-
-            <div class="search-area">
-                <input type="text" placeholder="Escribe aquí para buscar..." />
-                <select>
-                    <option value="card">Cartas</option>
-                    <option value="deck">Decks</option>
-                    <option value="commander-tech">Techs</option>
-                    <option value="user">Jugadores</option>
-                    <option value="discussion">Discusiones</option>
-                </select>
-                <button class="search-btn"><b>Buscar</b></button>
-            </div>
-
-            <button id="profile-button">
-                <img src="../assets/images/avatar.jpg" alt="Prof" />
-            </button>
+            <headersSearchBar />
         </header>
 
         <main>
@@ -42,3 +27,35 @@ const auth = authState();
         </footer>
     </div>
 </template>
+
+<style scoped>
+#mainContainer-dashboard {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    header {
+        height: 9vh;
+        width: 100%;
+        display: flex;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    main {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+        background-color: var(--background-color);
+    }
+    footer {
+        width: 100%;
+        min-height: 6vh;
+        display: flex;
+        position: relative;
+    }
+}
+</style>
