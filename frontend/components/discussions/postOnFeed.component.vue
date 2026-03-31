@@ -4,29 +4,24 @@ import { authState } from "../../utils/auth";
 
 const auth = authState();
 
-const svgBackground = ref("");
-const svgBorder = ref("");
-onMounted(() => {
-    const styles = getComputedStyle(document.documentElement);
-    svgBackground.value = styles.getPropertyValue("--like-svg-background").trim();
-    svgBorder.value = styles.getPropertyValue("--like-svg-border").trim();
-});
-
 const props = defineProps({
     discusionElement: {
         type: Object,
         required: true,
     },
 });
+
 import avatar from "../../assets/images/avatar.jpg";
 const image_url = avatar;
 
-const titulo = computed(() => props.discusionElement.title);
+const titulo = computed(() => {
+    const t = props.discusionElement.title;
+    return t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+});
 const autor = computed(() => props.discusionElement.authorId.username);
 const likes = computed(() => props.discusionElement.likes);
 const fechaFormateada = computed(() => new Date(props.discusionElement.createdAt).toLocaleString());
-const body = computed(() => props.discusionElement.markdown_text);
-
+const body = computed(() => props.discusionElement.markdown_text.replace(/\n{3,}/g, "\n\n"));
 const notification = ref(false);
 let notifTimeout = null;
 
@@ -39,6 +34,8 @@ const showNotification = () => {
 };
 
 const likedLocal = ref(false);
+const likesLocal = ref(likes.value);
+
 onMounted(async () => {
     try {
         const res = await fetch(`/api/comment/${props.discusionElement._id}/isLiked`, {
@@ -52,25 +49,18 @@ onMounted(async () => {
     }
 });
 
-const likesLocal = ref(likes.value);
-
 const toggleLike = async () => {
     if (!auth.isLogged) {
         showNotification();
         return;
     }
-
     try {
         const res = await fetch(`/api/comment/${props.discusionElement._id}/like`, {
             method: "POST",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
         });
-
         if (!res.ok) throw new Error("Error al hacer like");
-
         const data = await res.json();
         likesLocal.value = data.likes;
         likedLocal.value = data.liked;
@@ -82,47 +72,34 @@ const toggleLike = async () => {
 
 <template>
     <article class="discusion">
-        <div class="header-div">
+        <div class="card-header">
             <img :src="image_url" alt="avatar" />
-            <div class="vertical-container">
+            <div class="card-meta">
                 <h2>{{ titulo }}</h2>
                 <p class="author">Por {{ autor }} · {{ fechaFormateada }}</p>
             </div>
         </div>
+
         <p class="main-body">{{ body }}</p>
-        <div>
-            <button class="like-btn" @click="toggleLike">
-                <svg
-                    :class="likedLocal ? 'liked' : 'unliked'"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="48px"
-                    height="48px"
-                >
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g
-                        id="SVGRepo_tracerCarrier"
+
+        <div class="card-footer">
+            <button class="like-btn" :class="{ liked: likedLocal }" @click="toggleLike">
+                <svg class="heart" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                    ></g>
-                    <g id="SVGRepo_iconCarrier">
-                        <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
-                            stroke-width="0.8"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        ></path>
-                    </g>
+                    />
                 </svg>
+                <span class="like-count">{{ likesLocal }}</span>
             </button>
-            <h3>{{ likesLocal }}</h3>
         </div>
 
         <Transition name="notif">
             <div v-if="notification" class="notification">
-                Estas en modo invitado. Inicia sesion para interactuar con posts.
+                Estás en modo invitado. Inicia sesión para interactuar.
             </div>
         </Transition>
     </article>
@@ -130,83 +107,128 @@ const toggleLike = async () => {
 
 <style scoped>
 .discusion {
-    margin: 15px 10px 15px 25px;
-    max-width: 90%;
-    width: fit-content;
-    padding: 1rem;
-    border-radius: 40px;
-    border: solid 2px var(--comment-border);
+    margin: 12px 10px 12px 20px;
+    max-width: 680px;
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    border-radius: 20px;
+    border: 0.5px solid var(--comment-border);
     position: relative;
+    background: var(--card-bg, transparent);
+}
 
-    div {
-        display: flex;
-        flex-direction: row;
-    }
-    .header-div {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-    }
-    div .vertical-container {
-        display: flex;
-        flex-direction: column;
-    }
-    img {
-        width: 48px;
-        height: 48px;
-        border-radius: 100%;
-    }
-    .main-body {
-        margin: 10px 15px 10px 15px;
-        text-align: left;
-        color: var(--txt-color);
-        font-size: 22px;
-        white-space: pre-line;
-    }
-    h2 {
-        margin-left: 16px;
-        color: var(--txt-color);
-        font-size: 36px;
-    }
-    .author {
-        margin-left: 16px;
-        color: var(--txt-color);
-    }
-    h3 {
-        text-align: center;
-        line-height: 48px;
-        font-size: 36px;
-        font-weight: bolder;
-        margin-left: 20px;
-        color: var(--like-svg-background);
-    }
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+}
+
+.card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--txt-color);
+    line-height: 1.3;
+}
+
+.author {
+    margin: 0;
+    font-size: 12px;
+    color: var(--txt-secondary, #888);
+}
+
+.main-body {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--txt-color);
+    white-space: pre-line;
+    margin: 0 0 1.25rem;
+}
+
+.card-footer {
+    display: flex;
+    align-items: center;
+    padding-top: 0.875rem;
+    border-top: 0.5px solid var(--comment-border);
 }
 
 .like-btn {
-    border: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     background: none;
+    border: 0.5px solid var(--comment-border);
+    border-radius: 99px;
+    padding: 5px 14px 5px 10px;
     cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--txt-secondary, #888);
+    transition:
+        background 0.15s,
+        border-color 0.15s,
+        color 0.15s;
 }
-.unliked {
+
+.like-btn:hover {
+    background: var(--hover-bg, rgba(0, 0, 0, 0.04));
+}
+
+.like-btn.liked {
+    border-color: #e24b4a;
+    color: #e24b4a;
+}
+
+.heart {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.like-btn.liked .heart {
+    transform: scale(1.2);
+}
+
+.heart path {
     fill: transparent;
-    stroke: var(--like-svg-border);
+    stroke: currentColor;
+    stroke-width: 1.5;
+    transition: fill 0.15s;
 }
-.liked {
-    fill: var(--like-svg-background);
-    stroke: var(--like-svg-background);
+
+.like-btn.liked .heart path {
+    fill: #e24b4a;
+}
+
+.like-count {
+    line-height: 1;
 }
 
 .notification {
     position: absolute;
     bottom: 1rem;
-    right: 1.2rem;
-    background-color: #1e1e2e;
-    color: #f38ba8;
-    border: 1px solid #f38ba8;
-    border-radius: 12px;
-    padding: 0.5rem 1rem;
-    font-size: 14px;
+    right: 1rem;
+    background: var(--card-bg, #fff);
+    border: 0.5px solid #e24b4a;
+    color: #e24b4a;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
     font-weight: 500;
     pointer-events: none;
     z-index: 10;
@@ -215,12 +237,12 @@ const toggleLike = async () => {
 .notif-enter-active,
 .notif-leave-active {
     transition:
-        opacity 0.3s ease,
-        transform 0.3s ease;
+        opacity 0.25s ease,
+        transform 0.25s ease;
 }
 .notif-enter-from,
 .notif-leave-to {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(4px);
 }
 </style>
