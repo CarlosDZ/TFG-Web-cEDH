@@ -1,12 +1,15 @@
 <script setup>
+import { ref } from "vue";
 import { useDiscussions } from "../../composables/useDiscussion";
 import { authState } from "../../utils/auth";
 import { usePanelState } from "../../composables/usePanelState";
 import postOnFeed from "./postOnFeed.component.vue";
+import NewPostModal from "./discussionBuilder.modal.vue";
 
 const { discussions, loading } = useDiscussions();
 const auth = authState();
 const { isPanelOpen } = usePanelState();
+const showModal = ref(false);
 </script>
 
 <template>
@@ -18,7 +21,12 @@ const { isPanelOpen } = usePanelState();
             :discusionElement="discusion"
         />
 
-        <button v-if="auth.isLogged" class="new-post-btn" title="Nueva discusión">
+        <button
+            v-if="auth.isLogged"
+            class="new-post-btn"
+            title="Nueva discusión"
+            @click="showModal = true"
+        >
             <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -31,6 +39,13 @@ const { isPanelOpen } = usePanelState();
                 <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
         </button>
+
+        <NewPostModal
+            v-if="showModal"
+            :parent-id="null"
+            @close="showModal = false"
+            @published="discussions.unshift($event)"
+        />
     </div>
 </template>
 
