@@ -1,188 +1,328 @@
-<script setup>
-// Aquí podrías añadir lógica de búsqueda en el futuro
-</script>
+<script setup></script>
+
 <template>
     <div id="header-search-bar">
         <div class="brand-section">
-            <img src="../assets/images/texture_placeholder.jpg" alt="Spain cEDH" class="logo" />
-        </div>
-        <div class="search-wrapper">
-            <div class="search-container">
-                <select class="search-filter">
-                    <option value="card">Cartas</option>
-                    <option value="deck">Decks</option>
-                    <option value="commander-tech">Techs</option>
-                    <option value="user">Jugadores</option>
-                    <option value="discussion">Discusiones</option>
-                </select>
-                <div class="divider"></div>
-                <input type="text" placeholder="Buscar en Spain cEDH..." class="search-input" />
+            <div class="brand-inner">
+                <div class="brand-content">
+                    <div class="logo-wrap">
+                        <img src="../assets/images/texture_placeholder.jpg" alt="Spain cEDH" />
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-name">Spain cEDH</span>
+                        <span class="brand-sub">Community</span>
+                    </div>
+                </div>
             </div>
-            <button class="search-submit" title="Buscar">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-            </button>
         </div>
+
+        <div class="search-zone">
+            <div class="search-wrap">
+                <div class="select-wrap">
+                    <select class="search-filter">
+                        <option value="card">Cartas</option>
+                        <option value="deck">Decks</option>
+                        <option value="commander-tech">Techs</option>
+                        <option value="user">Jugadores</option>
+                        <option value="discussion">Discusiones</option>
+                    </select>
+                    <svg
+                        class="select-arrow"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                </div>
+                <input type="text" placeholder="Buscar en Spain cEDH..." class="search-input" />
+                <button class="search-submit" title="Buscar">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
         <div class="profile-section">
-            <button id="profile-button" title="Mi Perfil">
-                <img src="../assets/images/avatar.jpg" alt="Avatar" />
-            </button>
+            <div class="profile-inner">
+                <div class="profile-content">
+                    <div class="avatar-wrap">
+                        <img src="../assets/images/avatar.jpg" alt="Avatar" />
+                    </div>
+                    <span class="profile-label">Mi perfil</span>
+                </div>
+            </div>
         </div>
     </div>
 </template>
+
 <style scoped>
 @media (prefers-color-scheme: dark) {
     #header-search-bar {
-        --navigation-dashboard-bg: #1a1b2e;
-        --navigation-dashboard-input-bg: #2a2b42;
-        --navigation-dashboard-input-text: #e8e6f0;
-        --search-button-bg: #7c9ef5;
+        --bg: #1a1b2e;
+        --txt: #e8e6f0;
+        --txt-muted: rgba(232, 230, 240, 0.45);
+        --border: rgba(232, 230, 240, 0.18);
+        --input-bg: #2a2b42;
+        --accent: #534ab7;
+        --accent-hover: #3c3489;
+        --accent-text: #eeedfe;
+        --accent-muted: #afa9ec;
+        --focus-ring: rgba(83, 74, 183, 0.28);
     }
 }
 @media (prefers-color-scheme: light) {
     #header-search-bar {
-        --navigation-dashboard-bg: #f4f0eb;
-        --navigation-dashboard-input-bg: #ffffff;
-        --navigation-dashboard-input-text: #3a3541;
-        --search-button-bg: #6b8aed;
+        --bg: #f4f0eb;
+        --txt: #3a3541;
+        --txt-muted: rgba(58, 53, 65, 0.45);
+        --border: rgba(58, 53, 65, 0.2);
+        --input-bg: #ffffff;
+        --accent: #534ab7;
+        --accent-hover: #3c3489;
+        --accent-text: #eeedfe;
+        --accent-muted: #afa9ec;
+        --focus-ring: rgba(83, 74, 183, 0.2);
     }
 }
 
 #header-search-bar {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    align-items: stretch;
     width: 100%;
     height: 100%;
-    padding: 0 1.5rem;
+    overflow: hidden;
+    background-color: var(--bg);
+    border-bottom: 0.5px solid var(--border);
     box-sizing: border-box;
-    background-color: var(--navigation-dashboard-bg);
+    font-family: inherit;
 }
+
 .brand-section {
-    flex: 0 0 120px;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
+    overflow: hidden;
 }
-.logo {
-    height: 45px;
-    object-fit: contain;
-    border-radius: 8px;
+.brand-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 36px 0 16px;
+    background: var(--accent);
+    transform: skewX(-18deg);
+    transform-origin: bottom left;
+    translate: -18px 0;
+    min-width: 130px;
+    cursor: pointer;
+    transition: background 0.2s;
 }
-.search-wrapper {
+.brand-inner:hover {
+    background: var(--accent-hover);
+}
+.brand-content {
+    transform: skewX(18deg);
+    translate: 18px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.logo-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.logo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+.brand-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent-text);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+.brand-sub {
+    font-size: 10px;
+    color: var(--accent-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+}
+
+.search-zone {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 0 1rem;
+    padding: 0 12px;
 }
-.search-container {
+.search-wrap {
     display: flex;
     align-items: center;
-    background-color: var(--navigation-dashboard-input-bg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
     width: 100%;
-    max-width: 700px;
-    height: 48px;
-    transition: all 0.3s ease;
+    max-width: 620px;
+    height: 38px;
+    background: var(--input-bg);
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
     overflow: hidden;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
 }
-.search-container:focus-within {
-    box-shadow: 0 0 0 2px var(--navigation-dashboard-input-text);
-    border-color: transparent;
+.search-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--focus-ring);
+}
+.select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    border-right: 0.5px solid var(--border);
 }
 .search-filter {
     background: transparent;
-    color: var(--navigation-dashboard-input-text);
     border: none;
-    padding: 0 1rem;
-    height: 100%;
+    color: var(--txt);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 0 28px 0 12px;
+    height: 38px;
     cursor: pointer;
-    font-weight: 600;
     outline: none;
+    -webkit-appearance: none;
+    appearance: none;
 }
-.divider {
-    width: 1px;
-    height: 24px;
-    background-color: rgba(255, 255, 255, 0.2);
+.select-arrow {
+    position: absolute;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    color: var(--txt-muted);
+    pointer-events: none;
 }
 .search-input {
     flex: 1;
     background: transparent;
     border: none;
-    color: var(--navigation-dashboard-input-text);
-    padding: 0 1rem;
+    color: var(--txt);
+    font-size: 13px;
+    padding: 0 12px;
     outline: none;
-    font-size: 0.95rem;
+}
+.search-input::placeholder {
+    color: var(--txt-muted);
+    font-size: 12px;
 }
 .search-submit {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 38px;
+    height: 38px;
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background-color: var(--search-button-bg);
-    color: var(--navigation-dashboard-bg);
+    background: var(--accent);
     border: none;
     cursor: pointer;
+    color: var(--accent-text);
     transition:
-        opacity 0.2s,
-        transform 0.3s ease;
+        background 0.15s,
+        transform 0.15s;
+    border-radius: 0;
+}
+.search-submit:hover {
+    background: var(--accent-hover);
+}
+.search-submit:active {
+    transform: scale(0.9);
+}
 
-    &:hover {
-        opacity: 0.7;
-        transform: scale(1.2);
-    }
-    &:active {
-        transform: scale(0.8);
-    }
-}
 .profile-section {
-    flex: 0 0 120px;
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
+    overflow: hidden;
 }
-#profile-button {
-    background: none;
-    border: 2px solid transparent;
-    padding: 0;
+.profile-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 16px 0 36px;
+    background: var(--accent);
+    transform: skewX(18deg);
+    transform-origin: bottom right;
+    translate: 18px 0;
     cursor: pointer;
+    transition: background 0.15s;
+}
+.profile-inner:hover {
+    background: var(--accent-hover);
+}
+.profile-content {
+    transform: skewX(-18deg);
+    translate: -18px 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+.avatar-wrap {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    transition: transform 0.2s ease;
-    width: 45px;
-    height: 45px;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    overflow: hidden;
+    flex-shrink: 0;
 }
-#profile-button:hover {
-    transform: scale(1.05);
-    border-color: var(--navigation-dashboard-input-text);
-}
-#profile-button img {
+.avatar-wrap img {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
     object-fit: cover;
 }
+.profile-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent-text);
+    white-space: nowrap;
+}
+
 @media (max-width: 768px) {
     .brand-section {
         display: none;
     }
-    .search-wrapper {
-        padding: 0 0.5rem;
+    .profile-label {
+        display: none;
+    }
+    .search-zone {
+        padding: 0 8px;
     }
 }
 </style>
