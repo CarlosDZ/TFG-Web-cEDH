@@ -1,62 +1,103 @@
 <template>
     <div id="mainContainer-register">
-        <div id="loginFormBox-container">
-            <div id="loginFormBox">
-                <h1>Crear Cuenta</h1>
-                <form @submit.prevent="register">
-                    <div class="inputContainer">
-                        <span class="icon">
-                            <picture>
-                                <source
-                                    srcset="../assets/images/user-darkmode.svg"
-                                    media="(prefers-color-scheme: dark)"
-                                />
-                                <source
-                                    srcset="../assets/images/user-lightmode.svg"
-                                    media="(prefers-color-scheme: light)"
-                                />
-                                <img src="../assets/images/user-lightmode.svg" alt="User icon" />
-                            </picture>
-                        </span>
-                        <input placeholder="Username" type="text" v-model="username" required />
-                    </div>
-                    <div class="inputContainer">
-                        <span class="icon">
-                            <picture>
-                                <source
-                                    srcset="../assets/images/email-darkmode.svg"
-                                    media="(prefers-color-scheme: dark)"
-                                />
-                                <source
-                                    srcset="../assets/images/email-lightmode.svg"
-                                    media="(prefers-color-scheme: light)"
-                                />
-                                <img src="../assets/images/email-lightmode.svg" alt="Email icon" />
-                            </picture>
-                        </span>
-                        <input placeholder="Email" type="email" v-model="email" required />
-                    </div>
-                    <div class="inputContainer">
-                        <span class="icon">
-                            <picture>
-                                <source
-                                    srcset="../assets/images/lock-darkmode.svg"
-                                    media="(prefers-color-scheme: dark)"
-                                />
-                                <source
-                                    srcset="../assets/images/lock-lightmode.svg"
-                                    media="(prefers-color-scheme: light)"
-                                />
-                                <img src="../assets/images/lock-lightmode.svg" alt="User icon" />
-                            </picture>
-                        </span>
-                        <input placeholder="Password" type="password" v-model="password" required />
-                    </div>
+        <div class="lg-img-panel"></div>
+        <div class="lg-bg-panel"></div>
 
-                    <button type="submit">REGISTRAR</button>
-                </form>
-                <hr />
-                <a href="/login">Iniciar sesion</a>
+        <div class="lg-form-side">
+            <div class="lg-box-outer">
+                <div class="lg-box">
+                    <h1 class="lg-title">Crear cuenta</h1>
+                    <p class="lg-subtitle">Spain cEDH Community</p>
+
+                    <form @submit.prevent="register">
+                        <div class="lg-field">
+                            <label class="lg-label">Usuario</label>
+                            <div class="lg-input-wrap">
+                                <span class="lg-input-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                </span>
+                                <input
+                                    class="lg-input"
+                                    type="text"
+                                    placeholder="tu_usuario"
+                                    v-model="username"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div class="lg-field">
+                            <label class="lg-label">Email</label>
+                            <div class="lg-input-wrap">
+                                <span class="lg-input-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <rect x="2" y="4" width="20" height="16" rx="0" />
+                                        <path d="M2 7l10 7 10-7" />
+                                    </svg>
+                                </span>
+                                <input
+                                    class="lg-input"
+                                    type="email"
+                                    placeholder="correo@ejemplo.com"
+                                    v-model="email"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div class="lg-field">
+                            <label class="lg-label">Contraseña</label>
+                            <div class="lg-input-wrap">
+                                <span class="lg-input-icon">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <rect x="3" y="11" width="18" height="11" />
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                    </svg>
+                                </span>
+                                <input
+                                    class="lg-input"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    v-model="password"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div class="lg-divider"></div>
+                        <button type="submit" class="lg-submit">Registrar</button>
+                    </form>
+
+                    <div class="lg-footer">
+                        <div class="lg-footer-line"></div>
+                        <RouterLink to="/login" class="lg-footer-link">Iniciar sesión</RouterLink>
+                        <div class="lg-footer-line"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -76,61 +117,30 @@ const router = useRouter();
 
 function register() {
     const backend_url = import.meta.env.VITE_BACKEND_URL;
-    // Add shitty comprobations
-
     axios
         .post(`http://${backend_url}/api/auth/register`, {
             username: username.value,
             email: email.value,
             password: password.value,
         })
-        .then(function (response) {
-            console.log(response);
-            if (response.data.user) {
-                auth.setUser(response.data.user);
-            }
+        .then((response) => {
+            if (response.data.user) auth.setUser(response.data.user);
             router.push("/dashboard");
         })
-        .catch(function (error) {
+        .catch((error) => {
             alert(error.response.data.error);
         });
 }
 </script>
 
 <style scoped>
-#mainContainer-register {
-    overflow: hidden;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    align-items: center;
+#mainContainer-register .lg-img-panel {
+    background-image: url("../assets/images/kenrith_returned_king.jpg");
 }
 
-/*Styles regarding screeen sizes*/
-@media (min-width: 850px) {
-    #mainContainer-register {
-        background-image:
-            linear-gradient(
-                105deg,
-                var(--login-bg-color-1) var(--login-bg-color-percent),
-                rgba(0, 0, 0, 0.36)
-            ),
-            url("../assets/images/kenrith_returned_king.jpg");
-        background-size:
-            cover,
-            auto 100%;
-        background-position:
-            center,
-            calc(100% + 80px) center;
-        background-repeat: no-repeat, no-repeat;
-        /*I would really like to make a image carrusel with thrasios sisay kinnan etc but i dont have the time right now*/
-    }
-}
 @media (max-width: 849px) {
-    #mainContainer-register {
-        background-color: var(--login-bg-color-1);
+    #mainContainer-register .lg-img-panel {
+        display: none;
     }
 }
-
-/* All the css that's not here comes from login_form.css (Recicled classes)*/
 </style>
