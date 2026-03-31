@@ -117,18 +117,17 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    overflow: hidden;
 }
 .brand-inner {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 0 36px 0 16px;
+    padding: 0 36px 0 216px;
     background: var(--accent);
     transform: skewX(-18deg);
     transform-origin: bottom left;
-    translate: -18px 0;
+    translate: -218px 0;
     min-width: 130px;
     cursor: pointer;
     transition: background 0.2s;
@@ -269,18 +268,17 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    overflow: hidden;
 }
 .profile-inner {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 0 16px 0 36px;
+    padding: 0 216px 0 36px;
     background: var(--accent);
     transform: skewX(18deg);
     transform-origin: bottom right;
-    translate: 18px 0;
+    translate: 218px 0;
     cursor: pointer;
     transition: background 0.15s;
 }
