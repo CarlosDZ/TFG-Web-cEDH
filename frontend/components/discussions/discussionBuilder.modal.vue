@@ -6,6 +6,7 @@ const { isPanelOpen } = usePanelState();
 
 const props = defineProps({
     parentId: { type: String, default: null },
+    commentingOnDeck: { type: Boolean, default: false },
 });
 const emit = defineEmits(["close", "published"]);
 
@@ -54,12 +55,21 @@ async function publish() {
     if (!title.value.trim() || !body.value.trim()) return;
     publishing.value = true;
     try {
+        var target_url;
+        if (!props.commentingOnDeck && !props.parentId) {
+            target_url = `http://${backend_url}/api/comment`;
+        } else if (!props.commentingOnDeck && props.parentId) {
+            target_url = `http://${backend_url}/api/comment/${parentId}/comment`;
+        } else {
+            target_url = `http://${backend_url}/api/decklist/${parentId}/comment`;
+        }
+
         const payload = {
             title: title.value.trim(),
             markdown_text: body.value.trim(),
             ...(props.parentId && { parent_id: props.parentId }),
         };
-        const res = await fetch(`http://${backend_url}/api/discussion`, {
+        const res = await fetch(target_url, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
