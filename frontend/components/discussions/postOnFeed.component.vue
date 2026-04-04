@@ -5,6 +5,8 @@ import { marked } from "marked";
 import discussionBuilderModal from "./discussionBuilder.modal.vue";
 import { useReplies } from "../../composables/useReplies";
 
+defineOptions({ name: "postOnFeed" });
+
 const auth = authState();
 
 const props = defineProps({
@@ -12,10 +14,17 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    depth: {
+        type: Number,
+        default: 0,
+    },
 });
 
 import avatar from "../../assets/images/avatar.jpg";
 const image_url = avatar;
+
+const isReply = computed(() => props.depth > 0);
+const scale = computed(() => Math.max(0.85, 1 - props.depth * 0.05));
 
 const titulo = computed(() => {
     const t = props.discusionElement.title;
@@ -30,9 +39,9 @@ const body = computed(() => {
     const cleaned = props.discusionElement.markdown_text.replace(/\n{3,}/g, "\n\n");
     return marked.parse(cleaned);
 });
+
 const notification = ref(false);
 let notifTimeout = null;
-
 const showNotification = () => {
     notification.value = true;
     clearTimeout(notifTimeout);
@@ -96,12 +105,12 @@ async function toggleReplies() {
 </script>
 
 <template>
-    <article class="discusion">
+    <article class="discusion" :class="{ 'is-reply': isReply }" :style="{ fontSize: `${scale}em` }">
         <div class="card-header">
             <img :src="image_url" alt="avatar" />
             <div class="card-meta">
-                <h2>{{ titulo }}</h2>
-                <p class="author">Por {{ autor }} · {{ fechaFormateada }}</p>
+                <h2 v-if="titulo">{{ titulo }}</h2>
+                <p class="author">{{ autor }} · {{ fechaFormateada }}</p>
             </div>
         </div>
 
@@ -120,6 +129,7 @@ async function toggleReplies() {
                 </svg>
                 <span class="like-count">{{ likesLocal }}</span>
             </button>
+
             <button class="reply-btn" @click="handleReply">
                 <svg
                     viewBox="0 0 24 24"
@@ -133,6 +143,7 @@ async function toggleReplies() {
                 </svg>
                 Responder
             </button>
+
             <button
                 v-if="discusionElement.replyCount > 0 || replies.length > 0"
                 class="expand-btn"
@@ -179,80 +190,117 @@ async function toggleReplies() {
             </div>
         </Transition>
     </article>
+
+    <Transition name="replies">
+        <div
+            v-if="expanded && replies.length"
+            class="replies-container"
+            :style="{
+                marginLeft: `${48 + depth * 32}px`,
+            }"
+        >
+            <postOnFeed
+                v-for="reply in replies"
+                :key="reply._id"
+                :discusion-element="reply"
+                :depth="depth + 1"
+            />
+        </div>
+    </Transition>
 </template>
 
 <style scoped>
 .discusion {
-    margin: 12px 10px 12px 20px;
+    margin: 6px 10px 6px 0;
     max-width: 680px;
     width: 100%;
-    padding: 1.25rem 1.5rem;
-    border-radius: 20px;
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
     border: 0.5px solid var(--comment-border);
     position: relative;
     background: var(--card-bg, transparent);
 }
 
+.discusion.is-reply::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 0;
+    bottom: 50%;
+    width: 14px;
+    border-left: 2px solid rgba(83, 74, 183, 0.7);
+    border-bottom: 2px solid rgba(83, 74, 183, 0.7);
+    border-bottom-left-radius: 6px;
+    pointer-events: none;
+}
+
 .card-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 1rem;
+    gap: 10px;
+    margin-bottom: 0.6rem;
 }
 
 .card-meta {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 }
 
 img {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
 }
 
+.is-reply img {
+    width: 26px;
+    height: 26px;
+}
+
 h2 {
     margin: 0;
-    font-size: 17px;
+    font-size: 1em;
     font-weight: 500;
     color: var(--txt-color);
-    line-height: 1.3;
+    line-height: 1.25;
 }
 
 .author {
     margin: 0;
-    font-size: 12px;
+    font-size: 0.75em;
     color: var(--txt-secondary, #888);
 }
 
 .main-body {
-    font-size: 15px;
-    line-height: 1.65;
+    font-size: 0.9em;
+    line-height: 1.55;
     color: var(--txt-color);
-    white-space: pre-line;
-    margin: 0 0 1.25rem;
+    margin: 0 0 0.75rem;
 }
 
 .card-footer {
     display: flex;
     align-items: center;
-    padding-top: 0.875rem;
+    gap: 6px;
+    padding-top: 0.6rem;
     border-top: 0.5px solid var(--comment-border);
 }
 
-.like-btn {
+.like-btn,
+.reply-btn,
+.expand-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     background: none;
     border: 0.5px solid var(--comment-border);
     border-radius: 99px;
-    padding: 5px 14px 5px 10px;
+    padding: 3px 10px 3px 8px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 0.75em;
     font-weight: 500;
     color: var(--txt-secondary, #888);
     transition:
@@ -261,8 +309,11 @@ h2 {
         color 0.15s;
 }
 
-.like-btn:hover {
+.like-btn:hover,
+.reply-btn:hover,
+.expand-btn:hover {
     background: var(--hover-bg, rgba(0, 0, 0, 0.04));
+    color: var(--txt-color);
 }
 
 .like-btn.liked {
@@ -271,8 +322,8 @@ h2 {
 }
 
 .heart {
-    width: 16px;
-    height: 16px;
+    width: 13px;
+    height: 13px;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -290,21 +341,45 @@ h2 {
 .like-btn.liked .heart path {
     fill: #e24b4a;
 }
-
 .like-count {
     line-height: 1;
 }
 
+.reply-btn svg,
+.expand-btn svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+.replies-container {
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+}
+
+.replies-enter-active,
+.replies-leave-active {
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+}
+.replies-enter-from,
+.replies-leave-to {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
 .notification {
     position: absolute;
-    bottom: 1rem;
-    right: 1rem;
+    bottom: 0.75rem;
+    right: 0.75rem;
     background: var(--card-bg, #fff);
     border: 0.5px solid #e24b4a;
     color: #e24b4a;
-    border-radius: 10px;
-    padding: 8px 14px;
-    font-size: 13px;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.75em;
     font-weight: 500;
     pointer-events: none;
     z-index: 10;
@@ -328,21 +403,20 @@ h2 {
     font-family: "Cinzel", serif;
     color: var(--txt-color);
     font-weight: 600;
-    margin: 1rem 0 0.4rem;
+    margin: 0.75rem 0 0.3rem;
     line-height: 1.2;
 }
 .main-body :deep(h1) {
-    font-size: 20px;
+    font-size: 1.2em;
 }
 .main-body :deep(h2) {
-    font-size: 17px;
+    font-size: 1.05em;
 }
 .main-body :deep(h3) {
-    font-size: 14px;
+    font-size: 0.95em;
 }
-
 .main-body :deep(p) {
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
 }
 .main-body :deep(strong) {
     font-weight: 600;
@@ -353,73 +427,21 @@ h2 {
 }
 .main-body :deep(blockquote) {
     border-left: 2px solid var(--comment-border);
-    margin: 0.75rem 0;
-    padding: 0.25rem 0 0.25rem 1rem;
+    margin: 0.5rem 0;
+    padding: 0.2rem 0 0.2rem 0.875rem;
     color: var(--txt-secondary, #888);
     font-style: italic;
 }
 .main-body :deep(hr) {
     border: none;
     border-top: 0.5px solid var(--comment-border);
-    margin: 1rem 0;
+    margin: 0.75rem 0;
 }
 .main-body :deep(code) {
     font-family: monospace;
-    font-size: 13px;
+    font-size: 0.9em;
     background: rgba(83, 74, 183, 0.1);
     color: #afa9ec;
-    padding: 1px 5px;
-}
-.reply-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: none;
-    border: 0.5px solid var(--comment-border);
-    border-radius: 99px;
-    padding: 5px 14px 5px 10px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--txt-secondary, #888);
-    margin-left: 8px;
-    transition:
-        background 0.15s,
-        border-color 0.15s,
-        color 0.15s;
-}
-.reply-btn:hover {
-    background: var(--hover-bg, rgba(0, 0, 0, 0.04));
-    color: var(--txt-color);
-}
-.reply-btn svg {
-    width: 14px;
-    height: 14px;
-}
-.expand-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: none;
-    border: 0.5px solid var(--comment-border);
-    border-radius: 99px;
-    padding: 5px 14px 5px 10px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--txt-secondary, #888);
-    transition:
-        background 0.15s,
-        border-color 0.15s,
-        color 0.15s;
-}
-.expand-btn:hover {
-    background: var(--hover-bg, rgba(0, 0, 0, 0.04));
-    color: var(--txt-color);
-}
-.expand-btn svg {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
+    padding: 1px 4px;
 }
 </style>

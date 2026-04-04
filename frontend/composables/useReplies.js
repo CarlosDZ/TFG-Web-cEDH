@@ -7,9 +7,15 @@ export function useReplies(commentId) {
     const loaded = ref(false);
 
     async function fetchReplies() {
-        if (loaded.value) return;
+        if (loaded.value) {
+            console.log("[fetchReplies] ya cargado, skip");
+            return;
+        }
         loading.value = true;
-        replies.value = await getReplies(commentId);
+        console.log("[fetchReplies] fetching para id:", commentId);
+        const data = await getReplies(commentId);
+        console.log("[fetchReplies] respuesta:", data);
+        replies.value = data;
         loaded.value = true;
         loading.value = false;
     }

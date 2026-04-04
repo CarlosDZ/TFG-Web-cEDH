@@ -39,7 +39,7 @@ const obtener_respuestas = async (req, res) => {
             { $match: { parentId: new mongoose.Types.ObjectId(req.params.id) } },
             {
                 $lookup: {
-                    from: "comentarios",
+                    from: "comments",
                     localField: "_id",
                     foreignField: "parentId",
                     as: "replies",
