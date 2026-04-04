@@ -2,14 +2,15 @@
 
 ### Comments and discussions
 
-- Commenting on decks and discussions with modal
+- Commenting on decks with modal
 
 # Implementing
 
 ### Comments and discussions
 
-- Hide title input when commenting on something with the modal
 - Character limit for title and mayybe for body too (Not low for body, at very least 3k)
+- Refresh after comenting so your posts appears without needing to do F5
+- Responsive feed
 
 # Debug
 

@@ -10,14 +10,9 @@ defineOptions({ name: "postOnFeed" });
 const auth = authState();
 
 const props = defineProps({
-    discusionElement: {
-        type: Object,
-        required: true,
-    },
-    depth: {
-        type: Number,
-        default: 0,
-    },
+    discusionElement: { type: Object, required: true },
+    depth: { type: Number, default: 0 },
+    isLast: { type: Boolean, default: true },
 });
 
 import avatar from "../../assets/images/avatar.jpg";
@@ -25,7 +20,6 @@ const image_url = avatar;
 
 const isReply = computed(() => props.depth > 0);
 const scale = computed(() => Math.max(0.85, 1 - props.depth * 0.05));
-
 const titulo = computed(() => {
     const t = props.discusionElement.title;
     return t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
@@ -105,108 +99,116 @@ async function toggleReplies() {
 </script>
 
 <template>
-    <article class="discusion" :class="{ 'is-reply': isReply }" :style="{ fontSize: `${scale}em` }">
-        <div class="card-header">
-            <img :src="image_url" alt="avatar" />
-            <div class="card-meta">
-                <h2 v-if="titulo">{{ titulo }}</h2>
-                <p class="author">{{ autor }} · {{ fechaFormateada }}</p>
+    <div class="post-wrapper" :class="{ 'is-reply': isReply, 'is-last': isLast && isReply }">
+        <article
+            class="discusion"
+            :class="{
+                'is-reply': isReply,
+                'is-last': isLast && isReply,
+            }"
+            :style="{ fontSize: `${scale}em` }"
+        >
+            <div class="card-header">
+                <img :src="image_url" alt="avatar" />
+                <div class="card-meta">
+                    <h2 v-if="titulo">{{ titulo }}</h2>
+                    <p class="author">{{ autor }} · {{ fechaFormateada }}</p>
+                </div>
             </div>
-        </div>
 
-        <div class="main-body" v-html="body" />
+            <div class="main-body" v-html="body" />
 
-        <div class="card-footer">
-            <button class="like-btn" :class="{ liked: likedLocal }" @click="toggleLike">
-                <svg class="heart" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
+            <div class="card-footer">
+                <button class="like-btn" :class="{ liked: likedLocal }" @click="toggleLike">
+                    <svg class="heart" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                    <span class="like-count">{{ likesLocal }}</span>
+                </button>
+
+                <button class="reply-btn" @click="handleReply">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                    />
-                </svg>
-                <span class="like-count">{{ likesLocal }}</span>
-            </button>
+                    >
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    Responder
+                </button>
 
-            <button class="reply-btn" @click="handleReply">
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                <button
+                    v-if="discusionElement.replyCount > 0 || replies.length > 0"
+                    class="expand-btn"
+                    @click="toggleReplies"
                 >
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                Responder
-            </button>
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        :style="{
+                            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.25s ease',
+                        }"
+                    >
+                        <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                    <span v-if="repliesLoading">Cargando...</span>
+                    <span v-else>
+                        {{ expanded ? "Ocultar" : "Ver" }}
+                        {{ discusionElement.replyCount || replies.length }}
+                        {{
+                            (discusionElement.replyCount || replies.length) === 1
+                                ? "respuesta"
+                                : "respuestas"
+                        }}
+                    </span>
+                </button>
+            </div>
 
-            <button
-                v-if="discusionElement.replyCount > 0 || replies.length > 0"
-                class="expand-btn"
-                @click="toggleReplies"
+            <discussionBuilderModal
+                v-if="showReplyModal"
+                :parent-id="discusionElement._id"
+                :commenting-on-deck="false"
+                @close="showReplyModal = false"
+                @published="showReplyModal = false"
+            />
+
+            <Transition name="notif">
+                <div v-if="notification" class="notification">
+                    Estás en modo invitado. Inicia sesión para interactuar.
+                </div>
+            </Transition>
+        </article>
+
+        <Transition name="replies">
+            <div
+                v-if="expanded && replies.length"
+                class="replies-container"
+                :style="{ marginLeft: `${48 + depth * 32}px` }"
             >
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    :style="{
-                        transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.25s ease',
-                    }"
-                >
-                    <polyline points="6 9 12 15 18 9" />
-                </svg>
-                <span v-if="repliesLoading">Cargando...</span>
-                <span v-else>
-                    {{ expanded ? "Ocultar" : "Ver" }}
-                    {{ discusionElement.replyCount || replies.length }}
-                    {{
-                        (discusionElement.replyCount || replies.length) === 1
-                            ? "respuesta"
-                            : "respuestas"
-                    }}
-                </span>
-            </button>
-        </div>
-
-        <discussionBuilderModal
-            v-if="showReplyModal"
-            :parent-id="discusionElement._id"
-            :commenting-on-deck="false"
-            @close="showReplyModal = false"
-            @published="showReplyModal = false"
-        />
-
-        <Transition name="notif">
-            <div v-if="notification" class="notification">
-                Estás en modo invitado. Inicia sesión para interactuar.
+                <postOnFeed
+                    v-for="(reply, index) in replies"
+                    :key="reply._id"
+                    :discusion-element="reply"
+                    :depth="depth + 1"
+                    :is-last="index === replies.length - 1"
+                />
             </div>
         </Transition>
-    </article>
-
-    <Transition name="replies">
-        <div
-            v-if="expanded && replies.length"
-            class="replies-container"
-            :style="{
-                marginLeft: `${48 + depth * 32}px`,
-            }"
-        >
-            <postOnFeed
-                v-for="reply in replies"
-                :key="reply._id"
-                :discusion-element="reply"
-                :depth="depth + 1"
-            />
-        </div>
-    </Transition>
+    </div>
 </template>
 
 <style scoped>
@@ -217,21 +219,7 @@ async function toggleReplies() {
     padding: 0.875rem 1.25rem;
     border-radius: 12px;
     border: 0.5px solid var(--comment-border);
-    position: relative;
     background: var(--card-bg, transparent);
-}
-
-.discusion.is-reply::before {
-    content: "";
-    position: absolute;
-    left: -20px;
-    top: 0;
-    bottom: 50%;
-    width: 14px;
-    border-left: 2px solid rgba(83, 74, 183, 0.7);
-    border-bottom: 2px solid rgba(83, 74, 183, 0.7);
-    border-bottom-left-radius: 6px;
-    pointer-events: none;
 }
 
 .card-header {
@@ -326,18 +314,15 @@ h2 {
     height: 13px;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 .like-btn.liked .heart {
     transform: scale(1.2);
 }
-
 .heart path {
     fill: transparent;
     stroke: currentColor;
     stroke-width: 1.5;
     transition: fill 0.15s;
 }
-
 .like-btn.liked .heart path {
     fill: #e24b4a;
 }
@@ -443,5 +428,32 @@ h2 {
     background: rgba(83, 74, 183, 0.1);
     color: #afa9ec;
     padding: 1px 4px;
+}
+.post-wrapper {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.post-wrapper.is-reply::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 0;
+    height: 30px;
+    width: 14px;
+    border-left: 2px solid rgba(83, 74, 183, 0.7);
+    border-bottom: 2px solid rgba(83, 74, 183, 0.7);
+    border-bottom-left-radius: 6px;
+    pointer-events: none;
+}
+.post-wrapper.is-reply:not(.is-last)::after {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-left: 2px solid rgba(83, 74, 183, 0.7);
+    pointer-events: none;
 }
 </style>
