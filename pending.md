@@ -15,5 +15,3 @@
 # Debug
 
 ### Comments and discussions
-
-- I suspect that i need to shift the comments before displaying them to order them correctly. Confirm and do it if necessary.

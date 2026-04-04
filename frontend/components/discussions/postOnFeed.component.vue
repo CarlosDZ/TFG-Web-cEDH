@@ -20,7 +20,9 @@ const titulo = computed(() => {
 });
 const autor = computed(() => props.discusionElement.authorId.username);
 const likes = computed(() => props.discusionElement.likes);
-const fechaFormateada = computed(() => new Date(props.discusionElement.createdAt).toLocaleString());
+const fechaFormateada = computed(() =>
+    new Date(props.discusionElement.createdAt).toLocaleString("es-ES")
+);
 const body = computed(() => props.discusionElement.markdown_text.replace(/\n{3,}/g, "\n\n"));
 const notification = ref(false);
 let notifTimeout = null;
