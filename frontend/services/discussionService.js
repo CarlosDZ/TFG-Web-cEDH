@@ -6,3 +6,8 @@ export async function getOrderedDiscussions() {
 
     return orderCommentArray(unordered_data);
 }
+
+export async function getReplies(commentId) {
+    const res = await fetch(`/api/comment/${commentId}/replies`);
+    return await res.json();
+}

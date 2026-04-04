@@ -3,6 +3,7 @@ import { computed, ref, onMounted } from "vue";
 import { authState } from "../../utils/auth";
 import { marked } from "marked";
 import discussionBuilderModal from "./discussionBuilder.modal.vue";
+import { useReplies } from "../../composables/useReplies";
 
 const auth = authState();
 
@@ -84,6 +85,14 @@ function handleReply() {
     }
     showReplyModal.value = true;
 }
+
+const expanded = ref(false);
+const { replies, loading: repliesLoading, fetchReplies } = useReplies(props.discusionElement._id);
+
+async function toggleReplies() {
+    if (!expanded.value) await fetchReplies();
+    expanded.value = !expanded.value;
+}
 </script>
 
 <template>
@@ -123,6 +132,36 @@ function handleReply() {
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
                 Responder
+            </button>
+            <button
+                v-if="discusionElement.replyCount > 0 || replies.length > 0"
+                class="expand-btn"
+                @click="toggleReplies"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    :style="{
+                        transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.25s ease',
+                    }"
+                >
+                    <polyline points="6 9 12 15 18 9" />
+                </svg>
+                <span v-if="repliesLoading">Cargando...</span>
+                <span v-else>
+                    {{ expanded ? "Ocultar" : "Ver" }}
+                    {{ discusionElement.replyCount || replies.length }}
+                    {{
+                        (discusionElement.replyCount || replies.length) === 1
+                            ? "respuesta"
+                            : "respuestas"
+                    }}
+                </span>
             </button>
         </div>
 
@@ -356,5 +395,31 @@ h2 {
 .reply-btn svg {
     width: 14px;
     height: 14px;
+}
+.expand-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 0.5px solid var(--comment-border);
+    border-radius: 99px;
+    padding: 5px 14px 5px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--txt-secondary, #888);
+    transition:
+        background 0.15s,
+        border-color 0.15s,
+        color 0.15s;
+}
+.expand-btn:hover {
+    background: var(--hover-bg, rgba(0, 0, 0, 0.04));
+    color: var(--txt-color);
+}
+.expand-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
 }
 </style>

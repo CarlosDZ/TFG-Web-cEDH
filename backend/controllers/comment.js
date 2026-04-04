@@ -1,4 +1,5 @@
 const Comentario = require("../models/Comment");
+const mongoose = require("mongoose");
 
 const obtener_discusiones = async (req, res) => {
     try {
