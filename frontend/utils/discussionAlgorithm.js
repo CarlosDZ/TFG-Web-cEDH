@@ -10,5 +10,7 @@ function importanceScore(comment) {
 export function orderCommentArray(comment_array) {
     comment_array.sort((a, b) => importanceScore(a) - importanceScore(b));
 
+    comment_array.reverse();
+
     return comment_array;
 }

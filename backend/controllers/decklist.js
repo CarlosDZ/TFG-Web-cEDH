@@ -176,11 +176,11 @@ const reply_to = async (req, res) => {
             return res.status(401).json("No se ha podido determinar el usuario de la sesion");
         } else if (!deck.allowComments && !deck.authorId.equals(myself._id)) {
             return res.status(403).json("No tienes permiso para comentar aqui");
-        } else if (!req.body.contenido || typeof req.body.contenido !== "string") {
+        } else if (!req.body.markdown_text || typeof req.body.markdown_text !== "string") {
             return res.status(409).json("El comentario ha de tener cuerpo");
         } else {
             const newComment = new Comentario({
-                markdown_text: req.body.contenido,
+                markdown_text: req.body.markdown_text,
                 authorId: req.user.id,
                 comentingOnDeck: true,
             });

@@ -3,15 +3,17 @@ import { authState } from "../utils/auth";
 import { ref } from "vue";
 const auth = authState();
 
-const isOpen = ref(true);
+import { usePanelState } from "../composables/usePanelState";
+
+const { isPanelOpen } = usePanelState();
 
 function togglePanel() {
-    isOpen.value = !isOpen.value;
+    isPanelOpen.value = !isPanelOpen.value;
 }
 </script>
 
 <template>
-    <div id="mainContainer-personalNavMenu" :class="{ open: isOpen }">
+    <div id="mainContainer-personalNavMenu" :class="{ open: isPanelOpen }">
         <div class="tab" @click="togglePanel">
             <span class="tab-arrow" />
         </div>
