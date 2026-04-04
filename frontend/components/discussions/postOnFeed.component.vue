@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
 import { authState } from "../../utils/auth";
+import { marked } from "marked";
 
 const auth = authState();
 
@@ -23,7 +24,10 @@ const likes = computed(() => props.discusionElement.likes);
 const fechaFormateada = computed(() =>
     new Date(props.discusionElement.createdAt).toLocaleString("es-ES")
 );
-const body = computed(() => props.discusionElement.markdown_text.replace(/\n{3,}/g, "\n\n"));
+const body = computed(() => {
+    const cleaned = props.discusionElement.markdown_text.replace(/\n{3,}/g, "\n\n");
+    return marked.parse(cleaned);
+});
 const notification = ref(false);
 let notifTimeout = null;
 
@@ -82,7 +86,7 @@ const toggleLike = async () => {
             </div>
         </div>
 
-        <p class="main-body">{{ body }}</p>
+        <div class="main-body" v-html="body" />
 
         <div class="card-footer">
             <button class="like-btn" :class="{ liked: likedLocal }" @click="toggleLike">
@@ -246,5 +250,54 @@ h2 {
 .notif-leave-to {
     opacity: 0;
     transform: translateY(4px);
+}
+
+.main-body :deep(h1),
+.main-body :deep(h2),
+.main-body :deep(h3) {
+    font-family: "Cinzel", serif;
+    color: var(--txt-color);
+    font-weight: 600;
+    margin: 1rem 0 0.4rem;
+    line-height: 1.2;
+}
+.main-body :deep(h1) {
+    font-size: 20px;
+}
+.main-body :deep(h2) {
+    font-size: 17px;
+}
+.main-body :deep(h3) {
+    font-size: 14px;
+}
+
+.main-body :deep(p) {
+    margin: 0 0 0.75rem;
+}
+.main-body :deep(strong) {
+    font-weight: 600;
+    color: var(--txt-color);
+}
+.main-body :deep(em) {
+    font-style: italic;
+}
+.main-body :deep(blockquote) {
+    border-left: 2px solid var(--comment-border);
+    margin: 0.75rem 0;
+    padding: 0.25rem 0 0.25rem 1rem;
+    color: var(--txt-secondary, #888);
+    font-style: italic;
+}
+.main-body :deep(hr) {
+    border: none;
+    border-top: 0.5px solid var(--comment-border);
+    margin: 1rem 0;
+}
+.main-body :deep(code) {
+    font-family: monospace;
+    font-size: 13px;
+    background: rgba(83, 74, 183, 0.1);
+    color: #afa9ec;
+    padding: 1px 5px;
 }
 </style>
