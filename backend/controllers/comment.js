@@ -2,10 +2,29 @@ const Comentario = require("../models/Comment");
 
 const obtener_discusiones = async (req, res) => {
     try {
-        const comentarios = await Comentario.find({
-            parentId: null,
-            comentingOnDeck: false,
-        }).populate("authorId", "username");
+        const comentarios = await Comentario.aggregate([
+            { $match: { parentId: null, comentingOnDeck: false } },
+            {
+                $lookup: {
+                    from: "comments",
+                    localField: "_id",
+                    foreignField: "parentId",
+                    as: "replies",
+                },
+            },
+            { $addFields: { replyCount: { $size: "$replies" } } },
+            { $project: { replies: 0 } },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "authorId",
+                    foreignField: "_id",
+                    as: "authorId",
+                },
+            },
+            { $unwind: "$authorId" },
+            { $project: { "authorId.password": 0 } },
+        ]);
         res.status(200).json(comentarios);
     } catch (err) {
         console.log(err);
@@ -15,9 +34,29 @@ const obtener_discusiones = async (req, res) => {
 
 const obtener_respuestas = async (req, res) => {
     try {
-        const comentarios = await Comentario.find({
-            parentId: req.params.id,
-        }).populate("authorId", "username");
+        const comentarios = await Comentario.aggregate([
+            { $match: { parentId: new mongoose.Types.ObjectId(req.params.id) } },
+            {
+                $lookup: {
+                    from: "comentarios",
+                    localField: "_id",
+                    foreignField: "parentId",
+                    as: "replies",
+                },
+            },
+            { $addFields: { replyCount: { $size: "$replies" } } },
+            { $project: { replies: 0 } },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "authorId",
+                    foreignField: "_id",
+                    as: "authorId",
+                },
+            },
+            { $unwind: "$authorId" },
+            { $project: { "authorId.password": 0 } },
+        ]);
         res.status(200).json(comentarios);
     } catch (err) {
         console.log(err);
@@ -44,12 +83,31 @@ const reply_to = async (req, res) => {
 
 const obtener_comentario = async (req, res) => {
     try {
-        const comentario = await Comentario.findById(req.params.id).populate(
-            "authorId",
-            "username"
-        );
-
-        res.status(200).json(comentario);
+        const comentarios = await Comentario.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(req.params.id) } },
+            {
+                $lookup: {
+                    from: "comentarios",
+                    localField: "_id",
+                    foreignField: "parentId",
+                    as: "replies",
+                },
+            },
+            { $addFields: { replyCount: { $size: "$replies" } } },
+            { $project: { replies: 0 } },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "authorId",
+                    foreignField: "_id",
+                    as: "authorId",
+                },
+            },
+            { $unwind: "$authorId" },
+            { $project: { "authorId.password": 0 } },
+        ]);
+        if (!comentarios.length) return res.status(404).json("Comentario no encontrado");
+        res.status(200).json(comentarios[0]);
     } catch (err) {
         console.log(err);
         res.status(404).json("Comentario no encontrado");

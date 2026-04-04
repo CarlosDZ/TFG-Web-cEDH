@@ -1,37 +1,41 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const comment_schema = new mongoose.Schema({
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: "User",
+        required: true,
     },
     parentId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment',
-        default: null
+        ref: "Comment",
+        default: null,
     },
     comentingOnDeck: {
         type: Boolean,
-        required: true
+        required: true,
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     },
     markdown_text: {
         type: String,
-        required: true
+        required: true,
     },
     title: String,
     likes: {
         type: Number,
-        default: 0
+        default: 0,
     },
-    likedBy: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }]
+    likedBy: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
+    ],
 });
 
-module.exports = mongoose.model('Comment', comment_schema);
+comment_schema.index({ parentId: 1 });
+
+module.exports = mongoose.model("Comment", comment_schema);
