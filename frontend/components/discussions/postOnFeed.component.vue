@@ -2,6 +2,7 @@
 import { computed, ref, onMounted } from "vue";
 import { authState } from "../../utils/auth";
 import { marked } from "marked";
+import discussionBuilderModal from "./discussionBuilder.modal.vue";
 
 const auth = authState();
 
@@ -74,6 +75,15 @@ const toggleLike = async () => {
         console.error("Error al hacer like:", err);
     }
 };
+
+const showReplyModal = ref(false);
+function handleReply() {
+    if (!auth.isLogged) {
+        showNotification();
+        return;
+    }
+    showReplyModal.value = true;
+}
 </script>
 
 <template>
@@ -101,7 +111,28 @@ const toggleLike = async () => {
                 </svg>
                 <span class="like-count">{{ likesLocal }}</span>
             </button>
+            <button class="reply-btn" @click="handleReply">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                Responder
+            </button>
         </div>
+
+        <discussionBuilderModal
+            v-if="showReplyModal"
+            :parent-id="discusionElement._id"
+            :commenting-on-deck="false"
+            @close="showReplyModal = false"
+            @published="showReplyModal = false"
+        />
 
         <Transition name="notif">
             <div v-if="notification" class="notification">
@@ -299,5 +330,31 @@ h2 {
     background: rgba(83, 74, 183, 0.1);
     color: #afa9ec;
     padding: 1px 5px;
+}
+.reply-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 0.5px solid var(--comment-border);
+    border-radius: 99px;
+    padding: 5px 14px 5px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--txt-secondary, #888);
+    margin-left: 8px;
+    transition:
+        background 0.15s,
+        border-color 0.15s,
+        color 0.15s;
+}
+.reply-btn:hover {
+    background: var(--hover-bg, rgba(0, 0, 0, 0.04));
+    color: var(--txt-color);
+}
+.reply-btn svg {
+    width: 14px;
+    height: 14px;
 }
 </style>
