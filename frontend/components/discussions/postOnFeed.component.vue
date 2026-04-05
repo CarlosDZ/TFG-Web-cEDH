@@ -96,6 +96,17 @@ async function toggleReplies() {
     if (!expanded.value) await fetchReplies();
     expanded.value = !expanded.value;
 }
+
+function onReplyPublished(newReply) {
+    showReplyModal.value = false;
+    discusionElement.replyCount = (discusionElement.replyCount || 0) + 1;
+    if (expanded.value) {
+        replies.value.push(newReply);
+    } else {
+        expanded.value = true;
+        fetchReplies();
+    }
+}
 </script>
 
 <template>
@@ -183,7 +194,7 @@ async function toggleReplies() {
                 :parent-id="discusionElement._id"
                 :commenting-on-deck="false"
                 @close="showReplyModal = false"
-                @published="showReplyModal = false"
+                @published="onReplyPublished"
             />
 
             <Transition name="notif">
