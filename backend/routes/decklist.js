@@ -1,17 +1,29 @@
-const express = require('express');
-const authMiddleware = require('../middleware/authMiddleware');
-const createDeckValidationMiddleware = require('../middleware/deckMiddleware');
+const express = require("express");
+const authMiddleware = require("../middleware/authMiddleware");
+const createDeckValidationMiddleware = require("../middleware/deckMiddleware");
 
 const router = express.Router();
 
-const { post_decklist, obtener_decklist, obtener_decklists, toggle_fav, toggle_like, edit, delete_decklist, reply_to } = require('../controllers/decklist');
+const {
+    post_decklist,
+    obtener_decklist,
+    obtener_decklists,
+    toggle_fav,
+    toggle_like,
+    edit,
+    delete_decklist,
+    reply_to,
+    import_from_moxfield,
+} = require("../controllers/decklist");
 
-router.post('/', authMiddleware, createDeckValidationMiddleware, post_decklist);
-router.get('/', obtener_decklists);
-router.get('/:id', authMiddleware, obtener_decklist);
-router.patch('/:id',authMiddleware, edit);
-router.delete('/:id', authMiddleware, delete_decklist);
-router.post('/:id/like', authMiddleware, toggle_like);
-router.post('/:id/save', authMiddleware, toggle_fav);
-router.post('/:id/comment', authMiddleware, reply_to);
+router.post("/", authMiddleware, createDeckValidationMiddleware, post_decklist);
+router.get("/", obtener_decklists);
+router.get("/:id", authMiddleware, obtener_decklist);
+router.patch("/:id", authMiddleware, edit);
+router.delete("/:id", authMiddleware, delete_decklist);
+router.post("/:id/like", authMiddleware, toggle_like);
+router.post("/:id/save", authMiddleware, toggle_fav);
+router.post("/:id/comment", authMiddleware, reply_to);
+router.post("/import/moxfield", import_from_moxfield);
+
 module.exports = router;

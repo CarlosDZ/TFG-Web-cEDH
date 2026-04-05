@@ -1,6 +1,7 @@
 const Decklist = require("../models/Decklist");
 const User = require("../models/User");
 const Comentario = require("../models/Comment");
+const { importFromMoxfield } = require("../services/moxfieldAPI");
 
 const post_decklist = async (req, res) => {
     try {
@@ -194,6 +195,16 @@ const reply_to = async (req, res) => {
     }
 };
 
+const import_from_moxfield = async (req, res) => {
+    const { url } = req.query;
+    if (!url) return res.status(400).json({ error: "URL Required" });
+
+    const [ok, message, data] = await importFromMoxfield(url);
+    if (!ok) return res.status(502).json({ error: message });
+
+    res.status(200).json(data);
+};
+
 module.exports = {
     post_decklist,
     obtener_decklist,
@@ -203,4 +214,5 @@ module.exports = {
     edit,
     delete_decklist,
     reply_to,
+    import_from_moxfield,
 };
