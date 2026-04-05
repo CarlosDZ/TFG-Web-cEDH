@@ -134,21 +134,40 @@ async function publish() {
                                 </div>
 
                                 <div class="fields">
-                                    <input
-                                        v-if="!parentId"
-                                        class="field-title"
-                                        type="text"
-                                        placeholder="Título de la discusión..."
-                                        v-model="title"
-                                        maxlength="120"
-                                    />
+                                    <div v-if="!parentId" class="field-title-wrap">
+                                        <input
+                                            class="field-title"
+                                            type="text"
+                                            placeholder="Título de la discusión..."
+                                            v-model="title"
+                                            maxlength="200"
+                                        />
+                                        <div
+                                            class="char-count"
+                                            :class="{
+                                                'char-warn': title.length > 160,
+                                                'char-limit': title.length >= 200,
+                                            }"
+                                        >
+                                            {{ title.length }}/200
+                                        </div>
+                                    </div>
                                     <textarea
                                         ref="bodyRef"
                                         class="field-body"
                                         placeholder="Desarrolla tu argumento, pregunta o análisis..."
                                         v-model="body"
+                                        maxlength="3000"
                                     />
-                                    <div class="char-count">{{ body.length }} caracteres</div>
+                                    <div
+                                        class="char-count"
+                                        :class="{
+                                            'char-warn': body.length > 2700,
+                                            'char-limit': body.length >= 3000,
+                                        }"
+                                    >
+                                        {{ body.length }}/3000
+                                    </div>
                                 </div>
                             </div>
 
@@ -355,6 +374,24 @@ async function publish() {
     width: 100%;
     box-sizing: border-box;
 }
+
+.field-title-wrap {
+    display: flex;
+    align-items: center;
+    border-bottom: 0.5px solid var(--border);
+}
+
+.field-title-wrap .field-title {
+    border-bottom: none;
+    flex: 1;
+}
+
+.field-title-wrap .char-count {
+    padding: 0 14px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .field-title::placeholder {
     color: var(--txt-placeholder);
     font-weight: 400;
