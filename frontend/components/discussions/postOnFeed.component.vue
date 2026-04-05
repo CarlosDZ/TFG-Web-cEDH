@@ -196,13 +196,15 @@ function onReplyPublished(newReply) {
                 @close="showReplyModal = false"
                 @published="onReplyPublished"
             />
+        </article>
 
+        <Teleport to="body">
             <Transition name="notif">
                 <div v-if="notification" class="notification">
                     Estás en modo invitado. Inicia sesión para interactuar.
                 </div>
             </Transition>
-        </article>
+        </Teleport>
 
         <Transition name="replies">
             <div
@@ -367,18 +369,20 @@ h2 {
 }
 
 .notification {
-    position: absolute;
-    bottom: 0.75rem;
-    right: 0.75rem;
-    background: var(--card-bg, #fff);
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card-bg, #0d1b2a);
     border: 0.5px solid #e24b4a;
     color: #e24b4a;
     border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 0.75em;
+    padding: 8px 18px;
+    font-size: 0.85em;
     font-weight: 500;
     pointer-events: none;
-    z-index: 10;
+    z-index: 2000;
+    white-space: nowrap;
 }
 
 .notif-enter-active,
@@ -390,7 +394,7 @@ h2 {
 .notif-enter-from,
 .notif-leave-to {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateX(-50%) translateY(16px);
 }
 
 .main-body :deep(h1),
