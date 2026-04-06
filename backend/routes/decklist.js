@@ -24,6 +24,6 @@ router.delete("/:id", authMiddleware, delete_decklist);
 router.post("/:id/like", authMiddleware, toggle_like);
 router.post("/:id/save", authMiddleware, toggle_fav);
 router.post("/:id/comment", authMiddleware, reply_to);
-router.post("/import/moxfield", import_from_moxfield);
+router.get("/import/moxfield", import_from_moxfield);
 
 module.exports = router;
