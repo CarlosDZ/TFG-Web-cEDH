@@ -1,17 +1,18 @@
 <script setup>
 import { ref } from "vue";
-import { authState } from "../utils/auth";
 
 import DecklistFeed from "../components/decklists/decklistFeed.component.vue";
+import DeckImportMethodModal from "../components/decklists/deckImportMethod.modal.vue";
 import sectionNavMenu from "../components/sectionNavMenu.component.vue";
 import personalNavMenu from "../components/personalNavMenu.component.vue";
 import headersSearchBar from "../components/headerSearchBar.component.vue";
 
-const auth = authState();
-const showNewDeckModal = ref(false);
+const showMethodModal = ref(false);
 
-function onNewDeck() {
-    showNewDeckModal.value = true;
+function onMethodSelected(methodId) {
+    showMethodModal.value = false;
+    // TODO: abrir el modal de creación correspondiente según methodId
+    console.log("Método seleccionado:", methodId);
 }
 </script>
 
@@ -22,7 +23,12 @@ function onNewDeck() {
         </header>
 
         <main>
-            <DecklistFeed @new-deck="onNewDeck" />
+            <DecklistFeed @new-deck="showMethodModal = true" />
+        <DeckImportMethodModal
+            v-if="showMethodModal"
+            @close="showMethodModal = false"
+            @select="onMethodSelected"
+        />
             <personalNavMenu />
         </main>
 
