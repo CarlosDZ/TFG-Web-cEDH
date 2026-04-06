@@ -7,4 +7,12 @@ module.exports = defineConfig({
     build: {
         outDir: "../dist",
     },
+    server: {
+        proxy: {
+            "/api": {
+                target: `http://localhost:${process.env.BACKEND_PORT || 3000}`,
+                changeOrigin: true,
+            },
+        },
+    },
 });
