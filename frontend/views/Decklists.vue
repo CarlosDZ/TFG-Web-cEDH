@@ -3,16 +3,46 @@ import { ref } from "vue";
 
 import DecklistFeed from "../components/decklists/decklistFeed.component.vue";
 import DeckImportMethodModal from "../components/decklists/deckImportMethod.modal.vue";
+import DeckBuilderModal from "../components/decklists/deckBuilder.modal.vue";
 import sectionNavMenu from "../components/sectionNavMenu.component.vue";
 import personalNavMenu from "../components/personalNavMenu.component.vue";
 import headersSearchBar from "../components/headerSearchBar.component.vue";
 
-const showMethodModal = ref(false);
+const showMethodModal  = ref(false);
+const showBuilderModal = ref(false);
+const builderInitialData = ref(null);
 
-function onMethodSelected(methodId) {
+const decklists = ref([]);
+
+async function onMethodSelected(methodId) {
     showMethodModal.value = false;
-    // TODO: abrir el modal de creación correspondiente según methodId
-    console.log("Método seleccionado:", methodId);
+
+    if (methodId === "moxfield") {
+        const url = window.prompt("Introduce el link de Moxfield:");
+        if (!url) return;
+        try {
+            const res = await fetch(`/api/decklist/import/moxfield?url=${encodeURIComponent(url)}`, {
+                credentials: "include",
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                window.alert(err.error ?? "Error al importar el deck");
+                return;
+            }
+            builderInitialData.value = await res.json();
+        } catch {
+            window.alert("Error de conexión al importar");
+            return;
+        }
+    } else {
+        builderInitialData.value = null;
+    }
+
+    showBuilderModal.value = true;
+}
+
+function onDeckSaved(deck) {
+    decklists.value.unshift(deck);
 }
 </script>
 
@@ -23,11 +53,17 @@ function onMethodSelected(methodId) {
         </header>
 
         <main>
-            <DecklistFeed @new-deck="showMethodModal = true" />
+            <DecklistFeed @new-deck="showMethodModal = true" @deck-saved="onDeckSaved" />
         <DeckImportMethodModal
             v-if="showMethodModal"
             @close="showMethodModal = false"
             @select="onMethodSelected"
+        />
+        <DeckBuilderModal
+            v-if="showBuilderModal"
+            :initial-data="builderInitialData"
+            @close="showBuilderModal = false"
+            @saved="onDeckSaved"
         />
             <personalNavMenu />
         </main>
