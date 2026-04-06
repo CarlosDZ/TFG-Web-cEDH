@@ -115,10 +115,12 @@ const emit = defineEmits(["new-deck"]);
 }
 
 .decklist-grid {
+    flex: 1;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 12px;
-    padding-bottom: 4rem;
+    align-content: start;
+    padding-bottom: 1rem;
 }
 
 .new-deck-btn {

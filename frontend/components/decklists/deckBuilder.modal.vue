@@ -127,6 +127,17 @@ async function save() {
                     <Transition name="modal">
                         <div v-if="visible" class="modal">
 
+                            <!-- Saving overlay -->
+                            <Transition name="overlay">
+                                <div v-if="saving" class="saving-overlay">
+                                    <svg class="saving-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                                    </svg>
+                                    <span class="saving-label">Validando deck con Scryfall...</span>
+                                    <span class="saving-sub">Esto puede tardar unos segundos</span>
+                                </div>
+                            </Transition>
+
                             <!-- Header -->
                             <div class="modal-header">
                                 <div class="modal-header-text">
@@ -365,6 +376,7 @@ async function save() {
 
     width: 100%;
     max-height: 96vh;
+    position: relative;
     background: var(--bg);
     border: 0.5px solid var(--border);
     display: flex;
@@ -693,6 +705,45 @@ async function save() {
     transition: color 0.15s;
 }
 .chip-remove:hover { color: #e05c5c; }
+
+.saving-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 15, 24, 0.88);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.saving-spinner {
+    width: 36px;
+    height: 36px;
+    color: var(--accent);
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.saving-label {
+    font-family: "Cinzel", serif;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+}
+
+.saving-sub {
+    font-size: 11px;
+    color: var(--txt-muted);
+}
+
+.overlay-enter-active, .overlay-leave-active { transition: opacity 0.2s ease; }
+.overlay-enter-from, .overlay-leave-to { opacity: 0; }
 
 .save-error {
     display: flex;

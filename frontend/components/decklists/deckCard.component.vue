@@ -5,15 +5,25 @@ const props = defineProps({
     deck: { type: Object, required: true },
 });
 
+const COLOR_MAP = {
+    W: { bg: "#f9f6e8", border: "#c8b87a", title: "White" },
+    U: { bg: "#0e68ab", border: "#0a4f82", title: "Blue" },
+    B: { bg: "#2a2a2a", border: "#555", title: "Black" },
+    R: { bg: "#d3202a", border: "#a01820", title: "Red" },
+    G: { bg: "#00733e", border: "#005a30", title: "Green" },
+};
+
 const commanders = computed(() =>
     Array.isArray(props.deck.commander) ? props.deck.commander.join(" / ") : props.deck.commander
 );
 
-const authorName = computed(() =>
-    props.deck.authorId?.username ?? "Anónimo"
-);
+const authorName = computed(() => props.deck.authorId?.username ?? "Anónimo");
 
-const cardCount = computed(() => props.deck.cards?.length ?? 0);
+const colorPips = computed(() => {
+    const identity = props.deck.color_identity ?? "";
+    if (!identity) return null;
+    return identity.split("").map((c) => COLOR_MAP[c]).filter(Boolean);
+});
 
 const fecha = computed(() => {
     if (!props.deck.createdAt) return "";
@@ -29,12 +39,13 @@ const fecha = computed(() => {
     <article class="deck-card">
         <div class="deck-card__header">
             <div class="deck-card__meta">
+                <img class="deck-card__avatar" src="../../assets/images/avatar.jpg" alt="" />
                 <span class="deck-card__author">{{ authorName }}</span>
                 <span class="deck-card__date">{{ fecha }}</span>
             </div>
             <div class="deck-card__likes">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                 </svg>
                 <span>{{ deck.likes ?? 0 }}</span>
             </div>
@@ -47,7 +58,18 @@ const fecha = computed(() => {
 
         <div class="deck-card__footer">
             <span class="deck-card__tag" v-for="tag in (deck.tags ?? []).slice(0, 3)" :key="tag">{{ tag }}</span>
-            <span class="deck-card__cardcount">{{ cardCount }} cartas</span>
+            <div class="deck-card__identity">
+                <template v-if="colorPips">
+                    <span
+                        v-for="pip in colorPips"
+                        :key="pip.title"
+                        class="color-pip"
+                        :style="{ background: pip.bg, borderColor: pip.border }"
+                        :title="pip.title"
+                    />
+                </template>
+                <span v-else class="color-pip color-pip--colorless" title="Incoloro">C</span>
+            </div>
         </div>
     </article>
 </template>
@@ -79,7 +101,16 @@ const fecha = computed(() => {
 .deck-card__meta {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
+}
+
+.deck-card__avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
 }
 
 .deck-card__author {
@@ -150,9 +181,30 @@ const fecha = computed(() => {
     padding: 2px 7px;
 }
 
-.deck-card__cardcount {
+.deck-card__identity {
     margin-left: auto;
-    font-size: 10px;
-    color: var(--txt-muted, #6b8caa);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.color-pip {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 1px solid;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.color-pip--colorless {
+    background: #3a3a3a;
+    border-color: #666;
+    color: #aaa;
+    font-size: 8px;
+    font-family: "Cinzel", serif;
+    font-weight: 700;
 }
 </style>
