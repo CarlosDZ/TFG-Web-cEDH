@@ -1,6 +1,6 @@
-const moongose = require('mongoose');
+const mongoose = require('mongoose');
 
-const tag_schema = new moongose.Schema({
+const tag_schema = new mongoose.Schema({
     name: {
         type: String,
         trim: true,
@@ -13,4 +13,4 @@ const tag_schema = new moongose.Schema({
     }
 })
 
-moongose.exports = moongose.model('Tag', tag_schema);
+module.exports = mongoose.model('Tag', tag_schema);
