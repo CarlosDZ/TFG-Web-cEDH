@@ -2,9 +2,13 @@ const axios = require("axios");
 
 const scryfallUrl_collection = "https://api.scryfall.com/cards/collection";
 
+function normalizeName(name) {
+    return name.split(" // ")[0].trim();
+}
+
 function constructCollectionQueryBody(card_array) {
     const body = {
-        identifiers: card_array.map((card) => ({ name: card })),
+        identifiers: card_array.map((card) => ({ name: normalizeName(card) })),
     };
     return body;
 }
@@ -13,11 +17,11 @@ async function checkCardsExist(card_array) {
     const body = constructCollectionQueryBody(card_array);
     try {
         const response = await axios.post(scryfallUrl_collection, body);
-        const foundCards = response.data.data;
+        const foundCards = response.data.data.filter((c) => c.object === "card");
         if (foundCards.length === card_array.length) return [true, "Todas las cartas existen."];
 
-        const foundNames = new Set(foundCards.map((c) => c.name.toLowerCase()));
-        const missing = card_array.filter((name) => !foundNames.has(name.toLowerCase()));
+        const foundNames = new Set(foundCards.map((c) => normalizeName(c.name).toLowerCase()));
+        const missing = card_array.filter((name) => !foundNames.has(normalizeName(name).toLowerCase()));
         return [false, `Cartas no encontradas: ${missing.join(", ")}`];
     } catch (error) {
         console.error("Error en la petición a Scryfall:", error.message);
@@ -41,4 +45,21 @@ async function validateDecklist(commander, decklist) {
     return [true, "El deck es válido."];
 }
 
-module.exports = { validateDecklist };
+const COLOR_ORDER = ["W", "U", "B", "R", "G"];
+
+async function getCommanderColorIdentity(commanderNames) {
+    try {
+        const body = { identifiers: commanderNames.map((name) => ({ name: normalizeName(name) })) };
+        const response = await axios.post(scryfallUrl_collection, body);
+        const colors = new Set();
+        for (const card of response.data.data) {
+            for (const c of card.color_identity ?? []) colors.add(c);
+        }
+        return COLOR_ORDER.filter((c) => colors.has(c)).join("");
+    } catch (error) {
+        console.error("Error obteniendo color identity:", error.message);
+        return "";
+    }
+}
+
+module.exports = { validateDecklist, getCommanderColorIdentity };

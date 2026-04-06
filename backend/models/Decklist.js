@@ -12,6 +12,7 @@ const decklist_schema = new mongoose.Schema({
     decktech_markdown: String,
     cards: [String],
     alternative_choices: [String],
+    color_identity: { type: String, default: "" },
     scryfallQuery: String,
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
