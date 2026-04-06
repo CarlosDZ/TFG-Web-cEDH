@@ -45,6 +45,15 @@ test("importa 2 comandantes para un bluefarm", { timeout: TIMEOUT }, async () =>
     console.log(`  ✓ Cartas: ${data.cards.length}`);
 });
 
+test("importa el maybeboard como alternative_choices", { timeout: TIMEOUT }, async () => {
+    const [ok, msg, data] = await importFromMoxfield("https://moxfield.com/decks/KuTcRLw1zUu1aUNaAFw8NA");
+
+    assert.equal(ok, true, `Debería importar con éxito. Mensaje: ${msg}`);
+    assert.ok(Array.isArray(data.alternative_choices) && data.alternative_choices.length > 0, "Debe tener maybeboard en alternative_choices");
+
+    console.log(`  ✓ Maybeboard: ${data.alternative_choices.length} cartas`);
+});
+
 test("falla con un deck privado", { timeout: TIMEOUT }, async () => {
     const [ok, msg, data] = await importFromMoxfield(
         "https://moxfield.com/decks/ez7FqjDaGEO9F97BKCbeYw"

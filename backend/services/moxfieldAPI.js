@@ -6,16 +6,24 @@ const moxfieldDeckUrl = "https://api2.moxfield.com/v3/decks/all";
 const moxfieldPrimerUrl = "https://api2.moxfield.com/v1/decks";
 
 const curlHeaders = [
-    "-H", "Accept: application/json, text/plain, */*",
-    "-H", "Accept-Language: en-US,en;q=0.9",
-    "-H", "Origin: https://www.moxfield.com",
-    "-H", "Referer: https://www.moxfield.com/",
-    "-H", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "-H",
+    "Accept: application/json, text/plain, */*",
+    "-H",
+    "Accept-Language: en-US,en;q=0.9",
+    "-H",
+    "Origin: https://www.moxfield.com",
+    "-H",
+    "Referer: https://www.moxfield.com/",
+    "-H",
+    "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
 ];
 
 async function moxfieldGet(url) {
     const { stdout } = await execFileAsync("curl", [
-        "-s", "--compressed", "-w", "\n%{http_code}",
+        "-s",
+        "--compressed",
+        "-w",
+        "\n%{http_code}",
         ...curlHeaders,
         url,
     ]);
@@ -39,12 +47,16 @@ function extractDeckSlug(url) {
 function parseMoxfieldDeck(deckData, primerContent) {
     const commanders = Object.values(deckData.boards.commanders.cards).map((c) => c.card.name);
     const cards = Object.values(deckData.boards.mainboard.cards).map((c) => c.card.name);
+    const maybeboard = deckData.boards.maybeboard?.cards
+        ? Object.values(deckData.boards.maybeboard.cards).map((c) => c.card.name)
+        : [];
 
     return {
         title: deckData.name,
         description: deckData.description || "",
         commander: commanders,
         cards,
+        alternative_choices: maybeboard,
         decktech_markdown: primerContent || "",
     };
 }
