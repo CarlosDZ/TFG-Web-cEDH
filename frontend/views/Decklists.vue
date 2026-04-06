@@ -3,41 +3,32 @@ import { ref } from "vue";
 
 import DecklistFeed from "../components/decklists/decklistFeed.component.vue";
 import DeckImportMethodModal from "../components/decklists/deckImportMethod.modal.vue";
+import MoxfieldImportModal from "../components/decklists/moxfieldImport.modal.vue";
 import DeckBuilderModal from "../components/decklists/deckBuilder.modal.vue";
 import sectionNavMenu from "../components/sectionNavMenu.component.vue";
 import personalNavMenu from "../components/personalNavMenu.component.vue";
 import headersSearchBar from "../components/headerSearchBar.component.vue";
 
-const showMethodModal  = ref(false);
-const showBuilderModal = ref(false);
+const showMethodModal   = ref(false);
+const showMoxfieldModal = ref(false);
+const showBuilderModal  = ref(false);
 const builderInitialData = ref(null);
 
 const decklists = ref([]);
 
-async function onMethodSelected(methodId) {
+function onMethodSelected(methodId) {
     showMethodModal.value = false;
-
     if (methodId === "moxfield") {
-        const url = window.prompt("Introduce el link de Moxfield:");
-        if (!url) return;
-        try {
-            const res = await fetch(`/api/decklist/import/moxfield?url=${encodeURIComponent(url)}`, {
-                credentials: "include",
-            });
-            if (!res.ok) {
-                const err = await res.json();
-                window.alert(err.error ?? "Error al importar el deck");
-                return;
-            }
-            builderInitialData.value = await res.json();
-        } catch {
-            window.alert("Error de conexión al importar");
-            return;
-        }
+        showMoxfieldModal.value = true;
     } else {
         builderInitialData.value = null;
+        showBuilderModal.value = true;
     }
+}
 
+function onMoxfieldConfirm(data) {
+    showMoxfieldModal.value = false;
+    builderInitialData.value = data;
     showBuilderModal.value = true;
 }
 
@@ -58,6 +49,11 @@ function onDeckSaved(deck) {
             v-if="showMethodModal"
             @close="showMethodModal = false"
             @select="onMethodSelected"
+        />
+        <MoxfieldImportModal
+            v-if="showMoxfieldModal"
+            @close="showMoxfieldModal = false"
+            @confirm="onMoxfieldConfirm"
         />
         <DeckBuilderModal
             v-if="showBuilderModal"
