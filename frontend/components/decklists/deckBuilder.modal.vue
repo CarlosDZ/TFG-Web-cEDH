@@ -223,90 +223,59 @@ async function save() {
                                 </div>
 
                                 <!-- ── Tab: Cartas ── -->
-                                <div v-else-if="activeTab === 'cards'" class="tab-content cards-layout">
+                                <div v-else-if="activeTab === 'cards'" class="tab-content">
 
-                                    <!-- Comandante (fila superior, ancho completo) -->
-                                    <div class="card-section card-section--commander">
+                                    <div class="card-section">
                                         <label class="field-label">
                                             Comandante(s)
                                             <span class="count-badge">{{ form.commander.length }}</span>
                                         </label>
                                         <div class="card-input-row">
-                                            <input
-                                                class="field-input"
-                                                type="text"
-                                                placeholder="Nombre de la carta..."
-                                                v-model="newCommander"
-                                                @keydown.enter.prevent="addToList(form.commander, newCommander)"
-                                            />
+                                            <input class="field-input" type="text" placeholder="Nombre de la carta..." v-model="newCommander" @keydown.enter.prevent="addToList(form.commander, newCommander)" />
                                             <button class="add-btn" type="button" @click="addToList(form.commander, newCommander)">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                                                </svg>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                             </button>
                                         </div>
-                                        <div class="chip-grid">
+                                        <div class="chip-grid chip-grid--sm">
                                             <span v-for="(card, i) in form.commander" :key="i" class="card-chip card-chip--accent">
-                                                {{ card }}
-                                                <button class="chip-remove" type="button" @click="removeFromList(form.commander, i)" title="Eliminar">✕</button>
+                                                {{ card }}<button class="chip-remove" type="button" @click="removeFromList(form.commander, i)" title="Eliminar">✕</button>
                                             </span>
                                         </div>
                                     </div>
 
-                                    <!-- Mainboard + Alternativas (dos columnas abajo) -->
-                                    <div class="cards-bottom">
-                                        <div class="card-section">
-                                            <label class="field-label">
-                                                Mainboard
-                                                <span class="count-badge">{{ form.cards.length }}</span>
-                                            </label>
-                                            <div class="card-input-row">
-                                                <input
-                                                    class="field-input"
-                                                    type="text"
-                                                    placeholder="Nombre de la carta..."
-                                                    v-model="newCard"
-                                                    @keydown.enter.prevent="addToList(form.cards, newCard)"
-                                                />
-                                                <button class="add-btn" type="button" @click="addToList(form.cards, newCard)">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="chip-grid">
-                                                <span v-for="(card, i) in form.cards" :key="i" class="card-chip">
-                                                    {{ card }}
-                                                    <button class="chip-remove" type="button" @click="removeFromList(form.cards, i)" title="Eliminar">✕</button>
-                                                </span>
-                                            </div>
+                                    <div class="card-section">
+                                        <label class="field-label">
+                                            Mainboard
+                                            <span class="count-badge">{{ form.cards.length }}</span>
+                                        </label>
+                                        <div class="card-input-row">
+                                            <input class="field-input" type="text" placeholder="Nombre de la carta..." v-model="newCard" @keydown.enter.prevent="addToList(form.cards, newCard)" />
+                                            <button class="add-btn" type="button" @click="addToList(form.cards, newCard)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            </button>
                                         </div>
+                                        <div class="chip-grid chip-grid--lg">
+                                            <span v-for="(card, i) in form.cards" :key="i" class="card-chip">
+                                                {{ card }}<button class="chip-remove" type="button" @click="removeFromList(form.cards, i)" title="Eliminar">✕</button>
+                                            </span>
+                                        </div>
+                                    </div>
 
-                                        <div class="card-section">
-                                            <label class="field-label">
-                                                Alternativas
-                                                <span class="count-badge">{{ form.alternative_choices.length }}</span>
-                                            </label>
-                                            <div class="card-input-row">
-                                                <input
-                                                    class="field-input"
-                                                    type="text"
-                                                    placeholder="Nombre de la carta..."
-                                                    v-model="newAltChoice"
-                                                    @keydown.enter.prevent="addToList(form.alternative_choices, newAltChoice)"
-                                                />
-                                                <button class="add-btn" type="button" @click="addToList(form.alternative_choices, newAltChoice)">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="chip-grid">
-                                                <span v-for="(card, i) in form.alternative_choices" :key="i" class="card-chip card-chip--alt">
-                                                    {{ card }}
-                                                    <button class="chip-remove" type="button" @click="removeFromList(form.alternative_choices, i)" title="Eliminar">✕</button>
-                                                </span>
-                                            </div>
+                                    <div class="card-section">
+                                        <label class="field-label">
+                                            Alternativas
+                                            <span class="count-badge">{{ form.alternative_choices.length }}</span>
+                                        </label>
+                                        <div class="card-input-row">
+                                            <input class="field-input" type="text" placeholder="Nombre de la carta..." v-model="newAltChoice" @keydown.enter.prevent="addToList(form.alternative_choices, newAltChoice)" />
+                                            <button class="add-btn" type="button" @click="addToList(form.alternative_choices, newAltChoice)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            </button>
+                                        </div>
+                                        <div class="chip-grid chip-grid--md">
+                                            <span v-for="(card, i) in form.alternative_choices" :key="i" class="card-chip card-chip--alt">
+                                                {{ card }}<button class="chip-remove" type="button" @click="removeFromList(form.alternative_choices, i)" title="Eliminar">✕</button>
+                                            </span>
                                         </div>
                                     </div>
 
@@ -621,26 +590,6 @@ async function save() {
 }
 
 /* Cards tab */
-.cards-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    gap: 20px;
-}
-
-.card-section--commander {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.cards-bottom {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    align-items: start;
-}
-
 .card-section {
     display: flex;
     flex-direction: column;
@@ -685,11 +634,13 @@ async function save() {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    max-height: 340px;
     overflow-y: auto;
     scrollbar-gutter: stable;
     padding: 2px 0;
 }
+.chip-grid--sm { max-height: 60px; }
+.chip-grid--md { max-height: 120px; }
+.chip-grid--lg { max-height: 220px; }
 
 .card-chip {
     display: inline-flex;
