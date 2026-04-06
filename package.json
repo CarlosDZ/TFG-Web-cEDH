@@ -8,7 +8,8 @@
         "preview-frontend": "vite preview",
         "build-frontend": "vite build",
         "dev-frontend": "vite",
-        "dev": "vite build; node --env-file=.env backend/server.js"
+        "dev": "vite build; node --env-file=.env backend/server.js",
+        "test-backend": "node --test backend/**/*.test.js"
     },
     "keywords": [
         "express",
