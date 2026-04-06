@@ -1,9 +1,12 @@
-<script setup></script>
+<script setup>
+import { useRouter } from "vue-router";
+const router = useRouter();
+</script>
 
 <template>
     <div id="header-search-bar">
         <div class="brand-section">
-            <div class="brand-inner">
+            <div class="brand-inner" @click="router.push('/dashboard')">
                 <div class="brand-content">
                     <div class="logo-wrap">
                         <img src="../assets/images/texture_placeholder.jpg" alt="Spain cEDH" />

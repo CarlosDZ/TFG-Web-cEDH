@@ -33,7 +33,8 @@
         --button-hover-light: rgba(0, 150, 255, 0.6);
         --button-background-color-hovered: rgb(34, 26, 26);
     }
-    #mainContainer-dashboard main {
+    #mainContainer-dashboard main,
+    #mainContainer-decklists main {
         --background-color: #00171f;
     }
     #mainContainer-commentFeed {

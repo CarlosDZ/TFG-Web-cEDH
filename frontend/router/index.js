@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import Dashboard from "../views/Dashboard.vue";
+import Decklists from "../views/Decklists.vue";
 
 const routes = [
     { path: "/", redirect: "/dashboard" },
@@ -11,7 +12,7 @@ const routes = [
     { path: "/register", name: "Registro", component: Register },
 
     { path: "/torneos", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
-    { path: "/decklists", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
+    { path: "/decklists", name: "Decklists", component: Decklists },
     { path: "/commander-techs", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
     { path: "/jugadores", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
 
