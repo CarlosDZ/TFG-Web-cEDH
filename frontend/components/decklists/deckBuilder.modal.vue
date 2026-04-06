@@ -11,8 +11,9 @@ const props = defineProps({
 const emit = defineEmits(["close", "saved"]);
 
 const visible = ref(false);
-const saving      = ref(false);
-const activeTab   = ref("general");
+const saving = ref(false);
+const saveError = ref("");
+const activeTab = ref("general");
 const availableTags = ref([]);
 
 const TABS = [
@@ -77,6 +78,7 @@ function handleClose() {
 async function save() {
     if (!canSave.value) return;
     saving.value = true;
+    saveError.value = "";
     try {
         const payload = {
             title:               form.title.trim(),
@@ -101,7 +103,11 @@ async function save() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error("Error al guardar");
+        if (!res.ok) {
+            const body = await res.json();
+            saveError.value = typeof body === "string" ? body : (body.error ?? "Error al guardar el deck");
+            return;
+        }
         const data = await res.json();
         emit("saved", data);
         handleClose();
@@ -293,6 +299,13 @@ async function save() {
                             </div>
 
                             <!-- Footer -->
+                            <div v-if="saveError" class="save-error">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                                {{ saveError }}
+                            </div>
+
                             <div class="modal-footer">
                                 <button class="btn-publish" type="button" :disabled="!canSave" @click="save">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -680,6 +693,24 @@ async function save() {
     transition: color 0.15s;
 }
 .chip-remove:hover { color: #e05c5c; }
+
+.save-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(224, 92, 92, 0.08);
+    border-top: 0.5px solid rgba(224, 92, 92, 0.3);
+    font-size: 12px;
+    color: #e05c5c;
+    line-height: 1.5;
+}
+.save-error svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
 
 /* Footer */
 .modal-footer {
