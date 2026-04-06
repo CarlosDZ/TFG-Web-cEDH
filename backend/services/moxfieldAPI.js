@@ -1,12 +1,34 @@
-const axios = require("axios");
+const { execFile } = require("child_process");
+const { promisify } = require("util");
+const execFileAsync = promisify(execFile);
 
 const moxfieldDeckUrl = "https://api2.moxfield.com/v3/decks/all";
 const moxfieldPrimerUrl = "https://api2.moxfield.com/v1/decks";
 
-const axiosHeaders = {
-    "User-Agent": "Mozilla/5.0",
-    Accept: "application/json",
-};
+const curlHeaders = [
+    "-H", "Accept: application/json, text/plain, */*",
+    "-H", "Accept-Language: en-US,en;q=0.9",
+    "-H", "Origin: https://www.moxfield.com",
+    "-H", "Referer: https://www.moxfield.com/",
+    "-H", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+];
+
+async function moxfieldGet(url) {
+    const { stdout } = await execFileAsync("curl", [
+        "-s", "--compressed", "-w", "\n%{http_code}",
+        ...curlHeaders,
+        url,
+    ]);
+    const lastNewline = stdout.lastIndexOf("\n");
+    const statusCode = parseInt(stdout.slice(lastNewline + 1).trim(), 10);
+    const body = stdout.slice(0, lastNewline);
+    if (statusCode >= 400) {
+        const err = new Error(`HTTP ${statusCode}`);
+        err.status = statusCode;
+        throw err;
+    }
+    return JSON.parse(body);
+}
 
 function extractDeckSlug(url) {
     const match = url.match(/moxfield\.com\/decks\/([a-zA-Z0-9_-]+)/);
@@ -32,19 +54,18 @@ async function importFromMoxfield(url) {
     if (!slug) return [false, "Invalid Moxfield URL", null];
 
     try {
-        const deckResponse = await axios.get(`${moxfieldDeckUrl}/${slug}`, {
-            headers: axiosHeaders,
-        });
-        const deckData = deckResponse.data;
+        const deckData = await moxfieldGet(`${moxfieldDeckUrl}/${slug}`);
+
+        if (deckData.format !== "commander") {
+            return [false, "El deck no es de formato Commander/EDH", null];
+        }
 
         let primerContent = "";
         try {
-            const primerResponse = await axios.get(`${moxfieldPrimerUrl}/${deckData.id}/primer`, {
-                headers: axiosHeaders,
-            });
-            primerContent = primerResponse.data?.content || "";
+            const primerData = await moxfieldGet(`${moxfieldPrimerUrl}/${deckData.id}/primer`);
+            primerContent = primerData?.content || "";
         } catch {
-            // Deck without premier, can continue
+            // Deck without primer, can continue
         }
 
         const parsed = parseMoxfieldDeck(deckData, primerContent);
