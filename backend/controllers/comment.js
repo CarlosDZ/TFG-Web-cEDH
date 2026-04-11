@@ -84,7 +84,8 @@ const reply_to = async (req, res) => {
     });
 
     await newComment.save();
-    res.status(201).json(newComment);
+    await newComment.populate("authorId", "username");
+    res.status(201).json({ ...newComment.toObject(), replyCount: 0 });
   } catch (err) {
     console.log(err);
     res.status(500).json("Error interno del server");

@@ -133,7 +133,7 @@ async function save() {
                 <div class="modal-header-text">
                   <span class="modal-eyebrow">Nueva commander tech</span>
                   <h2 class="modal-heading">
-                    {{ form.title || "¿Qué has descubierto?" }}
+                    {{ form.title || "¿Sobre qué quieres escribir?" }}
                   </h2>
                 </div>
                 <button class="close-btn" @click="handleClose" title="Cerrar">

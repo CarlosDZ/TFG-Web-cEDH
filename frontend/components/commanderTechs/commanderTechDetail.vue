@@ -218,7 +218,7 @@ function handleClose() {
               <div v-if="auth.isLogged" class="comment-composer">
                 <textarea
                   class="comment-input"
-                  placeholder="Escribe un comentario en Markdown..."
+                  placeholder="Escribe un comentario..."
                   v-model="newComment"
                   maxlength="3000"
                   rows="3"
@@ -299,6 +299,8 @@ function handleClose() {
   --bg: #0d1b2a;
   --bg-surface: #080f18;
   --border: #1c3a58;
+  --txt-color: #e0e1dd;
+  --comment-border: rgb(100, 100, 231);
   --txt: #e0ddd8;
   --txt-title: #e8e3d8;
   --txt-muted: #6b8caa;

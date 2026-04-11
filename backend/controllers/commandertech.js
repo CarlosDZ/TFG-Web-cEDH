@@ -179,7 +179,8 @@ const comment_on_commandertech = async (req, res) => {
       { _id: tech._id },
       { $push: { comments: newComment._id } },
     );
-    res.status(201).json(newComment);
+    await newComment.populate("authorId", "username");
+    res.status(201).json({ ...newComment.toObject(), replyCount: 0 });
   } catch (err) {
     console.log(err);
     res.status(500).json("Error interno del server");

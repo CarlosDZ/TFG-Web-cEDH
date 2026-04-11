@@ -15,8 +15,6 @@ const body = ref("");
 const publishing = ref(false);
 const bodyRef = ref(null);
 const visible = ref(false);
-const backend_url = import.meta.env.VITE_BACKEND_URL;
-
 const TOOLBAR_ACTIONS = [
     { label: "Título", icon: "<b>H1</b>", action: (t) => `# ${t}` },
     { label: "Subtítulo", icon: "<b>H2</b>", action: (t) => `## ${t}` },
@@ -57,11 +55,11 @@ async function publish() {
     try {
         var target_url;
         if (!props.commentingOnDeck && !props.parentId) {
-            target_url = `http://${backend_url}/api/comment`;
+            target_url = `/api/comment`;
         } else if (!props.commentingOnDeck && props.parentId) {
-            target_url = `http://${backend_url}/api/comment/${props.parentId}/comment`;
+            target_url = `/api/comment/${props.parentId}/comment`;
         } else {
-            target_url = `http://${backend_url}/api/decklist/${props.parentId}/comment`;
+            target_url = `/api/decklist/${props.parentId}/comment`;
         }
 
         const payload = {

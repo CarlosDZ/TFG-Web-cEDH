@@ -67,7 +67,7 @@ const emit = defineEmits(["new-tech", "open-tech"]);
 <style scoped>
 #mainContainer-techFeed {
   height: 84vh;
-  background: transparent;
+  background: var(--background-color);
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
