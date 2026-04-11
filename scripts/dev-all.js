@@ -137,6 +137,7 @@ worktrees.forEach((wt, i) => {
     ...process.env,
     ...rootEnv, // vars del .env principal como fallback
     ...wtEnv, // vars propias del worktree (si las tiene)
+    NODE_ENV: "development",
     BACKEND_PORT: String(bePort),
     FRONTEND_PORT: String(fePort),
     // Que Node encuentre los binarios en el node_modules raíz

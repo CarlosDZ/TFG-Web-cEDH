@@ -20,12 +20,14 @@ app.use("/api/user", require("./routes/user"));
 app.use("/api/tag", require("./routes/tag"));
 app.use("/api/session", require("./routes/session"));
 
-app.use(express.static(path.join(__dirname, "../dist")));
-app.get(/.*/, (req, res) => {
+if (process.env.NODE_ENV !== "development") {
+  app.use(express.static(path.join(__dirname, "../dist")));
+  app.get(/.*/, (req, res) => {
     res.sendFile(path.resolve(__dirname, "../dist/index.html"));
-});
+  });
+}
 
 //LISTENER
 app.listen(process.env.BACKEND_PORT, () => {
-    console.log("Backend corriendo en puerto " + process.env.BACKEND_PORT);
+  console.log("Backend corriendo en puerto " + process.env.BACKEND_PORT);
 });
