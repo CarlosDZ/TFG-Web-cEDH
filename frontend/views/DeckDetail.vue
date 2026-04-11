@@ -228,9 +228,6 @@ function onCommentPublished(newComment) {
               @click="activeTab = 'lista'"
             >
               Lista
-              <span class="tab-count">{{
-                (deck.cards ?? []).length + (deck.commander ?? []).length
-              }}</span>
             </button>
             <button
               v-if="deck.decktech_markdown"
@@ -265,12 +262,7 @@ function onCommentPublished(newComment) {
             </section>
 
             <section class="card-section">
-              <h3 class="section-label">
-                Mazo
-                <span class="section-count"
-                  >{{ (deck.cards ?? []).length }} cartas</span
-                >
-              </h3>
+              <h3 class="section-label">Mazo</h3>
               <ul class="card-list">
                 <li v-for="card in deck.cards" :key="card" class="card-row">
                   <span class="card-name">{{ card }}</span>
