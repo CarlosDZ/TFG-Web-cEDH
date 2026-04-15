@@ -89,6 +89,21 @@ function prefixLines(proc, prefix) {
   proc.stderr?.on("data", print);
 }
 
+function propagateFiles(fromDir, toDir) {
+  const files = [
+    { src: ".gitignore", dst: ".gitignore" },
+    { src: path.join("frontend", ".env"), dst: path.join("frontend", ".env") },
+    { src: ".env", dst: ".env" },
+  ];
+  for (const { src, dst } of files) {
+    const srcPath = path.join(fromDir, src);
+    const dstPath = path.join(toDir, dst);
+    if (!fs.existsSync(srcPath)) continue;
+    fs.mkdirSync(path.dirname(dstPath), { recursive: true });
+    fs.copyFileSync(srcPath, dstPath);
+  }
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 const filterArg = (() => {
@@ -117,6 +132,11 @@ if (worktrees.length === 0) {
   process.exit(1);
 }
 
+// Propagar .gitignore y .env a todos los worktrees secundarios
+for (const wt of allWorktrees.slice(1)) {
+  propagateFiles(rootWorktree.path, wt.path);
+}
+
 console.log(`\n\x1b[1mLanzando ${worktrees.length} worktree(s):\x1b[0m\n`);
 console.log(
   `  \x1b[2mnode_modules compartidos desde: ${rootNodeModules}\x1b[0m\n`,
@@ -140,6 +160,7 @@ worktrees.forEach((wt, i) => {
     NODE_ENV: "development",
     BACKEND_PORT: String(bePort),
     FRONTEND_PORT: String(fePort),
+    VITE_BACKEND_URL: `http://localhost:${bePort}`,
     // Que Node encuentre los binarios en el node_modules raíz
     PATH: `${rootNodeModules}/.bin${path.delimiter}${process.env.PATH}`,
   };
