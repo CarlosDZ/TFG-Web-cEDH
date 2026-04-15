@@ -119,15 +119,10 @@ async function postComment() {
       props.tech._id,
       newComment.value.trim(),
     );
-    const withMeta = {
-      ...created,
-      authorId: { username: auth.user?.username ?? "Tú" },
-      replyCount: 0,
-    };
-    comments.value.unshift(withMeta);
+    comments.value.unshift(created);
     newComment.value = "";
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.error("Error al publicar comentario:", err);
   } finally {
     posting.value = false;
   }
