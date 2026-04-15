@@ -123,7 +123,8 @@ const search_usuarios = async (req, res) => {
   try {
     const q = (req.query.q || "").trim();
     if (q.length < 2) return res.status(200).json([]);
-    const regex = new RegExp(q, "i");
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(escaped, "i");
     const usuarios = await Usuario.find({ username: regex })
       .select("_id username bio createdAt isVerified")
       .limit(8)

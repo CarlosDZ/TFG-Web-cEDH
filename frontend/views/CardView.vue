@@ -11,6 +11,7 @@ const loading = ref(true);
 const error = ref(null);
 const showBack = ref(false);
 
+// DFC = layouts where the card physically flips; shown with a flip button.
 const DFC_LAYOUTS = [
   "transform",
   "modal_dfc",
@@ -18,17 +19,42 @@ const DFC_LAYOUTS = [
   "double_faced_token",
 ];
 
+// Labels for layouts where card_faces exist but the card doesn't flip —
+// the secondary face is rendered as an inline panel.
+const SECONDARY_FACE_LABELS = {
+  adventure: "Aventura",
+  prepare: "Hechizo preparado",
+  split: "Segundo hechizo",
+  aftermath: "Aftermath",
+  flip: "Forma volteada",
+};
+
 const isDFC = computed(
   () => card.value && DFC_LAYOUTS.includes(card.value.layout),
 );
 
+// Non-DFC cards with card_faces get a secondary panel instead of a flip button.
+const hasSecondaryFace = computed(
+  () => !isDFC.value && !!card.value?.card_faces?.[1],
+);
+
+const secondaryFaceLabel = computed(
+  () => SECONDARY_FACE_LABELS[card.value?.layout] ?? "Hechizo adjunto",
+);
+
+// Always use per-face data when card_faces exists, so the root mana_cost
+// (e.g. "{1}{R} // {R}") is never shown directly.
 const currentFace = computed(() => {
   if (!card.value) return null;
-  if (isDFC.value && card.value.card_faces) {
+  if (card.value.card_faces) {
     return card.value.card_faces[showBack.value ? 1 : 0];
   }
   return card.value;
 });
+
+const secondaryFace = computed(() =>
+  hasSecondaryFace.value ? card.value.card_faces[1] : null,
+);
 
 const currentImage = computed(() => {
   if (!card.value) return null;
@@ -184,6 +210,36 @@ watch(
             </span>
           </div>
 
+          <!-- Panel de cara secundaria (aventura, prepare, split, etc.) -->
+          <div v-if="secondaryFace" class="adventure-section">
+            <div class="adventure-header">
+              <span class="adventure-label">{{ secondaryFaceLabel }}</span>
+              <div class="adventure-name-row">
+                <span class="adventure-name">{{ secondaryFace.name }}</span>
+                <div class="mana-cost">
+                  <img
+                    v-for="sym in parseManaSymbols(secondaryFace.mana_cost)"
+                    :key="sym"
+                    :src="manaSymbolUrl(sym)"
+                    :alt="`{${sym}}`"
+                    class="mana-pip"
+                  />
+                </div>
+              </div>
+              <span class="adventure-type">{{ secondaryFace.type_line }}</span>
+            </div>
+            <div class="adventure-oracle">
+              <p
+                v-for="(line, i) in (secondaryFace.oracle_text ?? '').split(
+                  '\n',
+                )"
+                :key="i"
+              >
+                {{ line }}
+              </p>
+            </div>
+          </div>
+
           <div class="section-divider"></div>
 
           <div class="info-grid">
@@ -316,6 +372,7 @@ watch(
     width: 100%;
     min-height: 6vh;
     display: flex;
+    position: relative;
   }
 }
 
@@ -540,6 +597,52 @@ watch(
   background: var(--banned-bg);
   color: var(--banned-color);
   border-color: var(--banned-border);
+}
+
+.adventure-section {
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.adventure-header {
+  background: var(--surface2);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-bottom: 0.5px solid var(--border);
+}
+.adventure-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+.adventure-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.adventure-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--txt);
+}
+.adventure-type {
+  font-size: 11.5px;
+  color: var(--txt-muted);
+  font-style: italic;
+}
+.adventure-oracle {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--txt);
+  line-height: 1.6;
 }
 
 @media (max-width: 680px) {

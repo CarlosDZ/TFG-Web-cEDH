@@ -1,49 +1,50 @@
 {
-    "name": "cedh-web",
-    "version": "0.2.0",
-    "description": "A community web aimed for the cEDH enjoyers of the Spanish MTG community",
-    "main": "server.js",
-    "scripts": {
-        "dev-backend": "node --env-file=.env backend/server.js",
-        "preview-frontend": "vite preview",
-        "build-frontend": "vite build",
-        "dev-frontend": "vite",
-        "dev": "vite build; node --env-file=.env backend/server.js",
-        "test-backend": "node --test backend/**/*.test.js"
-    },
-    "keywords": [
-        "express",
-        "fullstack",
-        "backend",
-        "frontend",
-        "rest",
-        "mongodb",
-        "auth",
-        "user-management"
-    ],
-    "author": "Carlos Delgado Zambrana",
-    "license": "AGPL-3.0-or-later",
-    "type": "commonjs",
-    "dependencies": {
-        "autoprefixer": "^10.4.22",
-        "axios": "^1.13.2",
-        "cookie-parser": "^1.4.7",
-        "cors": "^2.8.5",
-        "dotenv": "^17.2.2",
-        "express": "^5.1.0",
-        "jsonwebtoken": "^9.0.3",
-        "marked": "^17.0.5",
-        "mongoose": "^8.18.1",
-        "p-queue": "^9.0.1",
-        "pinia": "^3.0.4",
-        "postcss": "^8.5.6",
-        "vite": "^7.2.6",
-        "vue": "^3.5.25",
-        "vue-router": "^4.6.3"
-    },
-    "devDependencies": {
-        "@tailwindcss/postcss": "^4.1.17",
-        "@vitejs/plugin-vue": "^6.0.2",
-        "tailwindcss": "^4.1.17"
-    }
+  "name": "cedh-web",
+  "version": "0.2.0",
+  "description": "A community web aimed for the cEDH enjoyers of the Spanish MTG community",
+  "main": "server.js",
+  "scripts": {
+    "dev-backend": "node --env-file=.env backend/server.js",
+    "preview-frontend": "vite preview",
+    "build-frontend": "vite build",
+    "dev-frontend": "vite",
+    "dev": "vite build; node --env-file=.env backend/server.js",
+    "test-backend": "node --test backend/**/*.test.js",
+    "test-frontend": "vitest run"
+  },
+  "keywords": [
+    "express",
+    "fullstack",
+    "backend",
+    "frontend",
+    "rest",
+    "mongodb",
+    "auth",
+    "user-management"
+  ],
+  "author": "Carlos Delgado Zambrana",
+  "license": "AGPL-3.0-or-later",
+  "type": "commonjs",
+  "dependencies": {
+    "autoprefixer": "^10.4.22",
+    "axios": "^1.13.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "marked": "^17.0.5",
+    "mongoose": "^8.18.1",
+    "p-queue": "^9.0.1",
+    "pinia": "^3.0.4",
+    "postcss": "^8.5.6",
+    "vite": "^7.2.6",
+    "vue": "^3.5.25",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "tailwindcss": "^4.1.17"
+  }
 }

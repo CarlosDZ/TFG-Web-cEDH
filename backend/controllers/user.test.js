@@ -12,6 +12,7 @@ const mongoose = require("mongoose");
 const Usuario = require("../models/User");
 
 let createdUserId = null;
+const extraUserIds = [];
 
 const TEST_USER = {
   username: "test_search_user_cedh",
@@ -20,21 +21,46 @@ const TEST_USER = {
   password_hash: "testhash123",
 };
 
+// Usuarios con caracteres permitidos en el username:
+// letras, números, puntos, guiones, guiones bajos, paréntesis, acentos.
+// Prohibidos: @ ; " ' ¡ ¿ ! : ? { }
+const EXTRA_USERS = [
+  {
+    username: "player.one_cedh",
+    email: "player.one@example.com",
+    salt: "s1",
+    password_hash: "h1",
+  },
+  {
+    username: "jugador-42(es)",
+    email: "jugador42@example.com",
+    salt: "s2",
+    password_hash: "h2",
+  },
+];
+
 before(async () => {
   const mongoUrl = process.env.MONGODB_URL;
   if (!mongoUrl)
     throw new Error("MONGODB_URL no definida. Ejecuta con --env-file=.env");
   await mongoose.connect(mongoUrl);
 
-  // Limpiar si quedó de un test anterior
   await Usuario.deleteOne({ username: TEST_USER.username });
+  for (const u of EXTRA_USERS)
+    await Usuario.deleteOne({ username: u.username });
 
   const user = await Usuario.create(TEST_USER);
   createdUserId = user._id.toString();
+
+  for (const u of EXTRA_USERS) {
+    const created = await Usuario.create(u);
+    extraUserIds.push(created._id);
+  }
 });
 
 after(async () => {
   if (createdUserId) await Usuario.deleteOne({ _id: createdUserId });
+  for (const id of extraUserIds) await Usuario.deleteOne({ _id: id });
   await mongoose.disconnect();
 });
 
@@ -178,4 +204,60 @@ test("obtener_usuario_por_nombre devuelve 404 para usuario inexistente", async (
   assert.equal(statusCode, 404);
 
   console.log(`  ✓ 404 para usuario inexistente`);
+});
+
+// --- casos extremos de caracteres ---
+
+test("search encuentra usuario con punto y guion bajo en el nombre", async () => {
+  const { search_usuarios } = require("../controllers/user");
+
+  let responseBody, statusCode;
+  const req = { query: { q: "player.one_cedh" } };
+  const res = {
+    status(c) {
+      statusCode = c;
+      return this;
+    },
+    json(b) {
+      responseBody = b;
+      return this;
+    },
+  };
+
+  await search_usuarios(req, res);
+
+  assert.equal(statusCode, 200);
+  assert.ok(
+    responseBody.some((u) => u.username === "player.one_cedh"),
+    "Debe encontrar el usuario con punto y guion bajo",
+  );
+
+  console.log(`  ✓ Usuario con punto y guion bajo encontrado`);
+});
+
+test("search encuentra usuario con guion, números y paréntesis en el nombre", async () => {
+  const { search_usuarios } = require("../controllers/user");
+
+  let responseBody, statusCode;
+  const req = { query: { q: "jugador-42(es)" } };
+  const res = {
+    status(c) {
+      statusCode = c;
+      return this;
+    },
+    json(b) {
+      responseBody = b;
+      return this;
+    },
+  };
+
+  await search_usuarios(req, res);
+
+  assert.equal(statusCode, 200);
+  assert.ok(
+    responseBody.some((u) => u.username === "jugador-42(es)"),
+    "Debe encontrar el usuario con guion, números y paréntesis",
+  );
+
+  console.log(`  ✓ Usuario con guion, números y paréntesis encontrado`);
 });

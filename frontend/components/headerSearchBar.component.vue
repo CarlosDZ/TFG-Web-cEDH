@@ -1,13 +1,19 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { autocompleteCards } from "../services/scryfallService";
 import { searchUsuarios } from "../services/userService";
+import {
+  searchDiscusiones,
+  searchDecks,
+  searchTechs,
+} from "../services/searchService";
 
 const router = useRouter();
 
 const searchFilter = ref("card");
 const searchQuery = ref("");
+// Each suggestion: { label: string, navigateTo: string, group: string|null }
 const suggestions = ref([]);
 const showSuggestions = ref(false);
 const loadingSuggestions = ref(false);
@@ -15,6 +21,32 @@ const highlightedIndex = ref(-1);
 
 let debounceTimer = null;
 const DEBOUNCE_MS = 800;
+
+// Groups for display: [{group, items: [{label, navigateTo, index}]}]
+const groupedSuggestions = computed(() => {
+  const groups = new Map();
+  suggestions.value.forEach((s, i) => {
+    const key = s.group ?? "";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({ ...s, index: i });
+  });
+  return [...groups.entries()].map(([group, items]) => ({ group, items }));
+});
+
+function submitPath(q) {
+  const t = q.trim();
+  if (!t) return null;
+  const f = searchFilter.value;
+  if (f === "card") return `/carta/${encodeURIComponent(t)}`;
+  if (f === "user") return `/jugador/${encodeURIComponent(t)}`;
+  if (f === "discussion")
+    return `/busqueda/discusiones?q=${encodeURIComponent(t)}`;
+  if (f === "deck")
+    return `/busqueda/decks?q=${encodeURIComponent(t)}&by=title`;
+  if (f === "commander-tech")
+    return `/busqueda/techs?q=${encodeURIComponent(t)}`;
+  return null;
+}
 
 watch(searchQuery, (val) => {
   highlightedIndex.value = -1;
@@ -29,14 +61,70 @@ watch(searchQuery, (val) => {
 
   loadingSuggestions.value = true;
   debounceTimer = setTimeout(async () => {
-    if (searchFilter.value === "card") {
-      suggestions.value = (await autocompleteCards(val)).slice(0, 8);
-    } else if (searchFilter.value === "user") {
+    const f = searchFilter.value;
+    const q = val.trim();
+
+    if (f === "card") {
+      const names = (await autocompleteCards(val)).slice(0, 8);
+      suggestions.value = names.map((n) => ({
+        label: n,
+        navigateTo: `/carta/${encodeURIComponent(n)}`,
+        group: null,
+      }));
+    } else if (f === "user") {
       const users = await searchUsuarios(val);
-      suggestions.value = users.map((u) => u.username);
+      suggestions.value = users.map((u) => ({
+        label: u.username,
+        navigateTo: `/jugador/${encodeURIComponent(u.username)}`,
+        group: null,
+      }));
+    } else if (f === "discussion") {
+      const posts = await searchDiscusiones(val);
+      suggestions.value = posts.slice(0, 8).map((p) => ({
+        label: p.title || "(Sin título)",
+        navigateTo: `/busqueda/discusiones?q=${encodeURIComponent(p.title || "")}`,
+        group: null,
+      }));
+    } else if (f === "deck") {
+      const [byTitle, byCommander] = await Promise.all([
+        searchDecks(q, "title"),
+        autocompleteCards(q),
+      ]);
+      suggestions.value = [
+        ...byTitle.slice(0, 5).map((d) => ({
+          label: d.title,
+          navigateTo: `/busqueda/decks?q=${encodeURIComponent(d.title)}&by=title`,
+          group: "Por título",
+        })),
+        ...byCommander.slice(0, 5).map((c) => ({
+          label: c,
+          navigateTo: `/busqueda/decks?q=${encodeURIComponent(c)}&by=commander`,
+          group: "Por comandante",
+        })),
+      ];
+    } else if (f === "commander-tech") {
+      const [byTech, byCommander] = await Promise.all([
+        searchTechs(q),
+        autocompleteCards(q),
+      ]);
+      suggestions.value = [
+        ...byTech.slice(0, 5).map((t) => ({
+          label: Array.isArray(t.commander)
+            ? t.commander.join(" / ")
+            : t.commander,
+          navigateTo: `/busqueda/techs?q=${encodeURIComponent(Array.isArray(t.commander) ? t.commander[0] : t.commander)}`,
+          group: "En la base de datos",
+        })),
+        ...byCommander.slice(0, 5).map((c) => ({
+          label: c,
+          navigateTo: `/busqueda/techs?q=${encodeURIComponent(c)}`,
+          group: "Buscar por comandante",
+        })),
+      ];
     } else {
       suggestions.value = [];
     }
+
     loadingSuggestions.value = false;
     showSuggestions.value = suggestions.value.length > 0;
   }, DEBOUNCE_MS);
@@ -50,15 +138,11 @@ watch(searchFilter, () => {
   clearTimeout(debounceTimer);
 });
 
-function navigate(query) {
-  if (!query || !query.trim()) return;
+function navigateTo(path) {
+  if (!path) return;
   showSuggestions.value = false;
   suggestions.value = [];
-  if (searchFilter.value === "card") {
-    router.push(`/carta/${encodeURIComponent(query.trim())}`);
-  } else if (searchFilter.value === "user") {
-    router.push(`/jugador/${encodeURIComponent(query.trim())}`);
-  }
+  router.push(path);
 }
 
 function onSubmit() {
@@ -66,15 +150,15 @@ function onSubmit() {
     highlightedIndex.value >= 0 &&
     suggestions.value[highlightedIndex.value]
   ) {
-    navigate(suggestions.value[highlightedIndex.value]);
+    navigateTo(suggestions.value[highlightedIndex.value].navigateTo);
   } else {
-    navigate(searchQuery.value);
+    navigateTo(submitPath(searchQuery.value));
   }
 }
 
 function onSuggestionClick(suggestion) {
-  searchQuery.value = suggestion;
-  navigate(suggestion);
+  searchQuery.value = suggestion.label;
+  navigateTo(suggestion.navigateTo);
 }
 
 function onKeydown(e) {
@@ -170,28 +254,31 @@ onUnmounted(() => {
             v-if="showSuggestions && suggestions.length > 0"
             class="suggestions-dropdown"
           >
-            <button
-              v-for="(s, i) in suggestions"
-              :key="s"
-              class="suggestion-item"
-              :class="{ highlighted: i === highlightedIndex }"
-              @click="onSuggestionClick(s)"
-              @mouseenter="highlightedIndex = i"
-            >
-              <svg
-                class="suggestion-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
+            <template v-for="grp in groupedSuggestions" :key="grp.group">
+              <div v-if="grp.group" class="suggestion-group-label">
+                {{ grp.group }}
+              </div>
+              <button
+                v-for="s in grp.items"
+                :key="s.navigateTo"
+                class="suggestion-item"
+                :class="{ highlighted: s.index === highlightedIndex }"
+                @click="onSuggestionClick(s)"
+                @mouseenter="highlightedIndex = s.index"
               >
-                <rect x="3" y="3" width="7" height="7" rx="1" />
-                <rect x="14" y="3" width="7" height="7" rx="1" />
-                <rect x="3" y="14" width="7" height="7" rx="1" />
-                <rect x="14" y="14" width="7" height="7" rx="1" />
-              </svg>
-              {{ s }}
-            </button>
+                <svg
+                  class="suggestion-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                {{ s.label }}
+              </button>
+            </template>
           </div>
         </div>
 
@@ -272,7 +359,7 @@ onUnmounted(() => {
   align-items: stretch;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   background-color: var(--bg);
   border-bottom: 0.5px solid var(--border);
   box-sizing: border-box;
@@ -434,6 +521,15 @@ onUnmounted(() => {
   box-shadow: var(--dropdown-shadow);
   overflow: hidden;
   z-index: 300;
+}
+.suggestion-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-muted);
+  padding: 6px 14px 3px;
+  pointer-events: none;
 }
 .suggestion-item {
   display: flex;

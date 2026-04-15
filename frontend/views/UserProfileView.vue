@@ -206,6 +206,7 @@ watch(
     width: 100%;
     min-height: 6vh;
     display: flex;
+    position: relative;
   }
 }
 

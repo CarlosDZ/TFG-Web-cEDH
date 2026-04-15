@@ -1,40 +1,46 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const commanderTech_schema = new mongoose.Schema({
-    authorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        requiered: true
+  authorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    requiered: true,
+  },
+  commander: [String],
+  text_markdown: {
+    type: String,
+    requiered: true,
+  },
+  tags: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tag",
     },
-    commander: [String],
-    text_markdown: {
-        type: String,
-        requiered: true
+  ],
+  allowComments: {
+    type: Boolean,
+    default: true,
+  },
+  lastChangeDate: {
+    type: Date,
+    default: Date.now,
+  },
+  likes: {
+    type: Number,
+    default: 0,
+  },
+  likedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    tags: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tag'
-    }],
-    allowComments: {
-        type: Boolean,
-        default: true
+  ],
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
     },
-    lastChangeDate: {
-        type: Date,
-        default: true
-    },
-    likes: {
-        type: Number,
-        default: 0
-    },
-    likedBy: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }],
-    comments: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment'
-    }]
-})
+  ],
+});
 
-module.exports = mongoose.model('CommanderTech', commanderTech_schema);
+module.exports = mongoose.model("CommanderTech", commanderTech_schema);

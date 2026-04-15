@@ -15,4 +15,10 @@ module.exports = defineConfig({
             },
         },
     },
+    test: {
+        environment: "jsdom",
+        globals: true,
+        root: ".",
+        include: ["frontend/**/*.test.js"],
+    },
 });

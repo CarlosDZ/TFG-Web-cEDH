@@ -31,22 +31,114 @@ test(
 );
 
 test(
-  "obtiene una carta de doble cara (DFC)",
+  "obtiene una carta de doble cara (DFC, layout transform)",
   { timeout: TIMEOUT },
   async () => {
     const [ok, err, card] = await getCardByName("Delver of Secrets");
 
     assert.equal(ok, true, `Debería encontrar la carta DFC. Error: ${err}`);
-    assert.ok(card.card_faces, "Debe tener card_faces para DFC");
-    assert.equal(card.card_faces.length, 2, "DFC debe tener 2 caras");
+    assert.equal(card.layout, "transform", "Debe tener layout transform");
+    assert.ok(card.card_faces, "Debe tener card_faces");
+    assert.equal(card.card_faces.length, 2, "Debe tener 2 caras");
+
+    // El mana_cost raíz es la versión combinada — la cara frontal tiene el suyo propio
+    const frontFace = card.card_faces[0];
+    assert.ok(frontFace.mana_cost, "Cara frontal debe tener mana_cost propio");
     assert.ok(
-      card.card_faces[0].oracle_text,
-      "Cara frontal debe tener oracle text",
+      !frontFace.mana_cost.includes("//"),
+      "mana_cost de la cara no debe incluir '//'",
+    );
+    assert.ok(frontFace.oracle_text, "Cara frontal debe tener oracle text");
+    assert.ok(card.card_faces[1].name, "Cara trasera debe tener nombre");
+
+    console.log(`  ✓ Layout: ${card.layout}`);
+    console.log(`  ✓ Cara frontal: ${frontFace.name} (${frontFace.mana_cost})`);
+    console.log(`  ✓ Cara trasera: ${card.card_faces[1].name}`);
+  },
+);
+
+test(
+  "carta de aventura tiene cara secundaria con mana_cost independiente",
+  { timeout: TIMEOUT },
+  async () => {
+    const [ok, err, card] = await getCardByName("Bonecrusher Giant");
+
+    assert.equal(ok, true, `Debería encontrar la carta. Error: ${err}`);
+    assert.equal(card.layout, "adventure", "Debe tener layout adventure");
+    assert.ok(card.card_faces, "Debe tener card_faces");
+    assert.equal(card.card_faces.length, 2);
+
+    const creatureFace = card.card_faces[0];
+    const adventureFace = card.card_faces[1];
+
+    // El mana_cost raíz contiene "//" — las caras tienen costes limpios
+    assert.ok(
+      card.mana_cost.includes("//"),
+      "mana_cost raíz debe contener '//'",
+    );
+    assert.ok(
+      !creatureFace.mana_cost.includes("//"),
+      "Cara criatura no debe tener '//' en mana_cost",
+    );
+    assert.ok(
+      !adventureFace.mana_cost.includes("//"),
+      "Cara aventura no debe tener '//' en mana_cost",
+    );
+    assert.notEqual(
+      creatureFace.mana_cost,
+      adventureFace.mana_cost,
+      "Las dos caras deben tener costes distintos",
     );
 
-    console.log(`  ✓ Nombre: ${card.name}`);
-    console.log(`  ✓ Cara frontal: ${card.card_faces[0].name}`);
-    console.log(`  ✓ Cara trasera: ${card.card_faces[1].name}`);
+    console.log(`  ✓ Layout: ${card.layout}`);
+    console.log(`  ✓ mana_cost raíz (combinado): ${card.mana_cost}`);
+    console.log(
+      `  ✓ Criatura: ${creatureFace.name} (${creatureFace.mana_cost})`,
+    );
+    console.log(
+      `  ✓ Aventura: ${adventureFace.name} (${adventureFace.mana_cost})`,
+    );
+  },
+);
+
+test(
+  "carta con mecánica prepare tiene cara secundaria con mana_cost independiente",
+  { timeout: TIMEOUT },
+  async () => {
+    const [ok, err, card] = await getCardByName("Emeritus of Conflict");
+
+    assert.equal(ok, true, `Debería encontrar la carta. Error: ${err}`);
+    assert.equal(card.layout, "prepare", "Debe tener layout prepare");
+    assert.ok(card.card_faces, "Debe tener card_faces");
+    assert.equal(card.card_faces.length, 2);
+
+    const mainFace = card.card_faces[0];
+    const spellFace = card.card_faces[1];
+
+    assert.ok(
+      card.mana_cost.includes("//"),
+      "mana_cost raíz debe contener '//'",
+    );
+    assert.ok(
+      !mainFace.mana_cost.includes("//"),
+      "Cara principal no debe tener '//' en mana_cost",
+    );
+    assert.ok(
+      !spellFace.mana_cost.includes("//"),
+      "Hechizo preparado no debe tener '//' en mana_cost",
+    );
+    assert.notEqual(
+      mainFace.mana_cost,
+      spellFace.mana_cost,
+      "Las dos caras deben tener costes distintos",
+    );
+
+    console.log(`  ✓ Layout: ${card.layout}`);
+    console.log(`  ✓ mana_cost raíz (combinado): ${card.mana_cost}`);
+    console.log(`  ✓ Cara principal: ${mainFace.name} (${mainFace.mana_cost})`);
+    console.log(
+      `  ✓ Hechizo preparado: ${spellFace.name} (${spellFace.mana_cost})`,
+    );
   },
 );
 

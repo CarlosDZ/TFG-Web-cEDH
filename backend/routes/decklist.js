@@ -5,17 +5,19 @@ const createDeckValidationMiddleware = require("../middleware/deckMiddleware");
 const router = express.Router();
 
 const {
-    post_decklist,
-    obtener_decklist,
-    obtener_decklists,
-    toggle_fav,
-    toggle_like,
-    edit,
-    delete_decklist,
-    reply_to,
-    import_from_moxfield,
+  post_decklist,
+  obtener_decklist,
+  obtener_decklists,
+  toggle_fav,
+  toggle_like,
+  edit,
+  delete_decklist,
+  reply_to,
+  import_from_moxfield,
+  search_decklists,
 } = require("../controllers/decklist");
 
+router.get("/search", search_decklists);
 router.post("/", authMiddleware, createDeckValidationMiddleware, post_decklist);
 router.get("/", obtener_decklists);
 router.get("/:id", authMiddleware, obtener_decklist);

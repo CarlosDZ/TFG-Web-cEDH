@@ -5,6 +5,7 @@ import Dashboard from "../views/Dashboard.vue";
 import Decklists from "../views/Decklists.vue";
 import CardView from "../views/CardView.vue";
 import UserProfileView from "../views/UserProfileView.vue";
+import SearchResultsView from "../views/SearchResultsView.vue";
 
 const routes = [
   { path: "/", redirect: "/dashboard" },
@@ -14,6 +15,11 @@ const routes = [
     path: "/jugador/:username",
     name: "UserProfile",
     component: UserProfileView,
+  },
+  {
+    path: "/busqueda/:type",
+    name: "SearchResults",
+    component: SearchResultsView,
   },
 
   { path: "/login", name: "Login", component: Login },
