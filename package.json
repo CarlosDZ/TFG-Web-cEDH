@@ -10,6 +10,7 @@
     "dev-frontend": "vite",
     "dev": "vite build; node --env-file=.env backend/server.js",
     "test-backend": "node --test backend/**/*.test.js",
+    "test-frontend": "vitest run",
     "dev-all": "node scripts/dev-all.js",
     "dev-all:only": "node scripts/dev-all.js --only"
   },
@@ -45,7 +46,10 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
-    "@vitejs/plugin-vue": "^6.0.2",
-    "tailwindcss": "^4.1.17"
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^29.0.2",
+    "tailwindcss": "^4.1.17",
+    "vitest": "^4.1.4"
   }
 }
