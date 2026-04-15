@@ -3,15 +3,23 @@ const mongoose = require("mongoose");
 const commanderTech_schema = new mongoose.Schema({
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        requiered: true,
+        ref: 'User',
+        required: true
+    },
+    title: {
+        type: String,
+        required: true
+    },
+    pickup_lane: {
+        type: String,
+        default: ''
     },
     commander: [String],
     title: String,
     pickup_lane: String,
     text_markdown: {
         type: String,
-        requiered: true,
+        required: true
     },
     tags: [
         {

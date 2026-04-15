@@ -51,17 +51,17 @@ function applyFormat(actionFn) {
 }
 
 async function publish() {
-  if ((!title.value.trim() && !props.parentId) || !body.value.trim()) return;
-  publishing.value = true;
-  try {
-    var target_url;
-    if (!props.commentingOnDeck && !props.parentId) {
-      target_url = `/api/comment`;
-    } else if (!props.commentingOnDeck && props.parentId) {
-      target_url = `/api/comment/${props.parentId}/comment`;
-    } else {
-      target_url = `/api/decklist/${props.parentId}/comment`;
-    }
+    if ((!title.value.trim() && !props.parentId) || !body.value.trim()) return;
+    publishing.value = true;
+    try {
+        var target_url;
+        if (!props.commentingOnDeck && !props.parentId) {
+            target_url = `/api/comment`;
+        } else if (!props.commentingOnDeck && props.parentId) {
+            target_url = `/api/comment/${props.parentId}/comment`;
+        } else {
+            target_url = `/api/decklist/${props.parentId}/comment`;
+        }
 
     const payload = {
       title: title.value.trim(),
