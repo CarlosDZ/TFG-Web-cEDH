@@ -287,6 +287,34 @@ const import_from_moxfield = async (req, res) => {
   res.status(200).json(data);
 };
 
+const search_decklists = async (req, res) => {
+  try {
+    const q = (req.query.q || "").trim();
+    const by = req.query.by === "commander" ? "commander" : "title";
+    if (q.length < 2) return res.status(200).json([]);
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(escaped, "i");
+    const filter =
+      by === "title"
+        ? { isPublic: true, title: regex }
+        : {
+            isPublic: true,
+            commander: { $elemMatch: { $regex: escaped, $options: "i" } },
+          };
+    const decklists = await Decklist.find(filter)
+      .select(
+        "_id title commander color_identity likes lastChangeDate authorId",
+      )
+      .populate("authorId", "username")
+      .limit(20)
+      .lean();
+    res.status(200).json(decklists);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Error interno del server.");
+  }
+};
+
 module.exports = {
   post_decklist,
   obtener_decklist,
@@ -299,4 +327,5 @@ module.exports = {
   import_from_moxfield,
   get_deck_comments,
   is_liked_decklist,
+  search_decklists,
 };

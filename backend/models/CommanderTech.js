@@ -15,8 +15,6 @@ const commanderTech_schema = new mongoose.Schema({
         default: ''
     },
     commander: [String],
-    title: String,
-    pickup_lane: String,
     text_markdown: {
         type: String,
         required: true
@@ -33,7 +31,7 @@ const commanderTech_schema = new mongoose.Schema({
     },
     lastChangeDate: {
         type: Date,
-        default: true,
+        default: Date.now,
     },
     likes: {
         type: Number,
