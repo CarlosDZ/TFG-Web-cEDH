@@ -74,6 +74,10 @@ const MockComment = function (data) {
     _savedComment = this;
     return this;
   };
+  this.populate = async () => this;
+  this.toObject = function () {
+    return { ...this };
+  };
 };
 MockComment.aggregate = async () => [];
 
