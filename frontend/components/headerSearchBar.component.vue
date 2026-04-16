@@ -93,7 +93,7 @@ watch(searchQuery, (val) => {
       suggestions.value = [
         ...byTitle.slice(0, 5).map((d) => ({
           label: d.title,
-          navigateTo: `/decklists/${d._id}`,
+          navigateTo: `/busqueda/decks?q=${encodeURIComponent(d.title)}&by=title`,
           group: "Por título",
         })),
         ...byCommander.slice(0, 5).map((c) => ({
