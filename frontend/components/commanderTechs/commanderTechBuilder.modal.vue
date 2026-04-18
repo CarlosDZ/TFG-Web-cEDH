@@ -29,6 +29,50 @@ const form = reactive({
 
 const newCommander = ref("");
 const bodyRef = ref(null);
+const commanderSuggestions = ref([]);
+const suggestionsVisible = ref(false);
+const loadingCommander = ref(false);
+let debounceTimer = null;
+
+async function fetchSuggestions(query) {
+  if (query.trim().length < 2) {
+    commanderSuggestions.value = [];
+    suggestionsVisible.value = false;
+    loadingCommander.value = false;
+    return;
+  }
+  try {
+    const res = await fetch(
+      `https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(query)}&include_extras=false`,
+    );
+    const data = await res.json();
+    commanderSuggestions.value = data.data ?? [];
+    suggestionsVisible.value = commanderSuggestions.value.length > 0;
+  } catch {
+    commanderSuggestions.value = [];
+    suggestionsVisible.value = false;
+  } finally {
+    loadingCommander.value = false;
+  }
+}
+
+function onCommanderInput() {
+  clearTimeout(debounceTimer);
+  if (newCommander.value.trim().length < 2) {
+    loadingCommander.value = false;
+    commanderSuggestions.value = [];
+    suggestionsVisible.value = false;
+    return;
+  }
+  loadingCommander.value = true;
+  debounceTimer = setTimeout(() => fetchSuggestions(newCommander.value), 250);
+}
+
+function selectSuggestion(name) {
+  newCommander.value = name;
+  suggestionsVisible.value = false;
+  addCommander();
+}
 
 const TOOLBAR_ACTIONS = [
   { label: "Título", icon: "<b>H1</b>", action: (t) => `# ${t}` },
@@ -189,19 +233,35 @@ async function save() {
                       }}</span>
                     </label>
                     <div class="card-input-row">
-                      <input
-                        class="field-input"
-                        type="text"
-                        placeholder="Nombre del comandante..."
-                        v-model="newCommander"
-                        @keydown.enter.prevent="addCommander"
-                      />
+                      <div class="commander-input-wrap">
+                        <input
+                          class="field-input"
+                          type="text"
+                          placeholder="Nombre del comandante..."
+                          v-model="newCommander"
+                          @keydown.enter.prevent="addCommander"
+                          @input="onCommanderInput"
+                          @blur="suggestionsVisible = false"
+                          autocomplete="off"
+                        />
+                        <ul v-if="suggestionsVisible" class="suggestions-list">
+                          <li
+                            v-for="name in commanderSuggestions"
+                            :key="name"
+                            class="suggestion-item"
+                            @mousedown.prevent="selectSuggestion(name)"
+                          >
+                            {{ name }}
+                          </li>
+                        </ul>
+                      </div>
                       <button
                         class="add-btn"
                         type="button"
                         @click="addCommander"
                       >
                         <svg
+                          v-if="!loadingCommander"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -212,6 +272,7 @@ async function save() {
                           <line x1="12" y1="5" x2="12" y2="19" />
                           <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
+                        <div v-else class="btn-spinner"></div>
                       </button>
                     </div>
                     <div class="chip-grid">
@@ -596,6 +657,43 @@ async function save() {
   flex: 1;
 }
 
+.commander-input-wrap {
+  flex: 1;
+  position: relative;
+}
+.commander-input-wrap .field-input {
+  width: 100%;
+}
+
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg-surface);
+  border: 0.5px solid var(--accent);
+  border-top: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 14px;
+  color: var(--txt);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.suggestion-item:hover {
+  background: rgba(83, 74, 183, 0.2);
+  color: var(--accent-text);
+}
+
 .add-btn {
   width: 36px;
   height: 36px;
@@ -615,6 +713,21 @@ async function save() {
 .add-btn svg {
   width: 16px;
   height: 16px;
+}
+
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .chip-grid {
