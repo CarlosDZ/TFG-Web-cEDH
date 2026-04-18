@@ -8,6 +8,7 @@ import UserProfileView from "../views/UserProfileView.vue";
 import SearchResultsView from "../views/SearchResultsView.vue";
 import DeckDetail from "../views/DeckDetail.vue";
 import CommanderTechs from "../views/CommanderTechs.vue";
+import UsersView from "../views/UsersView.vue";
 
 const routes = [
   { path: "/", redirect: "/dashboard" },
@@ -35,7 +36,7 @@ const routes = [
     name: "CommanderTechs",
     component: CommanderTechs,
   },
-  { path: "/jugadores", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
+  { path: "/jugadores", name: "Jugadores", component: UsersView },
 
   { path: "/mis-decks", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
   { path: "/mis-commandertech", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha

@@ -10,6 +10,15 @@ export async function searchUsuarios(query) {
   return await res.json();
 }
 
+export async function getAllUsuarios(page = 1) {
+  const res = await fetch(
+    `${backend_url}/api/user?page=${page}`,
+    { credentials: "include" },
+  );
+  if (!res.ok) throw new Error("Error al cargar los usuarios");
+  return await res.json();
+}
+
 export async function getUsuarioPorNombre(username) {
   const res = await fetch(
     `${backend_url}/api/user/username/${encodeURIComponent(username)}`,

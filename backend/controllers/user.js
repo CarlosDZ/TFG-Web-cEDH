@@ -149,6 +149,27 @@ const obtener_usuario_por_nombre = async (req, res) => {
   }
 };
 
+const listar_usuarios = async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 20;
+    const skip = (page - 1) * limit;
+    const [usuarios, total] = await Promise.all([
+      Usuario.find()
+        .select("_id username bio createdAt isVerified")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Usuario.countDocuments(),
+    ]);
+    res.status(200).json({ usuarios, total, page, pages: Math.ceil(total / limit) });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Error interno del server.");
+  }
+};
+
 module.exports = {
   obtener_usuario,
   delete_usuario,
@@ -157,4 +178,5 @@ module.exports = {
   edit_user,
   search_usuarios,
   obtener_usuario_por_nombre,
+  listar_usuarios,
 };

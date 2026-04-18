@@ -15,11 +15,12 @@ const {
   edit_user,
   search_usuarios,
   obtener_usuario_por_nombre,
+  listar_usuarios,
 } = require("../controllers/user");
 
+router.get("/", listar_usuarios);
 router.get("/search", search_usuarios);
 router.get("/username/:username", obtener_usuario_por_nombre);
-//router.get('/', 'funcion del controlador para ver usuarios');       //Realmente necesaria?
 router.get("/:id", obtener_usuario);
 router.patch("/:id", authMiddleware, edit_user);
 //router.patch('/:id/settings', authMiddleware, 'funcion para cambiar contraseña, correo, etc');
