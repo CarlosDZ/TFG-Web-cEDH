@@ -143,7 +143,7 @@ function handleClose() {
             <!-- Header -->
             <div class="detail-header">
               <div class="detail-header__left">
-                <span class="detail-eyebrow">Commander Tech</span>
+                <span class="detail-eyebrow">Tech</span>
                 <p class="detail-commanders">{{ commanders }}</p>
                 <h1 class="detail-title">{{ tech.title }}</h1>
                 <p class="detail-meta">{{ authorName }} · {{ fecha }}</p>

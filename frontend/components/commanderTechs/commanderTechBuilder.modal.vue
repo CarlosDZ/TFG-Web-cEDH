@@ -175,7 +175,7 @@ async function save() {
               <!-- Header -->
               <div class="modal-header">
                 <div class="modal-header-text">
-                  <span class="modal-eyebrow">Nueva commander tech</span>
+                  <span class="modal-eyebrow">Nueva tech</span>
                   <h2 class="modal-heading">
                     {{ form.title || "¿Sobre qué quieres escribir?" }}
                   </h2>
@@ -227,7 +227,7 @@ async function save() {
 
                   <div class="field-group">
                     <label class="field-label">
-                      Comandante(s)
+                      Cartas
                       <span class="count-badge">{{
                         form.commander.length
                       }}</span>
@@ -237,7 +237,7 @@ async function save() {
                         <input
                           class="field-input"
                           type="text"
-                          placeholder="Nombre del comandante..."
+                          placeholder="Nombre de la carta..."
                           v-model="newCommander"
                           @keydown.enter.prevent="addCommander"
                           @input="onCommanderInput"
@@ -366,7 +366,7 @@ async function save() {
                     <textarea
                       ref="bodyRef"
                       class="md-textarea"
-                      placeholder="Desarrolla el análisis del comandante en Markdown..."
+                      placeholder="Desarrolla el análisis en Markdown..."
                       v-model="form.text_markdown"
                       maxlength="20000"
                     />

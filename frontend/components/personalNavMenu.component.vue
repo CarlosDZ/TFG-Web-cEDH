@@ -82,7 +82,7 @@ function togglePanel() {
                             <path d="M2 12l10 5 10-5" />
                         </svg>
                     </span>
-                    Commander techs
+                    Mis techs
                 </button>
             </RouterLink>
 

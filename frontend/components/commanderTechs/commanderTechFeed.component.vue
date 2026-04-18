@@ -13,7 +13,7 @@ const emit = defineEmits(["new-tech", "open-tech"]);
 
 <template>
   <div id="mainContainer-techFeed" :class="{ 'panel-open': isPanelOpen }">
-    <p v-if="loading" class="feed-status">Cargando commander techs...</p>
+    <p v-if="loading" class="feed-status">Cargando techs...</p>
 
     <div v-else-if="techs.length === 0" class="feed-empty">
       <svg
@@ -28,7 +28,7 @@ const emit = defineEmits(["new-tech", "open-tech"]);
         <path d="M2 17l10 5 10-5" />
         <path d="M2 12l10 5 10-5" />
       </svg>
-      <span class="feed-empty__title">Sin commander techs</span>
+      <span class="feed-empty__title">Sin techs</span>
       <span class="feed-empty__sub"
         >Sé el primero en compartir un análisis.</span
       >
@@ -46,7 +46,7 @@ const emit = defineEmits(["new-tech", "open-tech"]);
     <button
       v-if="auth.isLogged"
       class="new-tech-btn"
-      title="Nueva commander tech"
+      title="Nueva tech"
       @click="emit('new-tech')"
     >
       <svg

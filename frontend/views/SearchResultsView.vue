@@ -23,7 +23,7 @@ const by = computed(() => route.query.by || "title");
 const typeLabels = {
   discusiones: "Discusiones",
   decks: "Decks",
-  techs: "Commander Techs",
+  techs: "Techs",
 };
 
 const byLabels = { title: "título", commander: "comandante" };

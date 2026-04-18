@@ -59,7 +59,6 @@ async function typeAndWait(wrapper, text, ms = 850) {
   await flushPromises();
 }
 
-
 // ── submitPath — rutas al enviar ──────────────────────────────────────────────
 
 describe("submitPath — rutas de navegación al enviar", () => {
@@ -232,7 +231,7 @@ describe("autocomplete — discusiones (backend)", () => {
 
 // ── Autocomplete: decks (dos grupos) ─────────────────────────────────────────
 
-describe("autocomplete — decks (título + comandante)", () => {
+describe("autocomplete — decks (título + commander)", () => {
   let router, wrapper;
 
   beforeEach(async () => {
@@ -288,9 +287,9 @@ describe("autocomplete — decks (título + comandante)", () => {
   });
 });
 
-// ── Autocomplete: commander techs (dos grupos) ────────────────────────────────
+// ── Autocomplete: techs (dos grupos) ─────────────────────────────────────────
 
-describe("autocomplete — commander techs (base de datos + comandante)", () => {
+describe("autocomplete — techs (base de datos + cartas)", () => {
   let router, wrapper;
 
   beforeEach(async () => {
@@ -312,10 +311,10 @@ describe("autocomplete — commander techs (base de datos + comandante)", () => 
     expect(inDb[0].label).toBe("Tymna the Weaver / Thrasios, Triton Hero");
   });
 
-  it("muestra sugerencias del grupo 'Buscar por comandante'", async () => {
+  it("muestra sugerencias del grupo 'Buscar por carta'", async () => {
     await typeAndWait(wrapper, "Tymna");
     const byCommander = wrapper.vm.suggestions.filter(
-      (s) => s.group === "Buscar por comandante",
+      (s) => s.group === "Buscar por carta",
     );
     expect(byCommander.length).toBe(1);
     expect(byCommander[0].label).toBe("Tymna the Weaver");
@@ -389,9 +388,7 @@ describe("navegación por teclado", () => {
     const input = wrapper.find(".search-input");
     for (let i = 0; i < 10; i++)
       await input.trigger("keydown", { key: "ArrowDown" });
-    expect(wrapper.vm.highlightedIndex).toBe(
-      wrapper.vm.suggestions.length - 1,
-    );
+    expect(wrapper.vm.highlightedIndex).toBe(wrapper.vm.suggestions.length - 1);
   });
 
   it("Escape cierra el dropdown", async () => {
