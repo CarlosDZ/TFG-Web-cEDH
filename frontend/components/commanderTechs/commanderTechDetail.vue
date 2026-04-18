@@ -67,6 +67,7 @@ onMounted(async () => {
   nextTick(() => {
     visible.value = true;
   });
+  loadComments();
   if (auth.isLogged) {
     try {
       const data = await isLiked(props.tech._id);
@@ -200,6 +201,9 @@ function handleClose() {
                 @click="switchToComments"
               >
                 Comentarios
+                <span class="comment-count">{{
+                  commentsLoaded ? comments.length : "…"
+                }}</span>
               </button>
             </div>
 
@@ -465,6 +469,26 @@ function handleClose() {
 .tab-btn.active {
   color: var(--accent-text);
   border-bottom-color: var(--accent);
+}
+
+.comment-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-family: inherit;
+  letter-spacing: 0;
+  background: rgba(83, 74, 183, 0.18);
+  color: var(--accent-muted);
+  border: 0.5px solid rgba(83, 74, 183, 0.3);
+  vertical-align: middle;
+}
+.tab-btn.active .comment-count {
+  background: rgba(83, 74, 183, 0.3);
+  color: var(--accent-text);
 }
 
 /* Body */

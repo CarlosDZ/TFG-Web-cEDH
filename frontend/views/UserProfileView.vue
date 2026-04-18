@@ -1,14 +1,26 @@
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
+import { marked } from "marked";
 import { useRoute } from "vue-router";
 import { getUsuarioPorNombre } from "../services/userService";
+import { getDecklistsByUser } from "../services/decklistService";
+import { getCommanderTechsByUser } from "../services/commanderTechService";
+import { getDiscusionesByUser } from "../services/discussionService";
 import headersSearchBar from "../components/headerSearchBar.component.vue";
 import sectionNavMenu from "../components/sectionNavMenu.component.vue";
+import DeckCard from "../components/decklists/deckCard.component.vue";
+import CommanderTechCard from "../components/commanderTechs/commanderTechCard.component.vue";
+import CommanderTechDetail from "../components/commanderTechs/commanderTechDetail.vue";
 
 const route = useRoute();
 const user = ref(null);
 const loading = ref(true);
 const error = ref(null);
+
+const decks = ref([]);
+const techs = ref([]);
+const discussions = ref([]);
+const selectedTech = ref(null);
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString("es-ES", {
@@ -17,12 +29,29 @@ function formatDate(dateStr) {
   });
 }
 
+function formatDateShort(dateStr) {
+  return new Date(dateStr).toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 async function loadUser(username) {
   loading.value = true;
   error.value = null;
   user.value = null;
+  decks.value = [];
+  techs.value = [];
+  discussions.value = [];
   try {
     user.value = await getUsuarioPorNombre(username);
+    const id = user.value._id;
+    [decks.value, techs.value, discussions.value] = await Promise.all([
+      getDecklistsByUser(id),
+      getCommanderTechsByUser(id),
+      getDiscusionesByUser(id),
+    ]);
   } catch (e) {
     error.value = e.message;
   } finally {
@@ -66,6 +95,7 @@ watch(
       </div>
 
       <div v-else-if="user" class="profile-view">
+        <!-- Header -->
         <div class="profile-header">
           <div class="avatar-placeholder">
             {{ user.username.charAt(0).toUpperCase() }}
@@ -90,12 +120,14 @@ watch(
           </div>
         </div>
 
+        <!-- Bio -->
         <div v-if="user.bio" class="bio-section">
           <p class="bio-text">{{ user.bio }}</p>
         </div>
 
-        <div class="placeholder-section">
-          <div class="placeholder-card">
+        <!-- Decks públicos -->
+        <section class="content-section">
+          <h2 class="section-title">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -106,10 +138,18 @@ watch(
                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
               />
             </svg>
-            <span>Decks públicos</span>
-            <span class="coming-soon">Próximamente</span>
+            Decks públicos
+            <span class="section-count">{{ decks.length }}</span>
+          </h2>
+          <div v-if="decks.length" class="cards-grid">
+            <DeckCard v-for="deck in decks" :key="deck._id" :deck="deck" />
           </div>
-          <div class="placeholder-card">
+          <p v-else class="empty-msg">Este jugador no tiene decks públicos.</p>
+        </section>
+
+        <!-- Commander Techs -->
+        <section class="content-section">
+          <h2 class="section-title">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -120,10 +160,25 @@ watch(
                 d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
               />
             </svg>
-            <span>Commander Techs</span>
-            <span class="coming-soon">Próximamente</span>
+            Commander Techs
+            <span class="section-count">{{ techs.length }}</span>
+          </h2>
+          <div v-if="techs.length" class="cards-grid">
+            <CommanderTechCard
+              v-for="tech in techs"
+              :key="tech._id"
+              :tech="tech"
+              @open="selectedTech = $event"
+            />
           </div>
-          <div class="placeholder-card">
+          <p v-else class="empty-msg">
+            Este jugador no ha publicado ninguna tech.
+          </p>
+        </section>
+
+        <!-- Discusiones -->
+        <section class="content-section">
+          <h2 class="section-title">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -134,12 +189,70 @@ watch(
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            <span>Discusiones</span>
-            <span class="coming-soon">Próximamente</span>
+            Discusiones
+            <span class="section-count">{{ discussions.length }}</span>
+          </h2>
+          <div v-if="discussions.length" class="discussions-list">
+            <article
+              v-for="d in discussions"
+              :key="d._id"
+              class="discussion-card"
+            >
+              <h3 class="discussion-title">{{ d.title || "Sin título" }}</h3>
+              <div
+                v-if="d.markdown_text"
+                class="discussion-preview"
+                v-html="
+                  marked.parse(d.markdown_text.replace(/\n{3,}/g, '\n\n'))
+                "
+              />
+              <div class="discussion-meta">
+                <span class="meta-item">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    width="11"
+                    height="11"
+                  >
+                    <path
+                      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    />
+                  </svg>
+                  {{ d.likes ?? 0 }}
+                </span>
+                <span class="meta-item">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="11"
+                    height="11"
+                  >
+                    <path
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    />
+                  </svg>
+                  {{ d.replyCount ?? 0 }}
+                </span>
+                <span class="meta-date">{{
+                  formatDateShort(d.createdAt)
+                }}</span>
+              </div>
+            </article>
           </div>
-        </div>
+          <p v-else class="empty-msg">
+            Este jugador no ha iniciado ninguna discusión.
+          </p>
+        </section>
       </div>
     </main>
+
+    <CommanderTechDetail
+      v-if="selectedTech"
+      :tech="selectedTech"
+      @close="selectedTech = null"
+    />
 
     <footer>
       <sectionNavMenu />
@@ -228,6 +341,7 @@ watch(
   width: 36px;
   height: 36px;
 }
+
 .spinner {
   width: 36px;
   height: 36px;
@@ -243,11 +357,11 @@ watch(
 }
 
 .profile-view {
-  max-width: 720px;
+  max-width: 800px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 .profile-header {
@@ -321,42 +435,139 @@ watch(
   color: var(--txt);
   line-height: 1.6;
   white-space: pre-wrap;
+  margin: 0;
 }
 
-.placeholder-section {
+/* Sections */
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--txt);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.section-title svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.section-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  background: rgba(83, 74, 183, 0.12);
+  border: 0.5px solid rgba(83, 74, 183, 0.3);
+  border-radius: 10px;
+  padding: 1px 8px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 12px;
 }
 
-.placeholder-card {
+.empty-msg {
+  font-size: 13px;
+  color: var(--txt-muted);
+  margin: 0;
+  padding: 16px 0;
+}
+
+/* Discussion cards */
+.discussions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.discussion-card {
   background: var(--surface);
   border: 0.5px solid var(--border);
   border-radius: 8px;
-  padding: 20px 16px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+  min-height: 120px;
+  transition: border-color 0.15s;
+}
+.discussion-card:hover {
+  border-color: var(--accent);
+}
+
+.discussion-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--txt);
+  margin: 0;
+}
+
+.discussion-preview {
+  font-size: 11px;
+  color: var(--txt-muted);
+  line-height: 1.55;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.discussion-preview :deep(p) {
+  margin: 0 0 4px;
+}
+.discussion-preview :deep(h1),
+.discussion-preview :deep(h2),
+.discussion-preview :deep(h3) {
+  font-size: 11px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.discussion-preview :deep(ul),
+.discussion-preview :deep(ol) {
+  margin: 0;
+  padding-left: 16px;
+}
+.discussion-preview :deep(code) {
+  font-size: 10px;
+}
+
+.discussion-meta {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  text-align: center;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
   color: var(--txt-muted);
 }
-.placeholder-card svg {
-  width: 28px;
-  height: 28px;
-  opacity: 0.5;
-}
-.placeholder-card span {
-  font-size: 13px;
-  color: var(--txt);
-}
-.placeholder-card .coming-soon {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
+.meta-item svg {
   color: var(--accent);
-  border: 0.5px solid var(--accent);
-  border-radius: 3px;
-  padding: 2px 7px;
+}
+
+.meta-date {
+  font-size: 11px;
+  color: var(--txt-muted);
+  margin-left: auto;
 }
 </style>

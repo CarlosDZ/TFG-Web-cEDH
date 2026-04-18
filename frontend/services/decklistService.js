@@ -25,6 +25,12 @@ export async function isDeckLiked(id) {
   return data.liked;
 }
 
+export async function getDecklistsByUser(userId) {
+  const res = await fetch(`/api/decklist/user/${userId}`);
+  if (!res.ok) return [];
+  return res.json();
+}
+
 export async function toggleDeckLike(id) {
   const res = await fetch(`/api/decklist/${id}/like`, {
     method: "POST",

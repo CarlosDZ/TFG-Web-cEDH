@@ -7,6 +7,7 @@ const {
   post_commandertech,
   obtener_commandertechs,
   obtener_commandertech,
+  obtener_commandertechs_por_usuario,
   toggle_like,
   toggle_fav,
   edit,
@@ -18,6 +19,7 @@ const {
 } = require("../controllers/commandertech");
 
 router.post("/", authMiddleware, post_commandertech);
+router.get("/user/:userId", obtener_commandertechs_por_usuario);
 router.get("/", obtener_commandertechs);
 router.get("/:id", obtener_commandertech);
 router.patch("/:id", authMiddleware, edit);
