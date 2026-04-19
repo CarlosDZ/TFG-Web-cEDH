@@ -243,16 +243,34 @@ const is_liked = async (req, res) => {
 
 const search_commandertechs = async (req, res) => {
   try {
-    const q = (req.query.q || "").trim();
-    if (q.length < 2) return res.status(200).json([]);
-    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const techs = await CommanderTech.find({
-      commander: { $elemMatch: { $regex: escaped, $options: "i" } },
-    })
-      .select("_id commander likes lastChangeDate authorId")
+    const title = (req.query.title || req.query.q || "").trim();
+    const cards = []
+      .concat(req.query.cards || [])
+      .map((c) => c.trim())
+      .filter(Boolean);
+
+    if (title.length < 2 && cards.length === 0) return res.status(200).json([]);
+
+    const conditions = [];
+
+    if (title.length >= 2) {
+      const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      conditions.push({ title: { $regex: escaped, $options: "i" } });
+    }
+
+    if (cards.length > 0) {
+      conditions.push({ commander: { $all: cards } });
+    }
+
+    const filter =
+      conditions.length === 1 ? conditions[0] : { $and: conditions };
+
+    const techs = await CommanderTech.find(filter)
+      .select("_id title commander pickup_lane likes lastChangeDate authorId")
       .populate("authorId", "username")
       .limit(20)
       .lean();
+
     res.status(200).json(techs);
   } catch (err) {
     console.log(err);

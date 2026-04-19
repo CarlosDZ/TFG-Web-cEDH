@@ -13,6 +13,7 @@ const router = useRouter();
 
 const searchFilter = ref("card");
 const searchQuery = ref("");
+const selectedCards = ref([]);
 // Each suggestion: { label: string, navigateTo: string, group: string|null }
 const suggestions = ref([]);
 const showSuggestions = ref(false);
@@ -35,16 +36,22 @@ const groupedSuggestions = computed(() => {
 
 function submitPath(q) {
   const t = q.trim();
-  if (!t) return null;
   const f = searchFilter.value;
-  if (f === "card") return `/carta/${encodeURIComponent(t)}`;
-  if (f === "user") return `/jugador/${encodeURIComponent(t)}`;
+  if (f === "card") return t ? `/carta/${encodeURIComponent(t)}` : null;
+  if (f === "user") return t ? `/jugador/${encodeURIComponent(t)}` : null;
   if (f === "discussion")
-    return `/busqueda/discusiones?q=${encodeURIComponent(t)}`;
+    return t ? `/busqueda/discusiones?q=${encodeURIComponent(t)}` : null;
   if (f === "deck")
-    return `/busqueda/decks?q=${encodeURIComponent(t)}&by=title`;
-  if (f === "commander-tech")
-    return `/busqueda/techs?q=${encodeURIComponent(t)}`;
+    return t ? `/busqueda/decks?q=${encodeURIComponent(t)}&by=title` : null;
+  if (f === "commander-tech") {
+    const hasTitle = t.length >= 2;
+    const hasCards = selectedCards.value.length > 0;
+    if (!hasTitle && !hasCards) return null;
+    const params = new URLSearchParams();
+    if (hasTitle) params.set("title", t);
+    selectedCards.value.forEach((c) => params.append("cards", c));
+    return `/busqueda/techs?${params}`;
+  }
   return null;
 }
 
@@ -118,7 +125,7 @@ watch(searchQuery, (val) => {
         ...byCommander.slice(0, 5).map((c) => ({
           label: c,
           navigateTo: `/busqueda/techs?q=${encodeURIComponent(c)}`,
-          group: "Buscar por comandante",
+          group: "Buscar por carta",
         })),
       ];
     } else {
@@ -135,6 +142,7 @@ watch(searchFilter, () => {
   showSuggestions.value = false;
   loadingSuggestions.value = false;
   highlightedIndex.value = -1;
+  selectedCards.value = [];
   clearTimeout(debounceTimer);
 });
 
@@ -156,7 +164,24 @@ function onSubmit() {
   }
 }
 
+function addCard(label) {
+  if (!selectedCards.value.includes(label)) selectedCards.value.push(label);
+  showSuggestions.value = false;
+  searchQuery.value = "";
+}
+
+function removeCard(label) {
+  selectedCards.value = selectedCards.value.filter((c) => c !== label);
+}
+
 function onSuggestionClick(suggestion) {
+  if (
+    searchFilter.value === "commander-tech" &&
+    suggestion.group === "Buscar por carta"
+  ) {
+    addCard(suggestion.label);
+    return;
+  }
   searchQuery.value = suggestion.label;
   navigateTo(suggestion.navigateTo);
 }
@@ -215,91 +240,107 @@ onUnmounted(() => {
     <div class="search-zone">
       <div
         class="search-wrap"
-        :class="{ focused: showSuggestions || loadingSuggestions }"
+        :class="{
+          focused: showSuggestions || loadingSuggestions,
+          'has-chips':
+            searchFilter === 'commander-tech' && selectedCards.length > 0,
+        }"
       >
-        <div class="select-wrap">
-          <select v-model="searchFilter" class="search-filter">
-            <option value="card">Cartas</option>
-            <option value="deck">Decks</option>
-            <option value="commander-tech">Techs</option>
-            <option value="user">Jugadores</option>
-            <option value="discussion">Discusiones</option>
-          </select>
-          <svg
-            class="select-arrow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </div>
-
-        <div class="input-suggestions-wrap">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Buscar en Spain cEDH..."
-            class="search-input"
-            @keydown="onKeydown"
-            @keydown.enter="onSubmit"
-            @focus="showSuggestions = suggestions.length > 0"
-            autocomplete="off"
-          />
-
-          <div
-            v-if="showSuggestions && suggestions.length > 0"
-            class="suggestions-dropdown"
-          >
-            <template v-for="grp in groupedSuggestions" :key="grp.group">
-              <div v-if="grp.group" class="suggestion-group-label">
-                {{ grp.group }}
-              </div>
-              <button
-                v-for="s in grp.items"
-                :key="s.navigateTo"
-                class="suggestion-item"
-                :class="{ highlighted: s.index === highlightedIndex }"
-                @click="onSuggestionClick(s)"
-                @mouseenter="highlightedIndex = s.index"
-              >
-                <svg
-                  class="suggestion-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                {{ s.label }}
-              </button>
-            </template>
+        <div class="search-row">
+          <div class="select-wrap">
+            <select v-model="searchFilter" class="search-filter">
+              <option value="card">Cartas</option>
+              <option value="deck">Decks</option>
+              <option value="commander-tech">Techs</option>
+              <option value="user">Jugadores</option>
+              <option value="discussion">Discusiones</option>
+            </select>
+            <svg
+              class="select-arrow"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </div>
+
+          <div class="input-suggestions-wrap">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Buscar en Spain cEDH..."
+              class="search-input"
+              @keydown="onKeydown"
+              @keydown.enter="onSubmit"
+              @focus="showSuggestions = suggestions.length > 0"
+              autocomplete="off"
+            />
+
+            <div
+              v-if="showSuggestions && suggestions.length > 0"
+              class="suggestions-dropdown"
+            >
+              <template v-for="grp in groupedSuggestions" :key="grp.group">
+                <div v-if="grp.group" class="suggestion-group-label">
+                  {{ grp.group }}
+                </div>
+                <button
+                  v-for="s in grp.items"
+                  :key="s.navigateTo"
+                  class="suggestion-item"
+                  :class="{ highlighted: s.index === highlightedIndex }"
+                  @click="onSuggestionClick(s)"
+                  @mouseenter="highlightedIndex = s.index"
+                >
+                  <svg
+                    class="suggestion-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  {{ s.label }}
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <button class="search-submit" title="Buscar" @click="onSubmit">
+            <svg
+              v-if="!loadingSuggestions"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <div v-else class="btn-spinner"></div>
+          </button>
         </div>
 
-        <button class="search-submit" title="Buscar" @click="onSubmit">
-          <svg
-            v-if="!loadingSuggestions"
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <div v-else class="btn-spinner"></div>
-        </button>
+        <div
+          v-if="searchFilter === 'commander-tech' && selectedCards.length > 0"
+          class="chips-row"
+        >
+          <span v-for="card in selectedCards" :key="card" class="card-chip">
+            {{ card }}
+            <button class="chip-remove" @click="removeCard(card)">×</button>
+          </span>
+        </div>
       </div>
     </div>
 
@@ -439,10 +480,9 @@ onUnmounted(() => {
 }
 .search-wrap {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   width: 100%;
   max-width: 620px;
-  height: 38px;
   background: var(--input-bg);
   border: 0.5px solid var(--border);
   border-radius: 4px;
@@ -456,6 +496,45 @@ onUnmounted(() => {
 .search-wrap.focused {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--focus-ring);
+}
+.search-row {
+  display: flex;
+  align-items: center;
+  height: 38px;
+}
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 6px 10px;
+  border-top: 0.5px solid var(--border);
+}
+.card-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(83, 74, 183, 0.18);
+  border: 0.5px solid var(--accent);
+  border-radius: 3px;
+  padding: 2px 7px 2px 9px;
+  font-size: 11.5px;
+  color: var(--accent-text);
+  white-space: nowrap;
+}
+.chip-remove {
+  background: none;
+  border: none;
+  color: var(--accent-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.1s;
+}
+.chip-remove:hover {
+  color: var(--txt);
 }
 .select-wrap {
   position: relative;

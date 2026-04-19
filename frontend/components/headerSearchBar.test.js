@@ -104,13 +104,13 @@ describe("submitPath — rutas de navegación al enviar", () => {
     expect(router.currentRoute.value.query.by).toBe("title");
   });
 
-  it("navega a /busqueda/techs?q= para el filtro 'commander-tech'", async () => {
+  it("navega a /busqueda/techs?title= para el filtro 'commander-tech'", async () => {
     await wrapper.find(".search-filter").setValue("commander-tech");
     await wrapper.find(".search-input").setValue("Thrasios");
     await wrapper.find(".search-submit").trigger("click");
     await flushPromises();
     expect(router.currentRoute.value.path).toBe("/busqueda/techs");
-    expect(router.currentRoute.value.query.q).toBe("Thrasios");
+    expect(router.currentRoute.value.query.title).toBe("Thrasios");
   });
 
   it("no navega si la query está vacía", async () => {
@@ -327,6 +327,20 @@ describe("autocomplete — techs (base de datos + cartas)", () => {
         s.navigateTo.startsWith("/busqueda/techs"),
       ),
     ).toBe(true);
+  });
+
+  it("al hacer click en 'Buscar por carta' añade chip y limpia el input", async () => {
+    await typeAndWait(wrapper, "Tymna");
+    const byCard = wrapper.vm.suggestions.find(
+      (s) => s.group === "Buscar por carta",
+    );
+    expect(byCard).toBeDefined();
+    const item = wrapper
+      .findAll(".suggestion-item")
+      .find((el) => el.text().trim() === byCard.label);
+    await item.trigger("click");
+    expect(wrapper.vm.selectedCards).toContain(byCard.label);
+    expect(wrapper.vm.searchQuery).toBe("");
   });
 });
 

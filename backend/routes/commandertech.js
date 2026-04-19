@@ -19,6 +19,7 @@ const {
 
 router.post("/", authMiddleware, post_commandertech);
 router.get("/", obtener_commandertechs);
+router.get("/search", search_commandertechs);
 router.get("/:id", obtener_commandertech);
 router.patch("/:id", authMiddleware, edit);
 router.delete("/:id", authMiddleware, delete_commandertech);
@@ -27,6 +28,5 @@ router.get("/:id/isLiked", authMiddleware, is_liked);
 router.post("/:id/save", authMiddleware, toggle_fav);
 router.post("/:id/comment", authMiddleware, comment_on_commandertech);
 router.get("/:id/comments", obtener_comentarios_commandertech);
-router.get("/search", search_commandertechs);
 
 module.exports = router;

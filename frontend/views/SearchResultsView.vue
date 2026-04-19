@@ -4,10 +4,11 @@ import { useRoute, useRouter } from "vue-router";
 import {
   searchDiscusiones,
   searchDecks,
-  searchTechs,
+  searchTechsFiltered,
 } from "../services/searchService";
 import headersSearchBar from "../components/headerSearchBar.component.vue";
 import sectionNavMenu from "../components/sectionNavMenu.component.vue";
+import commanderTechDetail from "../components/commanderTechs/commanderTechDetail.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -15,10 +16,18 @@ const router = useRouter();
 const results = ref([]);
 const loading = ref(false);
 const error = ref(null);
+const selectedTech = ref(null);
 
 const type = computed(() => route.params.type); // discusiones | decks | techs
 const q = computed(() => route.query.q || "");
 const by = computed(() => route.query.by || "title");
+const techTitle = computed(() => route.query.title || "");
+const techCards = computed(() =>
+  []
+    .concat(route.query.cards || [])
+    .map((c) => c.trim())
+    .filter(Boolean),
+);
 
 const typeLabels = {
   discusiones: "Discusiones",
@@ -56,19 +65,26 @@ const colorTextMap = {
 };
 
 async function runSearch() {
-  if (!q.value || q.value.trim().length < 2) {
-    results.value = [];
-    return;
-  }
   loading.value = true;
   error.value = null;
   try {
     if (type.value === "discusiones") {
+      if (!q.value || q.value.trim().length < 2) {
+        results.value = [];
+        return;
+      }
       results.value = await searchDiscusiones(q.value);
     } else if (type.value === "decks") {
+      if (!q.value || q.value.trim().length < 2) {
+        results.value = [];
+        return;
+      }
       results.value = await searchDecks(q.value, by.value);
     } else if (type.value === "techs") {
-      results.value = await searchTechs(q.value);
+      results.value = await searchTechsFiltered({
+        title: techTitle.value,
+        cards: techCards.value,
+      });
     } else {
       results.value = [];
     }
@@ -80,7 +96,7 @@ async function runSearch() {
 }
 
 onMounted(runSearch);
-watch([type, q, by], runSearch);
+watch([type, q, by, techTitle, techCards], runSearch);
 </script>
 
 <template>
@@ -143,7 +159,12 @@ watch([type, q, by], runSearch);
 
         <!-- Sin resultados -->
         <div
-          v-else-if="results.length === 0 && q.length >= 2"
+          v-else-if="
+            results.length === 0 &&
+            (type === 'techs'
+              ? techTitle.length >= 2 || techCards.length > 0
+              : q.length >= 2)
+          "
           class="state-msg"
         >
           <svg
@@ -256,29 +277,38 @@ watch([type, q, by], runSearch);
             v-for="item in results"
             :key="item._id"
             class="result-card tech-card"
+            @click="selectedTech = item"
           >
             <div class="card-top">
-              <h2 class="card-title">{{ commanderLabel(item.commander) }}</h2>
+              <div class="card-meta">
+                <span class="card-author">{{ item.authorId?.username }}</span>
+                <span class="card-date">{{
+                  formatDate(item.lastChangeDate)
+                }}</span>
+              </div>
               <span class="stat">
                 <svg
                   viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+                  fill="currentColor"
+                  width="13"
+                  height="13"
                 >
                   <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
                   />
                 </svg>
-                {{ item.likes }}
+                {{ item.likes ?? 0 }}
               </span>
             </div>
-            <div class="card-footer">
-              <span class="card-author">{{ item.authorId?.username }}</span>
-              <span class="card-date">{{
-                formatDate(item.lastChangeDate)
-              }}</span>
-            </div>
+            <p class="card-commanders">{{ commanderLabel(item.commander) }}</p>
+            <h2 class="card-title">{{ item.title }}</h2>
+            <p v-if="item.pickup_lane" class="card-excerpt">
+              {{
+                item.pickup_lane.length > 160
+                  ? item.pickup_lane.slice(0, 160) + "…"
+                  : item.pickup_lane
+              }}
+            </p>
           </li>
         </ul>
       </div>
@@ -287,6 +317,12 @@ watch([type, q, by], runSearch);
     <footer>
       <sectionNavMenu />
     </footer>
+
+    <commanderTechDetail
+      v-if="selectedTech"
+      :tech="selectedTech"
+      @close="selectedTech = null"
+    />
   </div>
 </template>
 
@@ -507,6 +543,17 @@ watch([type, q, by], runSearch);
   padding: 2px 8px;
   align-self: flex-start;
   font-style: italic;
+}
+.card-commanders {
+  font-size: 11px;
+  color: var(--accent-muted, #afa9ec);
+  font-style: italic;
+  margin: 0;
+}
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .card-footer {
   display: flex;
