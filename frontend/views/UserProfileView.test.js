@@ -105,6 +105,11 @@ const STUBS = {
     props: ["tech"],
     emits: ["close"],
   },
+  DiscussionDetail: {
+    template: '<div class="discussion-detail-stub"/>',
+    props: ["post"],
+    emits: ["close"],
+  },
 };
 
 async function mountView(username = "tymna_player") {
@@ -289,6 +294,14 @@ describe("sección discusiones", () => {
     const wrapper = await mountView();
     const metaItems = wrapper.findAll(".meta-item");
     expect(metaItems.some((el) => el.text().includes("7"))).toBe(true);
+  });
+
+  it("abre DiscussionDetail al hacer clic en una discussion card", async () => {
+    const wrapper = await mountView();
+    expect(wrapper.find(".discussion-detail-stub").exists()).toBe(false);
+    await wrapper.find(".discussion-card").trigger("click");
+    await flushPromises();
+    expect(wrapper.find(".discussion-detail-stub").exists()).toBe(true);
   });
 });
 

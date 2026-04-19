@@ -11,6 +11,7 @@ import sectionNavMenu from "../components/sectionNavMenu.component.vue";
 import DeckCard from "../components/decklists/deckCard.component.vue";
 import CommanderTechCard from "../components/commanderTechs/commanderTechCard.component.vue";
 import CommanderTechDetail from "../components/commanderTechs/commanderTechDetail.vue";
+import DiscussionDetail from "../components/discussions/discussionDetail.vue";
 
 const route = useRoute();
 const user = ref(null);
@@ -21,6 +22,7 @@ const decks = ref([]);
 const techs = ref([]);
 const discussions = ref([]);
 const selectedTech = ref(null);
+const selectedDiscussion = ref(null);
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString("es-ES", {
@@ -197,6 +199,8 @@ watch(
               v-for="d in discussions"
               :key="d._id"
               class="discussion-card"
+              style="cursor: pointer"
+              @click="selectedDiscussion = d"
             >
               <h3 class="discussion-title">{{ d.title || "Sin título" }}</h3>
               <div
@@ -252,6 +256,12 @@ watch(
       v-if="selectedTech"
       :tech="selectedTech"
       @close="selectedTech = null"
+    />
+
+    <DiscussionDetail
+      v-if="selectedDiscussion"
+      :post="selectedDiscussion"
+      @close="selectedDiscussion = null"
     />
 
     <footer>
