@@ -11,11 +11,24 @@ export async function searchUsuarios(query) {
 }
 
 export async function getAllUsuarios(page = 1) {
-  const res = await fetch(
-    `${backend_url}/api/user?page=${page}`,
-    { credentials: "include" },
-  );
+  const res = await fetch(`${backend_url}/api/user?page=${page}`, {
+    credentials: "include",
+  });
   if (!res.ok) throw new Error("Error al cargar los usuarios");
+  return await res.json();
+}
+
+export async function updateUsuario(id, data) {
+  const res = await fetch(`${backend_url}/api/user/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const msg = await res.text().catch(() => "Error al actualizar el perfil");
+    throw new Error(msg.replace(/^"|"$/g, ""));
+  }
   return await res.json();
 }
 

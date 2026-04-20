@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const Usuario = require("../models/User");
 const Deck = require("../models/Decklist");
 const CommanderTech = require("../models/CommanderTech");
@@ -94,25 +95,59 @@ const edit_user = async (req, res) => {
       return res
         .status(403)
         .json("La sesion no coincide con el usuario objetivo");
-    else {
-      const newName = req.body.username;
-      const newBio = req.body.bio;
 
-      if (
-        (await Usuario.findOne({ username: newName })) &&
-        req.user.username != newName
-      )
+    const {
+      username: newName,
+      bio: newBio,
+      email: newEmail,
+      currentPassword,
+      newPassword,
+    } = req.body;
+
+    if (newName) {
+      const existing = await Usuario.findOne({ username: newName });
+      if (existing && existing._id.toString() !== req.params.id)
         return res.status(409).json("El nombre de usuario no esta disponible.");
-      else {
-        const usuarioObjetivo = await Usuario.findById(req.params.id).select(
-          "username bio",
-        );
-        usuarioObjetivo.bio = newBio;
-        usuarioObjetivo.username = newName;
-        await usuarioObjetivo.save();
-        res.status(200).json(usuarioObjetivo);
-      }
     }
+
+    if (newEmail) {
+      const existing = await Usuario.findOne({ email: newEmail.toLowerCase() });
+      if (existing && existing._id.toString() !== req.params.id)
+        return res.status(409).json("El correo electrónico ya está en uso.");
+    }
+
+    const usuarioObjetivo = await Usuario.findById(req.params.id).select(
+      "username bio email salt password_hash",
+    );
+
+    if (newPassword) {
+      if (!currentPassword)
+        return res.status(400).json("Se requiere la contraseña actual.");
+      const inputHash = crypto
+        .createHash("sha256")
+        .update(currentPassword + usuarioObjetivo.salt)
+        .digest("hex");
+      if (inputHash !== usuarioObjetivo.password_hash)
+        return res.status(401).json("La contraseña actual es incorrecta.");
+      const newSalt = crypto.randomBytes(16).toString("hex");
+      usuarioObjetivo.salt = newSalt;
+      usuarioObjetivo.password_hash = crypto
+        .createHash("sha256")
+        .update(newPassword + newSalt)
+        .digest("hex");
+    }
+
+    if (newName !== undefined) usuarioObjetivo.username = newName;
+    if (newBio !== undefined) usuarioObjetivo.bio = newBio;
+    if (newEmail !== undefined) usuarioObjetivo.email = newEmail.toLowerCase();
+
+    await usuarioObjetivo.save();
+    res.status(200).json({
+      _id: usuarioObjetivo._id,
+      username: usuarioObjetivo.username,
+      bio: usuarioObjetivo.bio,
+      email: usuarioObjetivo.email,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json("Error interno del server");
@@ -163,7 +198,9 @@ const listar_usuarios = async (req, res) => {
         .lean(),
       Usuario.countDocuments(),
     ]);
-    res.status(200).json({ usuarios, total, page, pages: Math.ceil(total / limit) });
+    res
+      .status(200)
+      .json({ usuarios, total, page, pages: Math.ceil(total / limit) });
   } catch (err) {
     console.log(err);
     res.status(500).json("Error interno del server.");
