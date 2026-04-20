@@ -2,7 +2,7 @@
 import { ref, onMounted, watch, computed } from "vue";
 import { marked } from "marked";
 import { useRoute, useRouter } from "vue-router";
-import { getUsuarioPorNombre } from "../services/userService";
+import { getUsuarioPorId } from "../services/userService";
 import { authState } from "../utils/auth";
 import { getDecklistsByUser } from "../services/decklistService";
 import { getCommanderTechsByUser } from "../services/commanderTechService";
@@ -19,7 +19,7 @@ const router = useRouter();
 const auth = authState();
 const user = ref(null);
 const isOwnProfile = computed(
-  () => auth.isLogged && auth.user?.username === route.params.username,
+  () => auth.isLogged && auth.user?.id === route.params.id,
 );
 const loading = ref(true);
 const error = ref(null);
@@ -45,7 +45,7 @@ function formatDateShort(dateStr) {
   });
 }
 
-async function loadUser(username) {
+async function loadUser(id) {
   loading.value = true;
   error.value = null;
   user.value = null;
@@ -53,8 +53,7 @@ async function loadUser(username) {
   techs.value = [];
   discussions.value = [];
   try {
-    user.value = await getUsuarioPorNombre(username);
-    const id = user.value._id;
+    user.value = await getUsuarioPorId(id);
     [decks.value, techs.value, discussions.value] = await Promise.all([
       getDecklistsByUser(id),
       getCommanderTechsByUser(id),
@@ -67,11 +66,11 @@ async function loadUser(username) {
   }
 }
 
-onMounted(() => loadUser(route.params.username));
+onMounted(() => loadUser(route.params.id));
 watch(
-  () => route.params.username,
-  (u) => {
-    if (u) loadUser(u);
+  () => route.params.id,
+  (id) => {
+    if (id) loadUser(id);
   },
 );
 </script>

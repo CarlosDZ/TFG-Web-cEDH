@@ -1,11 +1,12 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { getAllUsuarios } from "../services/userService";
+import { ref, onMounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { getAllUsuarios, searchUsuarios } from "../services/userService";
 import headersSearchBar from "../components/headerSearchBar.component.vue";
 import sectionNavMenu from "../components/sectionNavMenu.component.vue";
 
 const router = useRouter();
+const route = useRoute();
 const usuarios = ref([]);
 const loading = ref(true);
 const error = ref(null);
@@ -36,7 +37,30 @@ async function loadPage(p) {
   }
 }
 
-onMounted(() => loadPage(1));
+async function loadWithQuery(q) {
+  loading.value = true;
+  error.value = null;
+  try {
+    const results = await searchUsuarios(q);
+    usuarios.value = results;
+    total.value = results.length;
+    totalPages.value = 1;
+    page.value = 1;
+  } catch (e) {
+    error.value = e.message;
+  } finally {
+    loading.value = false;
+  }
+}
+
+function loadCurrent() {
+  const q = route.query.q;
+  if (q && q.trim().length >= 2) loadWithQuery(q.trim());
+  else loadPage(1);
+}
+
+onMounted(loadCurrent);
+watch(() => route.query.q, loadCurrent);
 </script>
 
 <template>
@@ -48,7 +72,9 @@ onMounted(() => loadPage(1));
     <main>
       <div class="page-header">
         <h1 class="page-title">Jugadores</h1>
-        <span v-if="!loading && !error" class="user-count">{{ total }} jugadores</span>
+        <span v-if="!loading && !error" class="user-count"
+          >{{ total }} jugadores</span
+        >
       </div>
 
       <div v-if="loading" class="state-msg">
@@ -57,7 +83,12 @@ onMounted(() => loadPage(1));
       </div>
 
       <div v-else-if="error" class="state-msg error">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="8" x2="12" y2="12" />
           <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -70,20 +101,28 @@ onMounted(() => loadPage(1));
           v-for="user in usuarios"
           :key="user._id"
           class="user-card"
-          @click="router.push(`/jugador/${user.username}`)"
+          @click="router.push(`/jugador/${user._id}`)"
         >
-          <div class="card-avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
+          <div class="card-avatar">
+            {{ user.username.charAt(0).toUpperCase() }}
+          </div>
           <div class="card-info">
             <div class="card-name-row">
               <span class="card-username">{{ user.username }}</span>
-              <span v-if="user.isVerified" class="verified-badge" title="Jugador verificado">
+              <span
+                v-if="user.isVerified"
+                class="verified-badge"
+                title="Jugador verificado"
+              >
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </span>
             </div>
             <p v-if="user.bio" class="card-bio">{{ user.bio }}</p>
-            <span class="card-date">Desde {{ formatDate(user.createdAt) }}</span>
+            <span class="card-date"
+              >Desde {{ formatDate(user.createdAt) }}</span
+            >
           </div>
         </div>
       </div>
@@ -93,13 +132,17 @@ onMounted(() => loadPage(1));
           class="page-btn"
           :disabled="page <= 1"
           @click="loadPage(page - 1)"
-        >&#8592;</button>
+        >
+          &#8592;
+        </button>
         <span class="page-info">{{ page }} / {{ totalPages }}</span>
         <button
           class="page-btn"
           :disabled="page >= totalPages"
           @click="loadPage(page + 1)"
-        >&#8594;</button>
+        >
+          &#8594;
+        </button>
       </div>
     </main>
 
@@ -203,8 +246,13 @@ onMounted(() => loadPage(1));
   color: var(--txt-muted);
   font-size: 14px;
 }
-.state-msg.error { color: #fca5a5; }
-.state-msg svg { width: 36px; height: 36px; }
+.state-msg.error {
+  color: #fca5a5;
+}
+.state-msg svg {
+  width: 36px;
+  height: 36px;
+}
 
 .spinner {
   width: 36px;
@@ -214,7 +262,11 @@ onMounted(() => loadPage(1));
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .users-grid {
   display: grid;
@@ -231,7 +283,10 @@ onMounted(() => loadPage(1));
   align-items: flex-start;
   gap: 14px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.1s;
 }
 .user-card:hover {
   background: var(--surface-hover);
@@ -320,7 +375,9 @@ onMounted(() => loadPage(1));
   padding: 6px 14px;
   cursor: pointer;
   font-size: 14px;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 .page-btn:hover:not(:disabled) {
   background: var(--surface-hover);

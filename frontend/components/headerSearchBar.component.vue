@@ -43,7 +43,7 @@ function submitPath(q) {
   if (!t) return null;
   const f = searchFilter.value;
   if (f === "card") return `/carta/${encodeURIComponent(t)}`;
-  if (f === "user") return `/jugador/${encodeURIComponent(t)}`;
+  if (f === "user") return `/jugadores?q=${encodeURIComponent(t)}`;
   if (f === "discussion")
     return `/busqueda/discusiones?q=${encodeURIComponent(t)}`;
   if (f === "deck")
@@ -80,7 +80,7 @@ watch(searchQuery, (val) => {
       const users = await searchUsuarios(val);
       suggestions.value = users.map((u) => ({
         label: u.username,
-        navigateTo: `/jugador/${encodeURIComponent(u.username)}`,
+        navigateTo: `/jugador/${u._id}`,
         group: null,
       }));
     } else if (f === "discussion") {
@@ -310,7 +310,7 @@ onUnmounted(() => {
 
     <div
       class="profile-section"
-      @click="auth.user && router.push(`/jugador/${auth.user.username}`)"
+      @click="auth.user && router.push(`/jugador/${auth.user.id}`)"
     >
       <div class="profile-inner">
         <div class="profile-content">

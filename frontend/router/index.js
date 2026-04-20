@@ -16,7 +16,7 @@ const routes = [
   { path: "/dashboard", name: "Dashboard", component: Dashboard },
   { path: "/carta/:name", name: "CardView", component: CardView },
   {
-    path: "/jugador/:username",
+    path: "/jugador/:id",
     name: "UserProfile",
     component: UserProfileView,
   },

@@ -20,6 +20,7 @@ const saving = ref(false);
 const successMsg = ref("");
 const errorMsg = ref("");
 const passwordError = ref("");
+const passwordSuccessMsg = ref("");
 
 onMounted(() => {
   if (!auth.isLogged) {
@@ -36,7 +37,7 @@ async function saveProfile() {
   successMsg.value = "";
   saving.value = true;
   try {
-    const updated = await updateUsuario(auth.user._id, {
+    const updated = await updateUsuario(auth.user.id, {
       username: username.value,
       bio: bio.value,
       email: email.value,
@@ -52,7 +53,7 @@ async function saveProfile() {
 
 async function changePassword() {
   passwordError.value = "";
-  successMsg.value = "";
+  passwordSuccessMsg.value = "";
   if (newPassword.value !== confirmPassword.value) {
     passwordError.value = "Las contraseñas no coinciden.";
     return;
@@ -64,14 +65,14 @@ async function changePassword() {
   }
   saving.value = true;
   try {
-    await updateUsuario(auth.user._id, {
+    await updateUsuario(auth.user.id, {
       currentPassword: currentPassword.value,
       newPassword: newPassword.value,
     });
     currentPassword.value = "";
     newPassword.value = "";
     confirmPassword.value = "";
-    successMsg.value = "Contraseña cambiada correctamente.";
+    passwordSuccessMsg.value = "Contraseña cambiada correctamente.";
   } catch (e) {
     passwordError.value = e.message;
   } finally {
@@ -170,6 +171,9 @@ async function changePassword() {
             />
           </div>
 
+          <div v-if="passwordSuccessMsg" class="alert alert-success">
+            {{ passwordSuccessMsg }}
+          </div>
           <div v-if="passwordError" class="alert alert-error">
             {{ passwordError }}
           </div>
