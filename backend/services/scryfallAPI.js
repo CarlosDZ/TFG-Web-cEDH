@@ -103,8 +103,9 @@ async function autocompleteCards(query) {
   }
 }
 
-async function fetchCardImages(names) {
+async function fetchCardData(names) {
   const imageMap = {};
+  const typeMap = {};
   const BATCH = 75;
   for (let i = 0; i < names.length; i += BATCH) {
     const batch = names.slice(i, i + BATCH);
@@ -118,11 +119,17 @@ async function fetchCardImages(names) {
           card.card_faces?.[0]?.image_uris?.normal ??
           null;
         if (url) imageMap[card.name] = url;
+        if (card.type_line) typeMap[card.name] = card.type_line;
       }
     } catch (error) {
-      console.error("Error fetching card images:", error.message);
+      console.error("Error fetching card data:", error.message);
     }
   }
+  return { imageMap, typeMap };
+}
+
+async function fetchCardImages(names) {
+  const { imageMap } = await fetchCardData(names);
   return imageMap;
 }
 
@@ -132,4 +139,5 @@ module.exports = {
   getCardByName,
   autocompleteCards,
   fetchCardImages,
+  fetchCardData,
 };

@@ -54,6 +54,59 @@ function scryfallImg(name) {
   return deck.value?.card_images?.[name] ?? null;
 }
 
+const TYPE_GROUPS = [
+  { key: "Creature", label: "Criaturas", match: (t) => t.includes("Creature") },
+  {
+    key: "Planeswalker",
+    label: "Planeswalkers",
+    match: (t) => t.includes("Planeswalker"),
+  },
+  {
+    key: "Instant",
+    label: "Instantáneos",
+    match: (t) => t.includes("Instant"),
+  },
+  { key: "Sorcery", label: "Conjuros", match: (t) => t.includes("Sorcery") },
+  {
+    key: "Artifact",
+    label: "Artefactos",
+    match: (t) => t.includes("Artifact"),
+  },
+  {
+    key: "Enchantment",
+    label: "Encantamientos",
+    match: (t) => t.includes("Enchantment"),
+  },
+  { key: "Land", label: "Tierras", match: (t) => t.includes("Land") },
+  { key: "Other", label: "Otros", match: () => true },
+];
+
+function getCardType(name) {
+  const ct = deck.value?.card_types;
+  if (!ct) return "";
+  // Mongoose Map serializado puede llegar como Map real o como objeto plano
+  return (typeof ct.get === "function" ? ct.get(name) : ct[name]) ?? "";
+}
+
+function classifyCard(name) {
+  const typeLine = getCardType(name);
+  return TYPE_GROUPS.find((g) => g.match(typeLine))?.key ?? "Other";
+}
+
+const groupedCards = computed(() => {
+  if (!deck.value) return [];
+  const groups = {};
+  for (const card of deck.value.cards ?? []) {
+    const key = classifyCard(card);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(card);
+  }
+  return TYPE_GROUPS.filter((g) => groups[g.key]).map((g) => ({
+    ...g,
+    cards: groups[g.key],
+  }));
+});
+
 async function enableVisualMode() {
   visualMode.value = true;
   const hasImages =
@@ -61,8 +114,9 @@ async function enableVisualMode() {
   if (hasImages) return;
   loadingImages.value = true;
   try {
-    const { card_images } = await refreshDeckImages(deck.value._id);
+    const { card_images, card_types } = await refreshDeckImages(deck.value._id);
     deck.value.card_images = card_images;
+    deck.value.card_types = card_types;
   } catch (err) {
     console.error("No se pudieron obtener las imágenes:", err);
   } finally {
@@ -102,6 +156,17 @@ onMounted(async () => {
       likedLocal.value = await isDeckLiked(route.params.id);
     }
     comments.value = await getDeckComments(route.params.id);
+
+    const hasCardData =
+      deck.value.card_types && Object.keys(deck.value.card_types).length > 0;
+    if (!hasCardData) {
+      refreshDeckImages(deck.value._id)
+        .then(({ card_images, card_types }) => {
+          deck.value.card_images = card_images;
+          deck.value.card_types = card_types;
+        })
+        .catch(() => {});
+    }
   } catch (err) {
     error.value = err.message;
   } finally {
@@ -331,10 +396,17 @@ function onCommentPublished(newComment) {
                 </ul>
               </section>
 
-              <section class="card-section">
-                <h3 class="section-label">Mazo</h3>
+              <section
+                v-for="group in groupedCards"
+                :key="group.key"
+                class="card-section"
+              >
+                <h3 class="section-label">
+                  {{ group.label }}
+                  <span class="section-count">{{ group.cards.length }}</span>
+                </h3>
                 <ul class="card-list">
-                  <li v-for="card in deck.cards" :key="card" class="card-row">
+                  <li v-for="card in group.cards" :key="card" class="card-row">
                     <span class="card-name">{{ card }}</span>
                   </li>
                 </ul>
@@ -392,11 +464,18 @@ function onCommentPublished(newComment) {
                 </div>
               </section>
 
-              <section class="card-section">
-                <h3 class="section-label">Mazo</h3>
+              <section
+                v-for="group in groupedCards"
+                :key="group.key"
+                class="card-section"
+              >
+                <h3 class="section-label">
+                  {{ group.label }}
+                  <span class="section-count">{{ group.cards.length }}</span>
+                </h3>
                 <div class="card-img-grid">
                   <div
-                    v-for="card in deck.cards"
+                    v-for="card in group.cards"
                     :key="card"
                     class="card-img-wrap"
                   >

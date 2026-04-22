@@ -2,7 +2,7 @@ const Decklist = require("../models/Decklist");
 const User = require("../models/User");
 const Comentario = require("../models/Comment");
 const { importFromMoxfield } = require("../services/moxfieldAPI");
-const { fetchCardImages } = require("../services/scryfallAPI");
+const { fetchCardData } = require("../services/scryfallAPI");
 
 const post_decklist = async (req, res) => {
   try {
@@ -11,7 +11,8 @@ const post_decklist = async (req, res) => {
       ...(req.body.cards ?? []),
       ...(req.body.alternative_choices ?? []),
     ];
-    const card_images = await fetchCardImages(allCards);
+    const { imageMap: card_images, typeMap: card_types } =
+      await fetchCardData(allCards);
 
     const newDecklist = new Decklist({
       authorId: req.user.id,
@@ -26,6 +27,7 @@ const post_decklist = async (req, res) => {
       isPublic: req.body.isPublic,
       allowComments: req.body.allowComments,
       card_images,
+      card_types,
     });
     await newDecklist.save();
     res.status(201).json(newDecklist);
@@ -223,7 +225,9 @@ const edit = async (req, res) => {
           ...oldDecklist.cards,
           ...(oldDecklist.alternative_choices ?? []),
         ];
-        oldDecklist.card_images = await fetchCardImages(allCards);
+        const { imageMap, typeMap } = await fetchCardData(allCards);
+        oldDecklist.card_images = imageMap;
+        oldDecklist.card_types = typeMap;
       }
 
       await oldDecklist.save();
@@ -364,9 +368,14 @@ const refresh_card_images = async (req, res) => {
       ...deck.cards,
       ...(deck.alternative_choices ?? []),
     ];
-    deck.card_images = await fetchCardImages(allCards);
+    const { imageMap, typeMap } = await fetchCardData(allCards);
+    deck.card_images = imageMap;
+    deck.card_types = typeMap;
     await deck.save();
-    res.status(200).json({ card_images: Object.fromEntries(deck.card_images) });
+    res.status(200).json({
+      card_images: Object.fromEntries(deck.card_images),
+      card_types: Object.fromEntries(deck.card_types),
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json("Error interno del server");

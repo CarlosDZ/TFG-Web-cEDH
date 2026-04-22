@@ -58,6 +58,11 @@ const decklist_schema = new mongoose.Schema({
     of: String,
     default: {},
   },
+  card_types: {
+    type: Map,
+    of: String,
+    default: {},
+  },
 });
 
 module.exports = mongoose.model("Decklist", decklist_schema);
