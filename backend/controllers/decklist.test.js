@@ -402,3 +402,87 @@ describe("toggle_like (decklist)", () => {
     assert.equal(saved, true);
   });
 });
+
+// ── Tests for obtener_decklists_por_usuario ───────────────────────────────────
+
+describe("obtener_decklists_por_usuario", () => {
+  const CONTROLLER_PATH = "./decklist";
+  const DECKLIST_MODEL = "../models/Decklist";
+
+  function loadController(fakeDecklistModel) {
+    clearModule(CONTROLLER_PATH);
+    mockModule(DECKLIST_MODEL, fakeDecklistModel);
+    return require(CONTROLLER_PATH);
+  }
+
+  function makeChain(resolvedValue) {
+    const chain = {
+      select: () => chain,
+      populate: () => chain,
+      sort: () => chain,
+      lean: () => Promise.resolve(resolvedValue),
+    };
+    return chain;
+  }
+
+  test("devuelve 200 con las decklists públicas del usuario", async () => {
+    const fakeDecks = [
+      {
+        _id: DECK_ID,
+        title: "Deck A",
+        isPublic: true,
+        likes: 3,
+        authorId: { username: "owner" },
+      },
+    ];
+    const fakeDecklistModel = { find: () => makeChain(fakeDecks) };
+    const { obtener_decklists_por_usuario } = loadController(fakeDecklistModel);
+    const { req, res } = makeReqRes({ params: { userId: OWNER_ID } });
+
+    await obtener_decklists_por_usuario(req, res);
+
+    assert.equal(res._status, 200);
+    assert.equal(res._body.length, 1);
+    assert.equal(res._body[0].title, "Deck A");
+  });
+
+  test("devuelve 200 con array vacío si el usuario no tiene decks públicos", async () => {
+    const fakeDecklistModel = { find: () => makeChain([]) };
+    const { obtener_decklists_por_usuario } = loadController(fakeDecklistModel);
+    const { req, res } = makeReqRes({ params: { userId: OTHER_ID } });
+
+    await obtener_decklists_por_usuario(req, res);
+
+    assert.equal(res._status, 200);
+    assert.deepEqual(res._body, []);
+  });
+
+  test("devuelve 200 con múltiples decklists ordenadas", async () => {
+    const fakeDecks = [
+      { _id: "aaa000000000000000000001", title: "Deck Reciente", likes: 1 },
+      { _id: "aaa000000000000000000002", title: "Deck Antiguo", likes: 10 },
+    ];
+    const fakeDecklistModel = { find: () => makeChain(fakeDecks) };
+    const { obtener_decklists_por_usuario } = loadController(fakeDecklistModel);
+    const { req, res } = makeReqRes({ params: { userId: OWNER_ID } });
+
+    await obtener_decklists_por_usuario(req, res);
+
+    assert.equal(res._status, 200);
+    assert.equal(res._body.length, 2);
+  });
+
+  test("devuelve 500 en caso de error interno", async () => {
+    const fakeDecklistModel = {
+      find: () => {
+        throw new Error("DB error");
+      },
+    };
+    const { obtener_decklists_por_usuario } = loadController(fakeDecklistModel);
+    const { req, res } = makeReqRes({ params: { userId: OWNER_ID } });
+
+    await obtener_decklists_por_usuario(req, res);
+
+    assert.equal(res._status, 500);
+  });
+});

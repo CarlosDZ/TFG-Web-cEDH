@@ -341,3 +341,136 @@ test("search encuentra discusión con signos de interrogación y acentos", async
 
   console.log(`  ✓ Discusión con signos especiales y acentos encontrada`);
 });
+
+// --- obtener_discusiones_por_usuario ---
+
+test("obtener_discusiones_por_usuario devuelve solo discusiones del usuario", async () => {
+  const { obtener_discusiones_por_usuario } = require("../controllers/comment");
+
+  let responseBody, statusCode;
+  const req = { params: { userId: testUserId.toString() } };
+  const res = {
+    status(c) {
+      statusCode = c;
+      return this;
+    },
+    json(b) {
+      responseBody = b;
+      return this;
+    },
+  };
+
+  await obtener_discusiones_por_usuario(req, res);
+
+  assert.equal(statusCode, 200);
+  assert.ok(Array.isArray(responseBody), "Debe devolver un array");
+  // 4 discusiones raíz no-deck del usuario de prueba (la 5ª es comentingOnDeck:true)
+  assert.equal(
+    responseBody.length,
+    4,
+    "Debe devolver exactamente 4 discusiones raíz",
+  );
+  assert.ok(
+    responseBody.every((d) => d.parentId === null || d.parentId === undefined),
+    "No debe devolver respuestas (parentId debe ser null)",
+  );
+
+  console.log(`  ✓ Devuelve ${responseBody.length} discusiones del usuario`);
+});
+
+test("obtener_discusiones_por_usuario no devuelve comentarios de deck", async () => {
+  const { obtener_discusiones_por_usuario } = require("../controllers/comment");
+
+  let responseBody, statusCode;
+  const req = { params: { userId: testUserId.toString() } };
+  const res = {
+    status(c) {
+      statusCode = c;
+      return this;
+    },
+    json(b) {
+      responseBody = b;
+      return this;
+    },
+  };
+
+  await obtener_discusiones_por_usuario(req, res);
+
+  assert.equal(statusCode, 200);
+  assert.ok(
+    responseBody.every((d) => !d.comentingOnDeck),
+    "No debe incluir comentarios marcados como comentingOnDeck",
+  );
+
+  console.log(`  ✓ Comentarios de deck excluidos correctamente`);
+});
+
+test("obtener_discusiones_por_usuario no devuelve respuestas anidadas", async () => {
+  const { obtener_discusiones_por_usuario } = require("../controllers/comment");
+
+  // Crear una respuesta (parentId no nulo) del mismo usuario
+  const reply = await Comentario.create({
+    authorId: testUserId,
+    parentId: createdIds[0],
+    comentingOnDeck: false,
+    title: "Respuesta anidada",
+    markdown_text: "Esta es una respuesta, no debe aparecer.",
+  });
+
+  let responseBody, statusCode;
+  const req = { params: { userId: testUserId.toString() } };
+  const res = {
+    status(c) {
+      statusCode = c;
+      return this;
+    },
+    json(b) {
+      responseBody = b;
+      return this;
+    },
+  };
+
+  await obtener_discusiones_por_usuario(req, res);
+  await Comentario.deleteOne({ _id: reply._id });
+
+  assert.equal(statusCode, 200);
+  assert.ok(
+    !responseBody.some((d) => d.title === "Respuesta anidada"),
+    "No debe incluir respuestas anidadas",
+  );
+
+  console.log(`  ✓ Respuestas anidadas excluidas correctamente`);
+});
+
+test("obtener_discusiones_por_usuario devuelve array vacío para usuario sin discusiones", async () => {
+  const { obtener_discusiones_por_usuario } = require("../controllers/comment");
+
+  // Crear un usuario temporal sin discusiones
+  const tempUser = await Usuario.create({
+    username: "test_comment_empty_user",
+    email: "test_comment_empty@example.com",
+    salt: "s_empty",
+    password_hash: "h_empty",
+  });
+
+  let responseBody, statusCode;
+  const req = { params: { userId: tempUser._id.toString() } };
+  const res = {
+    status(c) {
+      statusCode = c;
+      return this;
+    },
+    json(b) {
+      responseBody = b;
+      return this;
+    },
+  };
+
+  await obtener_discusiones_por_usuario(req, res);
+  await Usuario.deleteOne({ _id: tempUser._id });
+
+  assert.equal(statusCode, 200);
+  assert.deepEqual(responseBody, []);
+
+  console.log(`  ✓ Array vacío para usuario sin discusiones`);
+});

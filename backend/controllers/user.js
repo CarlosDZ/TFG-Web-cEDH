@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const Usuario = require("../models/User");
 const Deck = require("../models/Decklist");
 const CommanderTech = require("../models/CommanderTech");
@@ -8,7 +9,7 @@ const jwt = require("jsonwebtoken");
 const obtener_usuario = async (req, res) => {
   try {
     const usuario = await Usuario.findById(req.params.id).select(
-      "-password_hash -salt -__v",
+      "-password_hash -salt -__v -email",
     );
     res.status(200).json(usuario);
   } catch (err) {
@@ -95,24 +96,54 @@ const edit_user = async (req, res) => {
       return res
         .status(403)
         .json("La sesion no coincide con el usuario objetivo");
-    else {
-      const newName = req.body.username;
-      const newBio = req.body.bio;
 
-      if (
-        (await Usuario.findOne({ username: newName })) &&
-        req.user.username != newName
-      )
+    const {
+      username: newName,
+      bio: newBio,
+      email: newEmail,
+      currentPassword,
+      newPassword,
+    } = req.body;
+
+    if (newName) {
+      const existing = await Usuario.findOne({ username: newName });
+      if (existing && existing._id.toString() !== req.params.id)
         return res.status(409).json("El nombre de usuario no esta disponible.");
-      else {
-        const usuarioObjetivo = await Usuario.findById(req.params.id).select(
-          "username bio isAdmin isVerified emailIsVerified email",
-        );
-        usuarioObjetivo.bio = newBio;
-        usuarioObjetivo.username = newName;
-        await usuarioObjetivo.save();
+    }
 
-        const token_user = {
+    if (newEmail) {
+      const existing = await Usuario.findOne({ email: newEmail.toLowerCase() });
+      if (existing && existing._id.toString() !== req.params.id)
+        return res.status(409).json("El correo electrónico ya está en uso.");
+    }
+
+    const usuarioObjetivo = await Usuario.findById(req.params.id).select(
+      "username bio isAdmin isVerified emailIsVerified email salt password_hash",
+    );
+
+    if (newPassword) {
+      if (!currentPassword)
+        return res.status(400).json("Se requiere la contraseña actual.");
+      const inputHash = crypto
+        .createHash("sha256")
+        .update(currentPassword + usuarioObjetivo.salt)
+        .digest("hex");
+      if (inputHash !== usuarioObjetivo.password_hash)
+        return res.status(401).json("La contraseña actual es incorrecta.");
+      const newSalt = crypto.randomBytes(16).toString("hex");
+      usuarioObjetivo.salt = newSalt;
+      usuarioObjetivo.password_hash = crypto
+        .createHash("sha256")
+        .update(newPassword + newSalt)
+        .digest("hex");
+    }
+
+    if (newName !== undefined) usuarioObjetivo.username = newName;
+    if (newBio !== undefined) usuarioObjetivo.bio = newBio;
+    if (newEmail !== undefined) usuarioObjetivo.email = newEmail.toLowerCase();
+
+    await usuarioObjetivo.save();
+    const token_user = {
           id: usuarioObjetivo._id,
           email: usuarioObjetivo.email,
           username: usuarioObjetivo.username,
@@ -120,16 +151,19 @@ const edit_user = async (req, res) => {
           isVerified: usuarioObjetivo.isVerified,
           emailVerified: usuarioObjetivo.emailIsVerified,
         };
-        const jwtToken = jwt.sign(token_user, process.env.JWT_SECRET_KEY_MIDDLEWARE, { expiresIn: "30d" });
+    const jwtToken = jwt.sign(token_user, process.env.JWT_SECRET_KEY_MIDDLEWARE, { expiresIn: "30d" });
         res.cookie("spaincEDH_auth_token", jwtToken, {
           httpOnly: true,
           secure: false,
           sameSite: "lax",
           maxAge: 30 * 24 * 60 * 60 * 1000,
         });
-        res.status(200).json(usuarioObjetivo);
-      }
-    }
+    res.status(200).json({
+      _id: usuarioObjetivo._id,
+      username: usuarioObjetivo.username,
+      bio: usuarioObjetivo.bio,
+      email: usuarioObjetivo.email,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json("Error interno del server");
@@ -166,6 +200,29 @@ const obtener_usuario_por_nombre = async (req, res) => {
   }
 };
 
+const listar_usuarios = async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 20;
+    const skip = (page - 1) * limit;
+    const [usuarios, total] = await Promise.all([
+      Usuario.find()
+        .select("_id username bio createdAt isVerified")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Usuario.countDocuments(),
+    ]);
+    res
+      .status(200)
+      .json({ usuarios, total, page, pages: Math.ceil(total / limit) });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Error interno del server.");
+  }
+};
+
 module.exports = {
   obtener_usuario,
   delete_usuario,
@@ -174,4 +231,5 @@ module.exports = {
   edit_user,
   search_usuarios,
   obtener_usuario_por_nombre,
+  listar_usuarios,
 };

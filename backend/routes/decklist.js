@@ -8,6 +8,7 @@ const {
   post_decklist,
   obtener_decklist,
   obtener_decklists,
+  obtener_decklists_por_usuario,
   toggle_fav,
   toggle_like,
   edit,
@@ -22,6 +23,7 @@ const {
 const checkSession = require("../middleware/checkSession");
 
 router.get("/search", search_decklists);
+router.get("/user/:userId", obtener_decklists_por_usuario);
 router.post("/", authMiddleware, createDeckValidationMiddleware, post_decklist);
 router.get("/", obtener_decklists);
 router.get("/:id", checkSession, obtener_decklist);

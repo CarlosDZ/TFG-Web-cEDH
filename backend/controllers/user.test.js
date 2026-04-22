@@ -1,6 +1,6 @@
 /**
- * Tests de integración para los endpoints de búsqueda de usuarios.
- * Requieren que el backend esté arrancado en VITE_BACKEND_URL / BACKEND_PORT.
+ * Tests de integración para los endpoints de usuarios.
+ * Requieren conexión a MongoDB (MONGODB_URL en .env).
  *
  * Se ejecutan con: node --test backend/controllers/user.test.js
  * (con el .env cargado o variables de entorno definidas)
@@ -10,6 +10,7 @@ const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
 const mongoose = require("mongoose");
 const Usuario = require("../models/User");
+const { edit_user } = require("../controllers/user");
 
 let createdUserId = null;
 const extraUserIds = [];
@@ -20,6 +21,23 @@ const TEST_USER = {
   salt: "testsalt123",
   password_hash: "testhash123",
 };
+
+const EDIT_USER_A = {
+  username: "edit_user_a_cedh",
+  email: "edit_user_a@example.com",
+  salt: "salta",
+  password_hash: "hasha",
+};
+
+const EDIT_USER_B = {
+  username: "edit_user_b_cedh",
+  email: "edit_user_b@example.com",
+  salt: "saltb",
+  password_hash: "hashb",
+};
+
+let editUserAId = null;
+let editUserBId = null;
 
 // Usuarios con caracteres permitidos en el username:
 // letras, números, puntos, guiones, guiones bajos, paréntesis, acentos.
@@ -48,6 +66,8 @@ before(async () => {
   await Usuario.deleteOne({ username: TEST_USER.username });
   for (const u of EXTRA_USERS)
     await Usuario.deleteOne({ username: u.username });
+  await Usuario.deleteOne({ username: EDIT_USER_A.username });
+  await Usuario.deleteOne({ username: EDIT_USER_B.username });
 
   const user = await Usuario.create(TEST_USER);
   createdUserId = user._id.toString();
@@ -56,11 +76,18 @@ before(async () => {
     const created = await Usuario.create(u);
     extraUserIds.push(created._id);
   }
+
+  const userA = await Usuario.create(EDIT_USER_A);
+  editUserAId = userA._id.toString();
+  const userB = await Usuario.create(EDIT_USER_B);
+  editUserBId = userB._id.toString();
 });
 
 after(async () => {
   if (createdUserId) await Usuario.deleteOne({ _id: createdUserId });
   for (const id of extraUserIds) await Usuario.deleteOne({ _id: id });
+  if (editUserAId) await Usuario.deleteOne({ _id: editUserAId });
+  if (editUserBId) await Usuario.deleteOne({ _id: editUserBId });
   await mongoose.disconnect();
 });
 
@@ -261,3 +288,164 @@ test("search encuentra usuario con guion, números y paréntesis en el nombre", 
 
   console.log(`  ✓ Usuario con guion, números y paréntesis encontrado`);
 });
+
+// ── Tests de integración: edit_user ──────────────────────────────────────────
+
+function makeRes() {
+  return {
+    _status: null,
+    _body: undefined,
+    status(code) { this._status = code; return this; },
+    json(data) { this._body = data; return this; },
+  };
+}
+
+test("edit_user actualiza username, bio y email correctamente", async () => {
+  const res = makeRes();
+  const req = {
+    params: { id: editUserAId },
+    user: { id: editUserAId },
+    body: {
+      username: "edit_user_a_updated",
+      bio: "bio actualizada",
+      email: "edit_user_a_updated@example.com",
+    },
+  };
+
+  await edit_user(req, res);
+
+  assert.equal(res._status, 200);
+  assert.equal(res._body.username, "edit_user_a_updated");
+  assert.equal(res._body.bio, "bio actualizada");
+  assert.equal(res._body.email, "edit_user_a_updated@example.com");
+
+  // Verificar que persiste en DB
+  const inDb = await Usuario.findById(editUserAId).select("username bio email");
+  assert.equal(inDb.username, "edit_user_a_updated");
+  assert.equal(inDb.bio, "bio actualizada");
+  assert.equal(inDb.email, "edit_user_a_updated@example.com");
+
+  // Restaurar para no romper otros tests
+  await Usuario.updateOne({ _id: editUserAId }, { username: EDIT_USER_A.username, email: EDIT_USER_A.email });
+
+  console.log("  ✓ Campos actualizados y persistidos en DB");
+});
+
+test("edit_user devuelve 409 si el username ya existe en otro usuario", async () => {
+  const res = makeRes();
+  const req = {
+    params: { id: editUserAId },
+    user: { id: editUserAId },
+    body: { username: EDIT_USER_B.username, bio: "", email: EDIT_USER_A.email },
+  };
+
+  await edit_user(req, res);
+
+  assert.equal(res._status, 409);
+  assert.match(res._body, /usuario/i);
+
+  console.log("  ✓ 409 cuando username pertenece a otro usuario");
+});
+
+test("edit_user devuelve 409 si el email ya existe en otro usuario", async () => {
+  const res = makeRes();
+  const req = {
+    params: { id: editUserAId },
+    user: { id: editUserAId },
+    body: { username: EDIT_USER_A.username, bio: "", email: EDIT_USER_B.email },
+  };
+
+  await edit_user(req, res);
+
+  assert.equal(res._status, 409);
+  assert.match(res._body, /correo/i);
+
+  console.log("  ✓ 409 cuando email pertenece a otro usuario");
+});
+
+test("edit_user devuelve 403 si el id de sesion no coincide", async () => {
+  const res = makeRes();
+  const req = {
+    params: { id: editUserBId },
+    user: { id: editUserAId },
+    body: { username: "intruder", bio: "", email: "intruder@example.com" },
+  };
+
+  await edit_user(req, res);
+
+  assert.equal(res._status, 403);
+
+  console.log("  ✓ 403 cuando la sesion no coincide con el id del parametro");
+});
+
+
+// ── Tests de integración: cambio de contraseña ───────────────────────────────
+
+const crypto = require("crypto");
+
+test("edit_user cambia la contraseña y el nuevo hash es valido", async () => {
+  const res = makeRes();
+  const req = {
+    params: { id: editUserAId },
+    user: { id: editUserAId },
+    body: { currentPassword: "passwordoriginal", newPassword: "passwordnueva" },
+  };
+
+  // Establecer una contraseña conocida en DB antes del test
+  const saltBefore = crypto.randomBytes(16).toString("hex");
+  const hashBefore = crypto
+    .createHash("sha256")
+    .update("passwordoriginal" + saltBefore)
+    .digest("hex");
+  await Usuario.updateOne(
+    { _id: editUserAId },
+    { salt: saltBefore, password_hash: hashBefore },
+  );
+
+  await edit_user(req, res);
+
+  assert.equal(res._status, 200);
+
+  // Verificar que el hash en DB corresponde a la nueva contraseña
+  const inDb = await Usuario.findById(editUserAId).select("salt password_hash");
+  const expectedHash = crypto
+    .createHash("sha256")
+    .update("passwordnueva" + inDb.salt)
+    .digest("hex");
+  assert.equal(inDb.password_hash, expectedHash);
+  assert.notEqual(inDb.salt, saltBefore, "El salt debe haber rotado");
+
+  console.log("  ✓ Contraseña cambiada y hash verificado en DB");
+});
+
+test("edit_user devuelve 401 cuando currentPassword no coincide con el hash en DB", async () => {
+  const res = makeRes();
+  const req = {
+    params: { id: editUserAId },
+    user: { id: editUserAId },
+    body: { currentPassword: "contraseniaequivocada", newPassword: "nuevapass" },
+  };
+
+  await edit_user(req, res);
+
+  assert.equal(res._status, 401);
+  assert.match(res._body, /contraseña/i);
+
+  console.log("  ✓ 401 cuando la contraseña actual no coincide");
+});
+
+test("edit_user devuelve 400 cuando falta currentPassword en el body", async () => {
+  const res = makeRes();
+  const req = {
+    params: { id: editUserAId },
+    user: { id: editUserAId },
+    body: { newPassword: "nuevapass" },
+  };
+
+  await edit_user(req, res);
+
+  assert.equal(res._status, 400);
+
+  console.log("  ✓ 400 cuando falta currentPassword");
+});
+

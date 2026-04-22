@@ -278,8 +278,25 @@ const search_commandertechs = async (req, res) => {
   }
 };
 
+const obtener_commandertechs_por_usuario = async (req, res) => {
+  try {
+    const techs = await CommanderTech.find({ authorId: req.params.userId })
+      .select(
+        "_id title commander pickup_lane text_markdown likes lastChangeDate tags authorId allowComments",
+      )
+      .populate("authorId", "username")
+      .sort({ lastChangeDate: -1 })
+      .lean();
+    res.status(200).json(techs);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Error interno del server");
+  }
+};
+
 module.exports = {
   post_commandertech,
+  obtener_commandertechs_por_usuario,
   obtener_commandertechs,
   obtener_commandertech,
   toggle_like,
