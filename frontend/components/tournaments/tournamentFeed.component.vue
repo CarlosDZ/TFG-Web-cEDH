@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import { authState } from "../../utils/auth";
 import { usePanelState } from "../../composables/usePanelState";
 import { useTournaments } from "../../composables/useTournaments";
@@ -8,8 +9,10 @@ import TournamentCard from "./tournamentCard.component.vue";
 const { tournaments, loading, savedTournaments, loadSavedIds } = useTournaments();
 const auth = authState();
 const { isPanelOpen } = usePanelState();
+const route = useRoute();
 
-const filter = ref("all"); // "all" | "upcoming" | "saved"
+const VALID_FILTERS = ["all", "upcoming", "saved"];
+const filter = ref(VALID_FILTERS.includes(route.query.filter) ? route.query.filter : "all");
 const savedLoading = ref(false);
 
 async function loadSaved() {
@@ -23,6 +26,7 @@ async function loadSaved() {
 }
 
 watch(filter, (val) => { if (val === "saved") loadSaved(); });
+onMounted(() => { if (filter.value === "saved") loadSaved(); });
 
 const filtered = computed(() => {
   if (filter.value === "upcoming") {
