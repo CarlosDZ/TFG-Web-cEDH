@@ -3,6 +3,7 @@ const Deck = require("../models/Decklist");
 const CommanderTech = require("../models/CommanderTech");
 const Comentario = require("../models/Comment");
 const Torneo = require("../models/Tournament");
+const jwt = require("jsonwebtoken");
 
 const obtener_usuario = async (req, res) => {
   try {
@@ -105,11 +106,27 @@ const edit_user = async (req, res) => {
         return res.status(409).json("El nombre de usuario no esta disponible.");
       else {
         const usuarioObjetivo = await Usuario.findById(req.params.id).select(
-          "username bio",
+          "username bio isAdmin isVerified emailIsVerified email",
         );
         usuarioObjetivo.bio = newBio;
         usuarioObjetivo.username = newName;
         await usuarioObjetivo.save();
+
+        const token_user = {
+          id: usuarioObjetivo._id,
+          email: usuarioObjetivo.email,
+          username: usuarioObjetivo.username,
+          isAdmin: usuarioObjetivo.isAdmin,
+          isVerified: usuarioObjetivo.isVerified,
+          emailVerified: usuarioObjetivo.emailIsVerified,
+        };
+        const jwtToken = jwt.sign(token_user, process.env.JWT_SECRET_KEY_MIDDLEWARE, { expiresIn: "30d" });
+        res.cookie("spaincEDH_auth_token", jwtToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
         res.status(200).json(usuarioObjetivo);
       }
     }

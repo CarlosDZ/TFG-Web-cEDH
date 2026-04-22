@@ -91,7 +91,7 @@ const router = useRouter();
 
 function login() {
     axios
-        .post(`http://${backend_url}/api/auth/login`, {
+        .post(`${backend_url}/api/auth/login`, {
             nameOrMail: username.value,
             password: password.value,
         })

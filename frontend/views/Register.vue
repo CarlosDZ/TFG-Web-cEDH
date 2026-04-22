@@ -118,7 +118,7 @@ const router = useRouter();
 function register() {
     const backend_url = import.meta.env.VITE_BACKEND_URL;
     axios
-        .post(`http://${backend_url}/api/auth/register`, {
+        .post(`${backend_url}/api/auth/register`, {
             username: username.value,
             email: email.value,
             password: password.value,

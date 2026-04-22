@@ -5,11 +5,9 @@ import axios from "axios";
 export const authState = defineStore("auth", () => {
     const isLogged = ref(false);
     const user = ref(null);
-
-    console.log("Session store cargado:", isLogged.value, user.value);
+    const sessionLoading = ref(true);
 
     async function loadSession() {
-        console.log("loadSession() ejecutado en store:", isLogged.value, user.value);
         try {
             const res = await axios.get(`/api/session`, {
                 withCredentials: true,
@@ -21,6 +19,8 @@ export const authState = defineStore("auth", () => {
         } catch (err) {
             user.value = null;
             isLogged.value = false;
+        } finally {
+            sessionLoading.value = false;
         }
     }
 
@@ -34,5 +34,5 @@ export const authState = defineStore("auth", () => {
         isLogged.value = false;
     }
 
-    return { isLogged, user, setUser, logout, loadSession };
+    return { isLogged, user, sessionLoading, setUser, logout, loadSession };
 });

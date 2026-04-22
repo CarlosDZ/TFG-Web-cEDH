@@ -32,17 +32,22 @@ router.post("/register", async (req, res) => {
         const newUser = new User({ username, email, salt, password_hash });
         await newUser.save();
 
-        return res.status(201).json({ 
-            mensaje: "Usuario registrado con exito.",
-            user: {
-                id: newUser._id,
-                email: newUser.email,
-                username: newUser.username,
-                isAdmin: newUser.isAdmin,
-                isVerified: newUser.isVerified,
-                emailVerified: newUser.emailIsVerified,
-            }
+        const token_user = {
+            id: newUser._id,
+            email: newUser.email,
+            username: newUser.username,
+            isAdmin: newUser.isAdmin,
+            isVerified: newUser.isVerified,
+            emailVerified: newUser.emailIsVerified,
+        };
+        const jwtToken = jwt.sign(token_user, process.env.JWT_SECRET_KEY_MIDDLEWARE, { expiresIn: "30d" });
+        res.cookie("spaincEDH_auth_token", jwtToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 30 * 24 * 60 * 60 * 1000,
         });
+        return res.status(201).json({ mensaje: "Usuario registrado con exito.", user: token_user });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Error interno del servidor. Por favor intentalo mas tarde. Sentimos las molestias!" });

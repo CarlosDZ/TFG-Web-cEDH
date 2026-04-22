@@ -36,7 +36,8 @@
     #mainContainer-dashboard main,
     #mainContainer-decklists main,
     #mainContainer-deckdetail main,
-    #mainContainer-commanderTechs main {
+    #mainContainer-commanderTechs main,
+    #mainContainer-tournaments main {
         --background-color: #00171f;
     }
     #mainContainer-commentFeed {
@@ -91,7 +92,8 @@
     }
     #mainContainer-dashboard main,
     #mainContainer-decklists main,
-    #mainContainer-commanderTechs main {
+    #mainContainer-commanderTechs main,
+    #mainContainer-tournaments main {
         --background-color: #a0c1b9;
     }
     #mainContainer-commentFeed {
