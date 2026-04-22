@@ -1,11 +1,16 @@
 <script setup>
 import { ref, reactive, computed, nextTick, onMounted } from "vue";
 import { usePanelState } from "../../composables/usePanelState";
-import { postTournament } from "../../services/tournamentService";
+import { postTournament, patchTournament } from "../../services/tournamentService";
 
 const { isPanelOpen } = usePanelState();
 
-const emit = defineEmits(["close", "saved"]);
+const props = defineProps({
+  initialData: { type: Object, default: null },
+});
+const emit = defineEmits(["close", "saved", "updated"]);
+
+const isEditMode = computed(() => !!props.initialData);
 
 const visible = ref(false);
 const saving = ref(false);
@@ -28,17 +33,39 @@ const FORMATS = [
   "Liga",
 ];
 
+function toDatetimeLocal(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+const KNOWN_FORMATS = [
+  "Eliminatorio Bo3", "Eliminatorio Bo1", "Brackets Bo3", "Brackets Bo1",
+  "Swiss", "Por puntos", "Liga",
+];
+
+function resolveFormat(f) {
+  if (!f) return { format: "", customFormat: "" };
+  if (KNOWN_FORMATS.includes(f)) return { format: f, customFormat: "" };
+  return { format: "__custom__", customFormat: f };
+}
+
+const init = props.initialData;
+const { format: initFormat, customFormat: initCustomFormat } = resolveFormat(init?.format);
+
 const form = reactive({
-  name: "",
-  description: "",
-  format: "",
-  customFormat: "",
-  enter_cost: "",
-  ubication: "",
-  tournament_date_hour: "",
-  max_players: "",
-  prizes: [{ range: "1", prize: "" }],
-  ruling_markdown: "",
+  name: init?.name ?? "",
+  description: init?.description ?? "",
+  format: initFormat,
+  customFormat: initCustomFormat,
+  enter_cost: init?.enter_cost ?? "",
+  ubication: init?.ubication ?? "",
+  tournament_date_hour: toDatetimeLocal(init?.tournament_date_hour),
+  max_players: init?.max_players ?? "",
+  prizes: init?.prizes?.length ? init.prizes.map((p) => ({ ...p })) : [{ range: "1", prize: "" }],
+  ruling_markdown: init?.ruling_markdown ?? "",
+  isFull: init?.isFull ?? false,
 });
 
 const bodyRef = ref(null);
@@ -118,9 +145,15 @@ async function save() {
       max_players: form.max_players ? Number(form.max_players) : null,
       prizes: form.prizes.filter((p) => p.range.trim() && p.prize.trim()),
       ruling_markdown: form.ruling_markdown.trim(),
+      ...(isEditMode.value && { isFull: form.isFull }),
     };
-    const data = await postTournament(payload);
-    emit("saved", data);
+    if (isEditMode.value) {
+      const data = await patchTournament(props.initialData._id, payload);
+      emit("updated", data);
+    } else {
+      const data = await postTournament(payload);
+      emit("saved", data);
+    }
     handleClose();
   } catch (err) {
     saveError.value = err.message ?? "Error al guardar";
@@ -140,7 +173,7 @@ async function save() {
               <!-- Header -->
               <div class="modal-header">
                 <div class="modal-header-text">
-                  <span class="modal-eyebrow">Nuevo torneo</span>
+                  <span class="modal-eyebrow">{{ isEditMode ? 'Editar torneo' : 'Nuevo torneo' }}</span>
                   <h2 class="modal-heading">
                     {{ form.name || "¿Cómo se llama el torneo?" }}
                   </h2>
@@ -276,6 +309,17 @@ async function save() {
                       En Google Maps: Compartir → Incorporar un mapa → copia la
                       URL del atributo src
                     </span>
+                  </div>
+
+                  <div v-if="isEditMode" class="field-group">
+                    <label class="field-label">Estado</label>
+                    <label class="toggle-label">
+                      <input type="checkbox" class="toggle-input" v-model="form.isFull" />
+                      <span class="toggle-track">
+                        <span class="toggle-thumb" />
+                      </span>
+                      <span class="toggle-text">{{ form.isFull ? 'Completo' : 'Abierto' }}</span>
+                    </label>
                   </div>
                 </div>
 
@@ -419,7 +463,7 @@ async function save() {
                     <line x1="22" y1="2" x2="11" y2="13" />
                     <polygon points="22 2 15 22 11 13 2 9 22 2" />
                   </svg>
-                  {{ saving ? "Publicando..." : "Publicar torneo" }}
+                  {{ saving ? (isEditMode ? "Guardando..." : "Publicando...") : (isEditMode ? "Guardar cambios" : "Publicar torneo") }}
                 </button>
               </div>
             </div>
@@ -909,6 +953,54 @@ async function save() {
 .modal-leave-to {
   transform: translateY(40px);
   opacity: 0;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-input {
+  display: none;
+}
+
+.toggle-track {
+  width: 36px;
+  height: 20px;
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border);
+  border-radius: 0;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.toggle-input:checked + .toggle-track {
+  background: rgba(83, 74, 183, 0.2);
+  border-color: var(--accent);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  background: var(--txt-muted);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.toggle-input:checked + .toggle-track .toggle-thumb {
+  transform: translateX(16px);
+  background: var(--accent);
+}
+
+.toggle-text {
+  font-size: 13px;
+  color: var(--txt);
 }
 
 @media (max-width: 768px) {

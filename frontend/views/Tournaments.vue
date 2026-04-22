@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import { useTournaments } from "../composables/useTournaments";
 
 import TournamentFeed from "../components/tournaments/tournamentFeed.component.vue";
 import TournamentBuilderModal from "../components/tournaments/tournamentBuilder.modal.vue";
@@ -8,17 +9,27 @@ import sectionNavMenu from "../components/sectionNavMenu.component.vue";
 import personalNavMenu from "../components/personalNavMenu.component.vue";
 import headersSearchBar from "../components/headerSearchBar.component.vue";
 
+const { addTournament, updateTournament, removeTournament } = useTournaments();
+
 const showBuilderModal = ref(false);
+const editingTournament = ref(null);
 const selectedTournament = ref(null);
-const tournaments = ref([]);
 
 function onTournamentSaved(tournament) {
-  tournaments.value.unshift(tournament);
+  addTournament(tournament);
   showBuilderModal.value = false;
 }
 
+function onTournamentUpdated(tournament) {
+  updateTournament(tournament);
+  if (selectedTournament.value?._id === tournament._id) {
+    selectedTournament.value = tournament;
+  }
+  editingTournament.value = null;
+}
+
 function onTournamentDeleted(id) {
-  tournaments.value = tournaments.value.filter((t) => t._id !== id);
+  removeTournament(id);
   selectedTournament.value = null;
 }
 </script>
@@ -41,11 +52,19 @@ function onTournamentDeleted(id) {
         @saved="onTournamentSaved"
       />
 
+      <TournamentBuilderModal
+        v-if="editingTournament"
+        :initial-data="editingTournament"
+        @close="editingTournament = null"
+        @updated="onTournamentUpdated"
+      />
+
       <TournamentDetail
         v-if="selectedTournament"
         :tournament="selectedTournament"
         @close="selectedTournament = null"
         @deleted="onTournamentDeleted"
+        @edit="editingTournament = $event"
       />
 
       <personalNavMenu />

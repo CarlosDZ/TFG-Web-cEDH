@@ -3,19 +3,23 @@ import { ref, computed, onMounted, nextTick } from "vue";
 import { marked } from "marked";
 import { authState } from "../../utils/auth";
 import { toggleSave, deleteTournament } from "../../services/tournamentService";
+import { useTournaments } from "../../composables/useTournaments";
 
 defineOptions({ name: "TournamentDetail" });
 
 const props = defineProps({
   tournament: { type: Object, required: true },
 });
-const emit = defineEmits(["close", "deleted"]);
+const emit = defineEmits(["close", "deleted", "edit"]);
 
 const auth = authState();
+const { savedIds, loadSavedIds, toggleSavedId } = useTournaments();
 const visible = ref(false);
 const activeTab = ref("info");
 const notification = ref("");
 let notifTimeout = null;
+
+const isSaved = computed(() => savedIds.value.has(props.tournament._id));
 
 const authorName = computed(
   () => props.tournament.authorId?.username ?? "Anónimo",
@@ -55,7 +59,7 @@ const mapSrc = computed(() => {
 const canDelete = computed(
   () =>
     auth.isLogged &&
-    (auth.isAdmin ||
+    (auth.user?.isAdmin ||
       props.tournament.authorId?._id === auth.user?._id ||
       props.tournament.authorId?.toString() === auth.user?._id),
 );
@@ -72,6 +76,7 @@ onMounted(() => {
   nextTick(() => {
     visible.value = true;
   });
+  if (auth.isLogged) loadSavedIds();
 });
 
 async function handleSave() {
@@ -80,9 +85,10 @@ async function handleSave() {
     return;
   }
   try {
+    toggleSavedId(props.tournament._id);
     await toggleSave(props.tournament._id);
-    showNotif("Guardado actualizado.");
   } catch {
+    toggleSavedId(props.tournament._id);
     showNotif("Error al guardar el torneo.");
   }
 }
@@ -140,8 +146,28 @@ function handleClose() {
               <div class="detail-header__right">
                 <button
                   class="icon-btn"
-                  title="Guardar torneo"
+                  :class="{ 'icon-btn--saved': isSaved }"
+                  :title="isSaved ? 'Quitar de guardados' : 'Guardar torneo'"
                   @click="handleSave"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    :fill="isSaved ? 'currentColor' : 'none'"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  v-if="canDelete"
+                  class="icon-btn"
+                  title="Editar torneo"
+                  @click="emit('edit', tournament)"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -151,9 +177,8 @@ function handleClose() {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
-                    <path
-                      d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
-                    />
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
                   </svg>
                 </button>
                 <button
@@ -438,6 +463,10 @@ function handleClose() {
 .icon-btn:hover {
   color: var(--accent-muted);
   border-color: var(--accent-muted);
+}
+.icon-btn--saved {
+  color: var(--accent-muted);
+  border-color: var(--accent);
 }
 .icon-btn--danger:hover {
   color: #e05c5c;

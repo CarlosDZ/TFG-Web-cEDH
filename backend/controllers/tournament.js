@@ -57,7 +57,7 @@ const toggle_fav = async (req, res) => {
     ) {
       await Usuario.updateOne(
         { _id: req.user.id },
-        { $pull: { fav_tournament: torneoToFav } },
+        { $pull: { fav_tournament: torneoToFav._id } },
       );
       res.status(200).json("Eliminacion de favorito procesado con exito");
     } else {
@@ -122,6 +122,42 @@ const post_tournament = async (req, res) => {
   }
 };
 
+const get_saved_tournaments = async (req, res) => {
+  try {
+    const myself = await Usuario.findById(req.user.id).populate({
+      path: "fav_tournament",
+      populate: { path: "authorId", select: "username" },
+    });
+    if (!myself) return res.status(401).json("No se ha podido determinar el usuario de la sesion");
+    res.status(200).json(myself.fav_tournament);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Error interno del server");
+  }
+};
+
+const patch_tournament = async (req, res) => {
+  try {
+    const torneo = await Torneo.findById(req.params.id);
+    const myself = await Usuario.findById(req.user.id);
+    if (!torneo) return res.status(404).json("Torneo no encontrado");
+    if (!myself) return res.status(401).json("No se ha podido determinar el usuario de la sesion");
+    if (!myself.isAdmin && !torneo.authorId.equals(myself._id))
+      return res.status(403).json("No tienes permiso para editar eso");
+
+    const allowed = ["name", "description", "format", "enter_cost", "ubication", "tournament_date_hour", "max_players", "prizes", "ruling_markdown", "isFull"];
+    allowed.forEach((key) => {
+      if (req.body[key] !== undefined) torneo[key] = req.body[key];
+    });
+    await torneo.save();
+    await torneo.populate("authorId", "username");
+    res.status(200).json(torneo);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Error interno del server");
+  }
+};
+
 module.exports = {
   obtener_torneos,
   obtener_torneos_disponibles,
@@ -129,4 +165,6 @@ module.exports = {
   toggle_fav,
   delete_tournament,
   post_tournament,
+  patch_tournament,
+  get_saved_tournaments,
 };

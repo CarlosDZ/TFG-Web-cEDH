@@ -1,15 +1,28 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { authState } from "../../utils/auth";
 import { usePanelState } from "../../composables/usePanelState";
 import { useTournaments } from "../../composables/useTournaments";
 import TournamentCard from "./tournamentCard.component.vue";
 
-const { tournaments, loading } = useTournaments();
+const { tournaments, loading, savedTournaments, loadSavedIds } = useTournaments();
 const auth = authState();
 const { isPanelOpen } = usePanelState();
 
-const filter = ref("all"); // "all" | "upcoming"
+const filter = ref("all"); // "all" | "upcoming" | "saved"
+const savedLoading = ref(false);
+
+async function loadSaved() {
+  if (!auth.isLogged) return;
+  savedLoading.value = true;
+  try {
+    await loadSavedIds();
+  } finally {
+    savedLoading.value = false;
+  }
+}
+
+watch(filter, (val) => { if (val === "saved") loadSaved(); });
 
 const filtered = computed(() => {
   if (filter.value === "upcoming") {
@@ -18,6 +31,7 @@ const filtered = computed(() => {
       (t) => !t.isFull && new Date(t.tournament_date_hour) > now,
     );
   }
+  if (filter.value === "saved") return savedTournaments.value;
   return tournaments.value;
 });
 
@@ -41,9 +55,17 @@ const emit = defineEmits(["new-tournament", "open-tournament"]);
       >
         Disponibles
       </button>
+      <button
+        v-if="auth.isLogged"
+        class="filter-btn"
+        :class="{ active: filter === 'saved' }"
+        @click="filter = 'saved'"
+      >
+        Guardados
+      </button>
     </div>
 
-    <p v-if="loading" class="feed-status">Cargando torneos...</p>
+    <p v-if="filter === 'saved' ? savedLoading : loading" class="feed-status">Cargando torneos...</p>
 
     <div v-else-if="filtered.length === 0" class="feed-empty">
       <svg
