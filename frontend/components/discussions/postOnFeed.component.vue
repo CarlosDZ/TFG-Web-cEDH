@@ -15,9 +15,6 @@ const props = defineProps({
     isLast: { type: Boolean, default: true },
 });
 
-import avatar from "../../assets/images/avatar.jpg";
-const image_url = avatar;
-
 const isReply = computed(() => props.depth > 0);
 const scale = computed(() => Math.max(0.85, 1 - props.depth * 0.05));
 const titulo = computed(() => {
@@ -25,6 +22,7 @@ const titulo = computed(() => {
     return t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
 });
 const autor = computed(() => props.discusionElement.authorId.username);
+const autorInitial = computed(() => autor.value.charAt(0).toUpperCase());
 const likes = computed(() => props.discusionElement.likes);
 const fechaFormateada = computed(() =>
     new Date(props.discusionElement.createdAt).toLocaleString("es-ES")
@@ -120,7 +118,7 @@ function onReplyPublished(newReply) {
             :style="{ fontSize: `${scale}em` }"
         >
             <div class="card-header">
-                <img :src="image_url" alt="avatar" />
+                <div class="post-avatar">{{ autorInitial }}</div>
                 <div class="card-meta">
                     <h2 v-if="titulo">{{ titulo }}</h2>
                     <p class="author">{{ autor }} · {{ fechaFormateada }}</p>
@@ -248,17 +246,26 @@ function onReplyPublished(newReply) {
     gap: 1px;
 }
 
-img {
+.post-avatar {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     flex-shrink: 0;
+    background: #1c3a58;
+    color: #afa9ec;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Cinzel", serif;
 }
 
-.is-reply img {
+.is-reply .post-avatar {
     width: 26px;
     height: 26px;
+    font-size: 11px;
 }
 
 h2 {

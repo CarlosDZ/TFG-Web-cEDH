@@ -11,6 +11,8 @@ const authorName = computed(
   () => props.tournament.authorId?.username ?? "Anónimo",
 );
 
+const authorInitial = computed(() => authorName.value.charAt(0).toUpperCase());
+
 const fechaDisplay = computed(() => {
   if (!props.tournament.tournament_date_hour) return "";
   return new Date(props.tournament.tournament_date_hour).toLocaleDateString(
@@ -110,11 +112,7 @@ const topPrize = computed(() => {
     </div>
 
     <div class="tournament-card__footer">
-      <img
-        class="tournament-card__avatar"
-        src="../../assets/images/avatar.jpg"
-        alt=""
-      />
+      <div class="tournament-card__avatar">{{ authorInitial }}</div>
       <span class="tournament-card__author">{{ authorName }}</span>
     </div>
   </article>
@@ -249,9 +247,16 @@ const topPrize = computed(() => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
+  background: #1c3a58;
+  color: #afa9ec;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cinzel", serif;
 }
 
 .tournament-card__author {

@@ -23,6 +23,7 @@ const commanders = computed(() =>
 );
 
 const authorName = computed(() => props.deck.authorId?.username ?? "Anónimo");
+const authorInitial = computed(() => authorName.value.charAt(0).toUpperCase());
 
 const colorPips = computed(() => {
   const identity = props.deck.color_identity ?? "";
@@ -47,11 +48,7 @@ const fecha = computed(() => {
   <article class="deck-card" @click="router.push(`/decklists/${deck._id}`)">
     <div class="deck-card__header">
       <div class="deck-card__meta">
-        <img
-          class="deck-card__avatar"
-          src="../../assets/images/avatar.jpg"
-          alt=""
-        />
+        <div class="deck-card__avatar">{{ authorInitial }}</div>
         <span class="deck-card__author">{{ authorName }}</span>
         <span class="deck-card__date">{{ fecha }}</span>
       </div>
@@ -133,9 +130,16 @@ const fecha = computed(() => {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
+  background: #1c3a58;
+  color: #afa9ec;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cinzel", serif;
 }
 
 .deck-card__author {
