@@ -288,7 +288,7 @@ async function save() {
                     <input
                       class="field-input"
                       type="text"
-                      placeholder="Ej: 10€, Gratuito, 2 sobres..."
+                      placeholder="Ej: 10€ por bizum, 10€ a la entrada, Gratuito,..."
                       v-model="form.enter_cost"
                       maxlength="100"
                     />
