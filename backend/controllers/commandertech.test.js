@@ -331,3 +331,62 @@ describe("obtener_commandertech", () => {
     assert.equal(res._body.title, "Tech de prueba");
   });
 });
+
+// ── Tests: obtener_commandertechs_por_usuario ─────────────────────────────────
+
+describe("obtener_commandertechs_por_usuario", () => {
+  function makeChain(resolvedValue) {
+    const chain = {
+      select: () => chain,
+      populate: () => chain,
+      sort: () => chain,
+      lean: async () => resolvedValue,
+    };
+    return chain;
+  }
+
+  test("devuelve 200 con las techs del usuario", async () => {
+    const userId = makeId(2);
+    const fakeTechs = [
+      {
+        _id: makeId(10),
+        title: "Tech A",
+        commander: ["Tymna"],
+        authorId: { username: "owner" },
+      },
+      {
+        _id: makeId(11),
+        title: "Tech B",
+        commander: ["Thrasios"],
+        authorId: { username: "owner" },
+      },
+    ];
+    MockCommanderTech.find = () => makeChain(fakeTechs);
+    const req = { params: { userId } };
+    const res = makeRes();
+    await ctrl.obtener_commandertechs_por_usuario(req, res);
+    assert.equal(res._status, 200);
+    assert.equal(res._body.length, 2);
+    assert.equal(res._body[0].title, "Tech A");
+    assert.equal(res._body[1].title, "Tech B");
+  });
+
+  test("devuelve 200 con array vacío si el usuario no tiene techs", async () => {
+    MockCommanderTech.find = () => makeChain([]);
+    const req = { params: { userId: makeId(99) } };
+    const res = makeRes();
+    await ctrl.obtener_commandertechs_por_usuario(req, res);
+    assert.equal(res._status, 200);
+    assert.deepEqual(res._body, []);
+  });
+
+  test("devuelve 500 en caso de error interno", async () => {
+    MockCommanderTech.find = () => {
+      throw new Error("DB error");
+    };
+    const req = { params: { userId: makeId(2) } };
+    const res = makeRes();
+    await ctrl.obtener_commandertechs_por_usuario(req, res);
+    assert.equal(res._status, 500);
+  });
+});

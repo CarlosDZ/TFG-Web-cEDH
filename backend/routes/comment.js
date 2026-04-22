@@ -4,6 +4,7 @@ const router = express.Router();
 
 const {
   obtener_discusiones,
+  obtener_discusiones_por_usuario,
   obtener_respuestas,
   reply_to,
   obtener_comentario,
@@ -16,6 +17,7 @@ const {
 } = require("../controllers/comment");
 
 router.get("/search", search_discusiones);
+router.get("/user/:userId", obtener_discusiones_por_usuario);
 router.post("/", authMiddleware, post_discusion);
 router.get("/", obtener_discusiones);
 router.get("/:id", obtener_comentario);

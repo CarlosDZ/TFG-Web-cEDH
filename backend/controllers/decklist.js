@@ -315,10 +315,30 @@ const search_decklists = async (req, res) => {
   }
 };
 
+const obtener_decklists_por_usuario = async (req, res) => {
+  try {
+    const decklists = await Decklist.find({
+      authorId: req.params.userId,
+      isPublic: true,
+    })
+      .select(
+        "_id title commander color_identity likes description tags createdAt authorId",
+      )
+      .populate("authorId", "username")
+      .sort({ createdAt: -1 })
+      .lean();
+    res.status(200).json(decklists);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Error interno del server");
+  }
+};
+
 module.exports = {
   post_decklist,
   obtener_decklist,
   obtener_decklists,
+  obtener_decklists_por_usuario,
   toggle_fav,
   toggle_like,
   edit,

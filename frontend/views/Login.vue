@@ -92,18 +92,18 @@ const auth = authState();
 const router = useRouter();
 
 function login() {
-  axios
-    .post(`${backend_url}/api/auth/login`, {
-      nameOrMail: username.value,
-      password: password.value,
-    })
-    .then((response) => {
-      if (response.data.user) auth.setUser(response.data.user);
-      router.push("/dashboard");
-    })
-    .catch((error) => {
-      alert(error.response.data.error);
-    });
+    axios
+        .post(`${backend_url}/api/auth/login`, {
+            nameOrMail: username.value,
+            password: password.value,
+        })
+        .then((response) => {
+            if (response.data.user) auth.setUser(response.data.user);
+            router.push("/dashboard");
+        })
+        .catch((error) => {
+            alert(error.response.data.error);
+        });
 }
 </script>
 

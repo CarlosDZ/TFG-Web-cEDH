@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
+import { authState } from "../utils/auth";
 import { autocompleteCards } from "../services/scryfallService";
 import { searchUsuarios } from "../services/userService";
 import {
@@ -10,6 +11,10 @@ import {
 } from "../services/searchService";
 
 const router = useRouter();
+const auth = authState();
+const userInitial = computed(() =>
+  auth.user?.username ? auth.user.username.charAt(0).toUpperCase() : "?",
+);
 
 const searchFilter = ref("card");
 const searchQuery = ref("");
@@ -38,7 +43,7 @@ function submitPath(q) {
   const t = q.trim();
   const f = searchFilter.value;
   if (f === "card") return t ? `/carta/${encodeURIComponent(t)}` : null;
-  if (f === "user") return t ? `/jugador/${encodeURIComponent(t)}` : null;
+  if (f === "user") return t ? `/jugadores?q=${encodeURIComponent(t)}` : null;
   if (f === "discussion")
     return t ? `/busqueda/discusiones?q=${encodeURIComponent(t)}` : null;
   if (f === "deck")
@@ -82,7 +87,7 @@ watch(searchQuery, (val) => {
       const users = await searchUsuarios(val);
       suggestions.value = users.map((u) => ({
         label: u.username,
-        navigateTo: `/jugador/${encodeURIComponent(u.username)}`,
+        navigateTo: `/jugador/${u._id}`,
         group: null,
       }));
     } else if (f === "discussion") {
@@ -344,12 +349,13 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="profile-section">
+    <div
+      class="profile-section"
+      @click="auth.user && router.push(`/jugador/${auth.user.id}`)"
+    >
       <div class="profile-inner">
         <div class="profile-content">
-          <div class="avatar-wrap">
-            <img src="../assets/images/avatar.jpg" alt="Avatar" />
-          </div>
+          <div class="avatar-wrap avatar-initial">{{ userInitial }}</div>
           <span class="profile-label">Mi perfil</span>
         </div>
       </div>
@@ -707,10 +713,15 @@ onUnmounted(() => {
   overflow: hidden;
   flex-shrink: 0;
 }
-.avatar-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.avatar-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-text);
+  letter-spacing: 0;
 }
 .profile-label {
   font-size: 12px;

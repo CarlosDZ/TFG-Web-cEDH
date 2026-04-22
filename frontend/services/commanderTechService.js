@@ -43,6 +43,12 @@ export async function isLiked(id) {
   return await res.json();
 }
 
+export async function getCommanderTechsByUser(userId) {
+  const res = await fetch(`/api/commandertech/user/${userId}`);
+  if (!res.ok) return [];
+  return res.json();
+}
+
 export async function commentOnTech(techId, markdown_text) {
   const res = await fetch(`/api/commandertech/${techId}/comment`, {
     method: "POST",

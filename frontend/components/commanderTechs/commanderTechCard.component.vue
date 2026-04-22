@@ -14,6 +14,7 @@ const commanders = computed(() =>
 );
 
 const authorName = computed(() => props.tech.authorId?.username ?? "Anónimo");
+const authorInitial = computed(() => authorName.value.charAt(0).toUpperCase());
 
 const fecha = computed(() => {
   if (!props.tech.lastChangeDate) return "";
@@ -34,11 +35,7 @@ const pickupPreview = computed(() => {
   <article class="tech-card" @click="emit('open', tech)">
     <div class="tech-card__header">
       <div class="tech-card__meta">
-        <img
-          class="tech-card__avatar"
-          src="../../assets/images/avatar.jpg"
-          alt=""
-        />
+        <div class="tech-card__avatar">{{ authorInitial }}</div>
         <span class="tech-card__author">{{ authorName }}</span>
         <span class="tech-card__date">{{ fecha }}</span>
       </div>
@@ -95,9 +92,16 @@ const pickupPreview = computed(() => {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
+  background: #1c3a58;
+  color: #afa9ec;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cinzel", serif;
 }
 
 .tech-card__author {
