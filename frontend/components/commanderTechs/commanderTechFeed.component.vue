@@ -87,6 +87,7 @@ const emit = defineEmits(["new-tech", "open-tech"]);
 }
 
 .feed-status {
+  flex: 1;
   font-size: 13px;
   color: var(--txt-color);
   opacity: 0.5;
