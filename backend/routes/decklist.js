@@ -18,6 +18,7 @@ const {
   get_deck_comments,
   is_liked_decklist,
   search_decklists,
+  refresh_card_images,
 } = require("../controllers/decklist");
 
 const checkSession = require("../middleware/checkSession");
@@ -34,6 +35,7 @@ router.post("/:id/save", authMiddleware, toggle_fav);
 router.post("/:id/comment", authMiddleware, reply_to);
 router.get("/:id/comments", get_deck_comments);
 router.get("/:id/isLiked", authMiddleware, is_liked_decklist);
+router.post("/:id/refresh-images", refresh_card_images);
 router.get("/import/moxfield", import_from_moxfield);
 
 module.exports = router;

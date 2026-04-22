@@ -2,9 +2,17 @@ const Decklist = require("../models/Decklist");
 const User = require("../models/User");
 const Comentario = require("../models/Comment");
 const { importFromMoxfield } = require("../services/moxfieldAPI");
+const { fetchCardImages } = require("../services/scryfallAPI");
 
 const post_decklist = async (req, res) => {
   try {
+    const allCards = [
+      ...(req.body.commander ?? []),
+      ...(req.body.cards ?? []),
+      ...(req.body.alternative_choices ?? []),
+    ];
+    const card_images = await fetchCardImages(allCards);
+
     const newDecklist = new Decklist({
       authorId: req.user.id,
       title: req.body.title,
@@ -17,6 +25,7 @@ const post_decklist = async (req, res) => {
       tags: req.body.tags,
       isPublic: req.body.isPublic,
       allowComments: req.body.allowComments,
+      card_images,
     });
     await newDecklist.save();
     res.status(201).json(newDecklist);
@@ -202,8 +211,19 @@ const edit = async (req, res) => {
         "isPublic",
         "allowComments",
       ];
+      const cardsChanged =
+        req.body.commander || req.body.cards || req.body.alternative_choices;
       for (const field of fields) {
         oldDecklist[field] = req.body[field] ?? oldDecklist[field];
+      }
+
+      if (cardsChanged) {
+        const allCards = [
+          ...oldDecklist.commander,
+          ...oldDecklist.cards,
+          ...(oldDecklist.alternative_choices ?? []),
+        ];
+        oldDecklist.card_images = await fetchCardImages(allCards);
       }
 
       await oldDecklist.save();
@@ -334,6 +354,25 @@ const obtener_decklists_por_usuario = async (req, res) => {
   }
 };
 
+const refresh_card_images = async (req, res) => {
+  try {
+    const deck = await Decklist.findById(req.params.id);
+    if (!deck) return res.status(404).json("Decklist no encontrada");
+
+    const allCards = [
+      ...deck.commander,
+      ...deck.cards,
+      ...(deck.alternative_choices ?? []),
+    ];
+    deck.card_images = await fetchCardImages(allCards);
+    await deck.save();
+    res.status(200).json({ card_images: Object.fromEntries(deck.card_images) });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Error interno del server");
+  }
+};
+
 module.exports = {
   post_decklist,
   obtener_decklist,
@@ -348,4 +387,5 @@ module.exports = {
   get_deck_comments,
   is_liked_decklist,
   search_decklists,
+  refresh_card_images,
 };

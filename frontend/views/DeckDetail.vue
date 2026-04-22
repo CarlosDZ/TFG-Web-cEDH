@@ -8,6 +8,7 @@ import {
   getDeckComments,
   isDeckLiked,
   toggleDeckLike,
+  refreshDeckImages,
 } from "../services/decklistService";
 import sectionNavMenu from "../components/sectionNavMenu.component.vue";
 import personalNavMenu from "../components/personalNavMenu.component.vue";
@@ -24,6 +25,8 @@ const comments = ref([]);
 const loading = ref(true);
 const error = ref(null);
 const activeTab = ref("lista");
+const visualMode = ref(false);
+const loadingImages = ref(false);
 const likedLocal = ref(false);
 const likesLocal = ref(0);
 const notification = ref(false);
@@ -45,6 +48,27 @@ const commanders = computed(() =>
 );
 
 const authorName = computed(() => deck.value?.authorId?.username ?? "Anónimo");
+const authorInitial = computed(() => authorName.value.charAt(0).toUpperCase());
+
+function scryfallImg(name) {
+  return deck.value?.card_images?.[name] ?? null;
+}
+
+async function enableVisualMode() {
+  visualMode.value = true;
+  const hasImages =
+    deck.value?.card_images && Object.keys(deck.value.card_images).length > 0;
+  if (hasImages) return;
+  loadingImages.value = true;
+  try {
+    const { card_images } = await refreshDeckImages(deck.value._id);
+    deck.value.card_images = card_images;
+  } catch (err) {
+    console.error("No se pudieron obtener las imágenes:", err);
+  } finally {
+    loadingImages.value = false;
+  }
+}
 
 const colorPips = computed(() => {
   const identity = deck.value?.color_identity ?? "";
@@ -155,11 +179,7 @@ function onCommentPublished(newComment) {
           <div class="deck-hero">
             <div class="deck-hero__top">
               <div class="deck-hero__meta">
-                <img
-                  class="deck-hero__avatar"
-                  src="../assets/images/avatar.jpg"
-                  alt=""
-                />
+                <div class="deck-hero__avatar">{{ authorInitial }}</div>
                 <span class="deck-hero__author">{{ authorName }}</span>
                 <span class="deck-hero__date">{{ fecha }}</span>
               </div>
@@ -246,50 +266,186 @@ function onCommentPublished(newComment) {
               Comentarios
               <span class="tab-count">{{ comments.length }}</span>
             </button>
+            <div v-if="activeTab === 'lista'" class="lista-toolbar">
+              <button
+                class="view-toggle"
+                :class="{ active: !visualMode }"
+                @click="visualMode = false"
+                title="Vista lista"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="8" y1="6" x2="21" y2="6" />
+                  <line x1="8" y1="12" x2="21" y2="12" />
+                  <line x1="8" y1="18" x2="21" y2="18" />
+                  <line x1="3" y1="6" x2="3.01" y2="6" />
+                  <line x1="3" y1="12" x2="3.01" y2="12" />
+                  <line x1="3" y1="18" x2="3.01" y2="18" />
+                </svg>
+              </button>
+              <button
+                class="view-toggle"
+                :class="{ active: visualMode }"
+                @click="enableVisualMode"
+                title="Vista visual"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="3" width="7" height="7" rx="1" />
+                  <rect x="14" y="3" width="7" height="7" rx="1" />
+                  <rect x="3" y="14" width="7" height="7" rx="1" />
+                  <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+              </button>
+            </div>
           </nav>
 
           <!-- Tab: Lista -->
           <div v-if="activeTab === 'lista'" class="tab-content">
-            <section class="card-section">
-              <h3 class="section-label">
-                Comandante{{ deck.commander?.length > 1 ? "s" : "" }}
-              </h3>
-              <ul class="card-list">
-                <li v-for="card in deck.commander" :key="card" class="card-row">
-                  <span class="card-name commander-name">{{ card }}</span>
-                </li>
-              </ul>
-            </section>
+            <!-- Modo lista -->
+            <template v-if="!visualMode">
+              <section class="card-section">
+                <h3 class="section-label">
+                  Comandante{{ deck.commander?.length > 1 ? "s" : "" }}
+                </h3>
+                <ul class="card-list">
+                  <li
+                    v-for="card in deck.commander"
+                    :key="card"
+                    class="card-row"
+                  >
+                    <span class="card-name commander-name">{{ card }}</span>
+                  </li>
+                </ul>
+              </section>
 
-            <section class="card-section">
-              <h3 class="section-label">Mazo</h3>
-              <ul class="card-list">
-                <li v-for="card in deck.cards" :key="card" class="card-row">
-                  <span class="card-name">{{ card }}</span>
-                </li>
-              </ul>
-            </section>
+              <section class="card-section">
+                <h3 class="section-label">Mazo</h3>
+                <ul class="card-list">
+                  <li v-for="card in deck.cards" :key="card" class="card-row">
+                    <span class="card-name">{{ card }}</span>
+                  </li>
+                </ul>
+              </section>
 
-            <section
-              v-if="(deck.alternative_choices ?? []).length"
-              class="card-section"
-            >
-              <h3 class="section-label">
-                Opciones alternativas
-                <span class="section-count">{{
-                  deck.alternative_choices.length
-                }}</span>
-              </h3>
-              <ul class="card-list">
-                <li
-                  v-for="card in deck.alternative_choices"
-                  :key="card"
-                  class="card-row alt"
-                >
-                  <span class="card-name">{{ card }}</span>
-                </li>
-              </ul>
-            </section>
+              <section
+                v-if="(deck.alternative_choices ?? []).length"
+                class="card-section"
+              >
+                <h3 class="section-label">
+                  Opciones alternativas
+                  <span class="section-count">{{
+                    deck.alternative_choices.length
+                  }}</span>
+                </h3>
+                <ul class="card-list">
+                  <li
+                    v-for="card in deck.alternative_choices"
+                    :key="card"
+                    class="card-row alt"
+                  >
+                    <span class="card-name">{{ card }}</span>
+                  </li>
+                </ul>
+              </section>
+            </template>
+
+            <!-- Modo visual -->
+            <div v-if="loadingImages" class="images-loading">
+              Obteniendo imágenes...
+            </div>
+            <template v-else>
+              <section class="card-section">
+                <h3 class="section-label">
+                  Comandante{{ deck.commander?.length > 1 ? "s" : "" }}
+                </h3>
+                <div class="card-img-grid">
+                  <div
+                    v-for="card in deck.commander"
+                    :key="card"
+                    class="card-img-wrap"
+                  >
+                    <img
+                      v-if="scryfallImg(card)"
+                      :src="scryfallImg(card)"
+                      :alt="card"
+                      :title="card"
+                      loading="lazy"
+                      class="card-img"
+                    />
+                    <span v-else class="card-img-missing" :title="card">{{
+                      card
+                    }}</span>
+                  </div>
+                </div>
+              </section>
+
+              <section class="card-section">
+                <h3 class="section-label">Mazo</h3>
+                <div class="card-img-grid">
+                  <div
+                    v-for="card in deck.cards"
+                    :key="card"
+                    class="card-img-wrap"
+                  >
+                    <img
+                      v-if="scryfallImg(card)"
+                      :src="scryfallImg(card)"
+                      :alt="card"
+                      :title="card"
+                      loading="lazy"
+                      class="card-img"
+                    />
+                    <span v-else class="card-img-missing" :title="card">{{
+                      card
+                    }}</span>
+                  </div>
+                </div>
+              </section>
+
+              <section
+                v-if="(deck.alternative_choices ?? []).length"
+                class="card-section"
+              >
+                <h3 class="section-label">
+                  Opciones alternativas
+                  <span class="section-count">{{
+                    deck.alternative_choices.length
+                  }}</span>
+                </h3>
+                <div class="card-img-grid">
+                  <div
+                    v-for="card in deck.alternative_choices"
+                    :key="card"
+                    class="card-img-wrap"
+                  >
+                    <img
+                      v-if="scryfallImg(card)"
+                      :src="scryfallImg(card)"
+                      :alt="card"
+                      :title="card"
+                      loading="lazy"
+                      class="card-img card-img--alt"
+                    />
+                    <span v-else class="card-img-missing" :title="card">{{
+                      card
+                    }}</span>
+                  </div>
+                </div>
+              </section>
+            </template>
           </div>
 
           <!-- Tab: Guía -->
@@ -467,9 +623,16 @@ function onCommentPublished(newComment) {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
+  background: #1c3a58;
+  color: #afa9ec;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: "Cinzel", serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .deck-hero__author {
@@ -607,6 +770,7 @@ function onCommentPublished(newComment) {
 /* Tabs */
 .tabs {
   display: flex;
+  align-items: center;
   gap: 0;
   border-bottom: 0.5px solid var(--border-color, #1c3a58);
   margin-bottom: 1.25rem;
@@ -823,6 +987,97 @@ function onCommentPublished(newComment) {
   display: flex;
   flex-direction: column;
   gap: 0;
+}
+
+/* View toggle */
+.lista-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 0.5px solid var(--border-color, #1c3a58);
+  margin-bottom: 1px;
+}
+
+.view-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: 0.5px solid var(--border-color, #1c3a58);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--txt-muted, #6b8caa);
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
+}
+.view-toggle:hover {
+  border-color: #534ab7;
+  color: #afa9ec;
+}
+.view-toggle.active {
+  border-color: #534ab7;
+  background: rgba(83, 74, 183, 0.15);
+  color: #afa9ec;
+}
+.view-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Visual mode grid */
+.card-img-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.card-img-wrap {
+  aspect-ratio: 146 / 204;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface-bg, #080f18);
+  border: 0.5px solid var(--border-color, #1c3a58);
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s ease;
+}
+.card-img:hover {
+  transform: scale(1.04);
+}
+
+.card-img--alt {
+  opacity: 0.7;
+}
+
+.images-loading {
+  font-size: 13px;
+  color: var(--txt-muted, #6b8caa);
+  padding: 2rem 0;
+  opacity: 0.6;
+}
+
+.card-img-missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 10px;
+  color: var(--txt-muted, #6b8caa);
+  text-align: center;
+  padding: 4px;
+  line-height: 1.3;
 }
 
 /* Notification */

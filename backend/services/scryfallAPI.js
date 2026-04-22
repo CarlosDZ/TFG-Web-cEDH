@@ -103,9 +103,33 @@ async function autocompleteCards(query) {
   }
 }
 
+async function fetchCardImages(names) {
+  const imageMap = {};
+  const BATCH = 75;
+  for (let i = 0; i < names.length; i += BATCH) {
+    const batch = names.slice(i, i + BATCH);
+    try {
+      const response = await axios.post(scryfallUrl_collection, {
+        identifiers: batch.map((name) => ({ name: normalizeName(name) })),
+      });
+      for (const card of response.data.data) {
+        const url =
+          card.image_uris?.normal ??
+          card.card_faces?.[0]?.image_uris?.normal ??
+          null;
+        if (url) imageMap[card.name] = url;
+      }
+    } catch (error) {
+      console.error("Error fetching card images:", error.message);
+    }
+  }
+  return imageMap;
+}
+
 module.exports = {
   validateDecklist,
   getCommanderColorIdentity,
   getCardByName,
   autocompleteCards,
+  fetchCardImages,
 };

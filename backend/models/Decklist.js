@@ -1,52 +1,63 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const decklist_schema = new mongoose.Schema({
-    title: { 
-        type: String,
-        required: true,
-        trim: true
-    },
+  title: {
+    type: String,
+    required: true,
+    trim: true,
+  },
 
-    commander: [String],
-    description: String,
-    decktech_markdown: String,
-    cards: [String],
-    alternative_choices: [String],
-    color_identity: { type: String, default: "" },
-    scryfallQuery: String,
-    authorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+  commander: [String],
+  description: String,
+  decktech_markdown: String,
+  cards: [String],
+  alternative_choices: [String],
+  color_identity: { type: String, default: "" },
+  scryfallQuery: String,
+  authorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  tags: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tag",
     },
-    tags: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tag',
-    }],
-    isPublic: {
-        type: Boolean,
-        default: true
+  ],
+  isPublic: {
+    type: Boolean,
+    default: true,
+  },
+  allowComments: {
+    type: Boolean,
+    default: true,
+  },
+  lastChangeDate: {
+    type: Date,
+    default: Date.now,
+  },
+  likes: {
+    type: Number,
+    default: 0,
+  },
+  likedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    allowComments: {
-        type: Boolean,
-        default: true
+  ],
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
     },
-    lastChangeDate: {
-        type: Date,
-        default: Date.now
-    },
-    likes: {
-        type: Number,
-        default: 0
-    },
-    likedBy: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }],
-    comments: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment'
-    }]
+  ],
+  card_images: {
+    type: Map,
+    of: String,
+    default: {},
+  },
 });
 
-module.exports = mongoose.model('Decklist', decklist_schema);
+module.exports = mongoose.model("Decklist", decklist_schema);

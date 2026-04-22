@@ -31,6 +31,14 @@ export async function getDecklistsByUser(userId) {
   return res.json();
 }
 
+export async function refreshDeckImages(id) {
+  const res = await fetch(`/api/decklist/${id}/refresh-images`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error("Error al obtener imágenes");
+  return res.json();
+}
+
 export async function toggleDeckLike(id) {
   const res = await fetch(`/api/decklist/${id}/like`, {
     method: "POST",
