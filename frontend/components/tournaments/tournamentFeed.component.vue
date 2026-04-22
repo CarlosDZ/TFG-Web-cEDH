@@ -193,6 +193,7 @@ const emit = defineEmits(["new-tournament", "open-tournament"]);
   gap: 12px;
   align-content: start;
   padding-bottom: 1rem;
+  flex: 1;
 }
 
 .new-tournament-btn {
