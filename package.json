@@ -28,6 +28,7 @@
     "license": "AGPL-3.0-or-later",
     "type": "commonjs",
     "dependencies": {
+        "argon2": "^0.44.0",
         "autoprefixer": "^10.4.22",
         "axios": "^1.13.2",
         "cookie-parser": "^1.4.7",

@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { hashPassword, verifyPassword } = require("../services/password");
 const Usuario = require("../models/User");
 const Deck = require("../models/Decklist");
 const CommanderTech = require("../models/CommanderTech");
@@ -124,18 +125,16 @@ const edit_user = async (req, res) => {
     if (newPassword) {
       if (!currentPassword)
         return res.status(400).json("Se requiere la contraseña actual.");
-      const inputHash = crypto
-        .createHash("sha256")
-        .update(currentPassword + usuarioObjetivo.salt)
-        .digest("hex");
-      if (inputHash !== usuarioObjetivo.password_hash)
+      const isValid = await verifyPassword(
+        currentPassword,
+        usuarioObjetivo.salt,
+        usuarioObjetivo.password_hash,
+      );
+      if (!isValid)
         return res.status(401).json("La contraseña actual es incorrecta.");
       const newSalt = crypto.randomBytes(16).toString("hex");
       usuarioObjetivo.salt = newSalt;
-      usuarioObjetivo.password_hash = crypto
-        .createHash("sha256")
-        .update(newPassword + newSalt)
-        .digest("hex");
+      usuarioObjetivo.password_hash = await hashPassword(newPassword, newSalt);
     }
 
     if (newName !== undefined) usuarioObjetivo.username = newName;
@@ -143,21 +142,23 @@ const edit_user = async (req, res) => {
     if (newEmail !== undefined) usuarioObjetivo.email = newEmail.toLowerCase();
 
     await usuarioObjetivo.save();
-    const token_user = {
-          id: usuarioObjetivo._id,
-          email: usuarioObjetivo.email,
-          username: usuarioObjetivo.username,
-          isAdmin: usuarioObjetivo.isAdmin,
-          isVerified: usuarioObjetivo.isVerified,
-          emailVerified: usuarioObjetivo.emailIsVerified,
-        };
-    const jwtToken = jwt.sign(token_user, process.env.JWT_SECRET_KEY_MIDDLEWARE, { expiresIn: "30d" });
-        res.cookie("spaincEDH_auth_token", jwtToken, {
-          httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-          maxAge: 30 * 24 * 60 * 60 * 1000,
-        });
+    const jwtPayload = {
+      id: usuarioObjetivo._id,
+      username: usuarioObjetivo.username,
+      isAdmin: usuarioObjetivo.isAdmin,
+      isVerified: usuarioObjetivo.isVerified,
+    };
+    const jwtToken = jwt.sign(
+      jwtPayload,
+      process.env.JWT_SECRET_KEY_MIDDLEWARE,
+      { expiresIn: "30d" },
+    );
+    res.cookie("legendsCEDH_auth_token", jwtToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
     res.status(200).json({
       _id: usuarioObjetivo._id,
       username: usuarioObjetivo.username,

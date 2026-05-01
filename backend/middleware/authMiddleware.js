@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = (req, res, next) => {
-    const token = req.cookies.spaincEDH_auth_token;
+    const token = req.cookies.legendsCEDH_auth_token;
 
     if (!token) {
         return res.status(401).json({ error: "Token nulo" });

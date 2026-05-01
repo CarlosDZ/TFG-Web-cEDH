@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const checkSession = (req, res, next) => {
-    const token = req.cookies.spaincEDH_auth_token;
+    const token = req.cookies.legendsCEDH_auth_token;
 
     if (!token) {
         res.session = { authenticated: false };
