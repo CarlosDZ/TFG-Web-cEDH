@@ -13,6 +13,8 @@ import ProfileSettingsView from "../views/ProfileSettingsView.vue";
 import Tournaments from "../views/Tournaments.vue";
 import MisDecks from "../views/MisDecks.vue";
 import MisTechs from "../views/MisTechs.vue";
+import TournamentManagement from "../views/management/TournamentManagement.vue";
+import { authState } from "../utils/auth";
 
 const routes = [
   { path: "/", redirect: "/dashboard" },
@@ -51,11 +53,28 @@ const routes = [
   { path: "/mis-commandertech", name: "MisTechs", component: MisTechs },
   { path: "/mis-discusiones", redirect: "/dashboard" }, //Obviamente cambiar el redirect cuando la vista este hecha
   { path: "/mis-torneos-pendientes", redirect: "/torneos?filter=saved" },
+
+  {
+    path: "/management/tournaments",
+    name: "TournamentManagement",
+    component: TournamentManagement,
+    meta: { requiresVerified: true },
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, _from, next) => {
+  if (!to.meta.requiresVerified) return next();
+
+  const auth = authState();
+
+  if (!auth.isLogged) return next("/login");
+  if (!auth.user?.isVerified && !auth.user?.isAdmin) return next("/dashboard");
+  next();
 });
 
 export default router;

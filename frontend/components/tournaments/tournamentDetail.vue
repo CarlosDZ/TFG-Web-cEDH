@@ -2,7 +2,14 @@
 import { ref, computed, onMounted, nextTick } from "vue";
 import { marked } from "marked";
 import { authState } from "../../utils/auth";
-import { toggleSave, deleteTournament } from "../../services/tournamentService";
+import {
+  toggleSave,
+  deleteTournament,
+  joinTournament,
+  getMyEntry,
+  cancelEntry,
+} from "../../services/tournamentService";
+import { getDecklistsByUser, getDeck } from "../../services/decklistService";
 import { useTournaments } from "../../composables/useTournaments";
 
 defineOptions({ name: "TournamentDetail" });
@@ -45,6 +52,32 @@ const isPast = computed(
   () => new Date(props.tournament.tournament_date_hour) < new Date(),
 );
 
+const deadlinePassed = computed(() => {
+  if (!props.tournament.registration_deadline) return false;
+  return new Date(props.tournament.registration_deadline) < new Date();
+});
+
+const canJoin = computed(
+  () => !isPast.value && !props.tournament.isFull && !deadlinePassed.value,
+);
+
+const isOrganizer = computed(
+  () =>
+    auth.isLogged &&
+    (auth.user?.isAdmin ||
+      props.tournament.authorId?._id === auth.user?.id ||
+      props.tournament.authorId?.toString() === auth.user?.id),
+);
+
+// Join flow state
+const myEntry = ref(null);
+const myEntryLoaded = ref(false);
+const userDecks = ref([]);
+const selectedDeckId = ref("");
+const joining = ref(false);
+const cancelling = ref(false);
+const joinError = ref("");
+
 const rulesHtml = computed(() => {
   const md = props.tournament.ruling_markdown ?? "";
   return md.trim() ? marked.parse(md.replace(/\n{3,}/g, "\n\n")) : "";
@@ -60,8 +93,8 @@ const canDelete = computed(
   () =>
     auth.isLogged &&
     (auth.user?.isAdmin ||
-      props.tournament.authorId?._id === auth.user?._id ||
-      props.tournament.authorId?.toString() === auth.user?._id),
+      props.tournament.authorId?._id === auth.user?.id ||
+      props.tournament.authorId?.toString() === auth.user?.id),
 );
 
 function showNotif(msg, duration = 3000) {
@@ -70,6 +103,61 @@ function showNotif(msg, duration = 3000) {
   notifTimeout = setTimeout(() => {
     notification.value = "";
   }, duration);
+}
+
+async function loadJoinData() {
+  if (!auth.isLogged || myEntryLoaded.value) return;
+  myEntryLoaded.value = true;
+  myEntry.value = await getMyEntry(props.tournament._id);
+  if (!myEntry.value && props.tournament.needs_decklist) {
+    userDecks.value = await getDecklistsByUser(auth.user.id);
+  }
+}
+
+async function handleJoin() {
+  joining.value = true;
+  joinError.value = "";
+  try {
+    let payload = {};
+    if (props.tournament.needs_decklist) {
+      if (!selectedDeckId.value) {
+        joinError.value = "Selecciona una decklist para continuar.";
+        return;
+      }
+      const deck = await getDeck(selectedDeckId.value);
+      payload = {
+        decklistId: deck._id,
+        title: deck.title,
+        commander: deck.commander,
+        cards: deck.cards,
+        color_identity: deck.color_identity,
+        card_images: deck.card_images,
+        card_types: deck.card_types,
+      };
+    }
+    myEntry.value = await joinTournament(props.tournament._id, payload);
+  } catch (err) {
+    joinError.value = err.message ?? "Error al inscribirse.";
+  } finally {
+    joining.value = false;
+  }
+}
+
+async function handleCancelEntry() {
+  if (!confirm("¿Cancelar tu inscripción a este torneo?")) return;
+  cancelling.value = true;
+  try {
+    await cancelEntry(props.tournament._id, myEntry.value._id);
+    myEntry.value = null;
+    selectedDeckId.value = "";
+    if (props.tournament.needs_decklist && userDecks.value.length === 0) {
+      userDecks.value = await getDecklistsByUser(auth.user.id);
+    }
+  } catch {
+    showNotif("Error al cancelar la inscripción.");
+  } finally {
+    cancelling.value = false;
+  }
 }
 
 onMounted(() => {
@@ -178,7 +266,9 @@ function handleClose() {
                     stroke-linejoin="round"
                   >
                     <circle cx="12" cy="12" r="3" />
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                    />
                   </svg>
                 </button>
                 <button
@@ -241,6 +331,17 @@ function handleClose() {
                 @click="activeTab = 'rules'"
               >
                 Reglas
+              </button>
+              <button
+                v-if="!isPast"
+                class="tab-btn"
+                :class="{ active: activeTab === 'join' }"
+                @click="
+                  activeTab = 'join';
+                  loadJoinData();
+                "
+              >
+                Inscripción
               </button>
             </div>
 
@@ -318,6 +419,115 @@ function handleClose() {
             <!-- Rules tab -->
             <div v-else-if="activeTab === 'rules'" class="detail-body">
               <div class="markdown-body" v-html="rulesHtml" />
+            </div>
+
+            <!-- Join tab -->
+            <div v-else-if="activeTab === 'join'" class="detail-body join-body">
+              <!-- Not logged in -->
+              <template v-if="!auth.isLogged">
+                <p class="join-hint">
+                  Inicia sesión para inscribirte en este torneo.
+                </p>
+              </template>
+
+              <!-- Already inscribed -->
+              <template v-else-if="myEntry">
+                <div class="entry-status-card">
+                  <span class="info-label">Tu inscripción</span>
+                  <div class="entry-status-row">
+                    <span
+                      class="status-badge"
+                      :class="{
+                        'status-badge--open': myEntry.status === 'accepted',
+                        'status-badge--pending': myEntry.status === 'pending',
+                        'status-badge--full': myEntry.status === 'rejected',
+                      }"
+                    >
+                      {{
+                        myEntry.status === "accepted"
+                          ? "Aceptada"
+                          : myEntry.status === "pending"
+                            ? "Pendiente de confirmación"
+                            : "Rechazada"
+                      }}
+                    </span>
+                  </div>
+                  <p v-if="myEntry.title" class="entry-deck-name">
+                    {{ myEntry.title }}
+                  </p>
+                  <p v-if="myEntry.commander?.length" class="entry-commander">
+                    {{ myEntry.commander.join(" / ") }}
+                  </p>
+                  <button
+                    v-if="myEntry.status !== 'accepted'"
+                    class="btn-cancel-entry"
+                    :disabled="cancelling"
+                    @click="handleCancelEntry"
+                  >
+                    {{ cancelling ? "Cancelando..." : "Cancelar inscripción" }}
+                  </button>
+                </div>
+              </template>
+
+              <!-- Closed / full -->
+              <template v-else-if="!canJoin">
+                <p class="join-hint">
+                  {{
+                    tournament.isFull
+                      ? "El torneo está completo."
+                      : "El plazo de inscripción ha finalizado."
+                  }}
+                </p>
+              </template>
+
+              <!-- Join form -->
+              <template v-else>
+                <div class="join-form">
+                  <p v-if="tournament.needs_decklist" class="join-hint">
+                    Este torneo requiere que adjuntes una decklist. Se guardará
+                    una copia del estado actual.
+                  </p>
+                  <p v-else class="join-hint">
+                    {{
+                      tournament.auto_accept_participants
+                        ? "Tu inscripción será confirmada automáticamente."
+                        : "Tu inscripción quedará pendiente de confirmación por el organizador."
+                    }}
+                  </p>
+
+                  <div v-if="tournament.needs_decklist" class="field-group">
+                    <label class="info-label">Selecciona tu decklist</label>
+                    <select class="join-select" v-model="selectedDeckId">
+                      <option value="" disabled>Elige una decklist...</option>
+                      <option
+                        v-for="d in userDecks"
+                        :key="d._id"
+                        :value="d._id"
+                      >
+                        {{ d.title }} — {{ d.commander?.join(" / ") }}
+                      </option>
+                    </select>
+                    <p
+                      v-if="userDecks.length === 0"
+                      class="join-hint join-hint--warn"
+                    >
+                      No tienes decklists públicas. Crea una desde Mi Perfil.
+                    </p>
+                  </div>
+
+                  <p v-if="joinError" class="join-error">{{ joinError }}</p>
+
+                  <button
+                    class="btn-join"
+                    :disabled="
+                      joining || (tournament.needs_decklist && !selectedDeckId)
+                    "
+                    @click="handleJoin"
+                  >
+                    {{ joining ? "Inscribiendo..." : "Inscribirse" }}
+                  </button>
+                </div>
+              </template>
             </div>
           </div>
         </Transition>
@@ -697,6 +907,154 @@ function handleClose() {
 }
 .markdown-body :deep(li) {
   margin-bottom: 0.25rem;
+}
+
+/* Join tab */
+.join-body {
+  gap: 20px;
+}
+
+.join-hint {
+  font-size: 14px;
+  color: var(--txt-muted);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.join-hint--warn {
+  color: #e24b4a;
+  font-style: normal;
+}
+
+.join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 480px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.join-select {
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border);
+  color: var(--txt);
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.join-select:focus {
+  border-color: var(--accent);
+}
+.join-select option {
+  background: var(--bg-surface);
+  color: var(--txt);
+}
+
+.join-error {
+  font-size: 13px;
+  color: #e05c5c;
+  margin: 0;
+}
+
+.btn-join {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  border: none;
+  color: var(--accent-text);
+  font-family: "Cinzel", serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 24px;
+  cursor: pointer;
+  transform: skewX(-12deg);
+  transition:
+    background 0.15s,
+    opacity 0.15s;
+}
+.btn-join > * {
+  transform: skewX(12deg);
+}
+.btn-join:hover {
+  background: var(--accent-hover);
+}
+.btn-join:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.entry-status-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 0.5px solid var(--border);
+  background: var(--bg-surface);
+  max-width: 480px;
+}
+
+.entry-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-badge--pending {
+  background: rgba(175, 169, 236, 0.1);
+  color: var(--accent-muted);
+  border: 0.5px solid rgba(175, 169, 236, 0.3);
+}
+
+.entry-deck-name {
+  font-size: 15px;
+  color: var(--txt);
+  margin: 0;
+  font-weight: 600;
+}
+
+.entry-commander {
+  font-size: 13px;
+  color: var(--txt-muted);
+  margin: 0;
+  font-style: italic;
+}
+
+.btn-cancel-entry {
+  align-self: flex-start;
+  background: none;
+  border: 0.5px solid rgba(224, 92, 92, 0.4);
+  color: #e05c5c;
+  font-family: "Cinzel", serif;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.btn-cancel-entry:hover {
+  background: rgba(224, 92, 92, 0.08);
+}
+.btn-cancel-entry:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Notification */

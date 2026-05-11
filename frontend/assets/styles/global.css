@@ -39,8 +39,10 @@
   #mainContainer-commanderTechs main,
   #mainContainer-tournaments main,
   #mainContainer-misDecks main,
-  #mainContainer-misTechs main {
+  #mainContainer-misTechs main,
+  #mainContainer-tournamentManagement {
     --background-color: #00171f;
+    background-color: var(--background-color);
   }
   #mainContainer-commentFeed {
     .discusion {
@@ -97,8 +99,10 @@
   #mainContainer-commanderTechs main,
   #mainContainer-tournaments main,
   #mainContainer-misDecks main,
-  #mainContainer-misTechs main {
+  #mainContainer-misTechs main,
+  #mainContainer-tournamentManagement {
     --background-color: #a0c1b9;
+    background-color: var(--background-color);
   }
   #mainContainer-commentFeed {
     .discusion {
