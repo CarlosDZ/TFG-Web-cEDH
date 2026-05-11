@@ -167,6 +167,80 @@ onMounted(() => {
   if (auth.isLogged) loadSavedIds();
 });
 
+// ─── Deck viewer (own inscribed deck) ─────────────────────────────────────────
+const deckViewer = ref(null);
+const visualMode = ref(false);
+
+const TYPE_GROUPS = [
+  { key: "Creature", label: "Criaturas", match: (t) => t.includes("Creature") },
+  {
+    key: "Planeswalker",
+    label: "Planeswalkers",
+    match: (t) => t.includes("Planeswalker"),
+  },
+  {
+    key: "Instant",
+    label: "Instantáneos",
+    match: (t) => t.includes("Instant"),
+  },
+  { key: "Sorcery", label: "Conjuros", match: (t) => t.includes("Sorcery") },
+  {
+    key: "Artifact",
+    label: "Artefactos",
+    match: (t) => t.includes("Artifact"),
+  },
+  {
+    key: "Enchantment",
+    label: "Encantamientos",
+    match: (t) => t.includes("Enchantment"),
+  },
+  { key: "Land", label: "Tierras", match: (t) => t.includes("Land") },
+  { key: "Other", label: "Otros", match: () => true },
+];
+
+function getCardType(entry, name) {
+  const ct = entry?.card_types;
+  if (!ct) return "";
+  return (typeof ct.get === "function" ? ct.get(name) : ct[name]) ?? "";
+}
+
+function classifyCard(entry, name) {
+  const typeLine = getCardType(entry, name);
+  return TYPE_GROUPS.find((g) => g.match(typeLine))?.key ?? "Other";
+}
+
+function groupedCards(entry) {
+  if (!entry) return [];
+  const groups = {};
+  for (const card of entry.cards ?? []) {
+    const key = classifyCard(entry, card);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(card);
+  }
+  return TYPE_GROUPS.filter((g) => groups[g.key]).map((g) => ({
+    ...g,
+    cards: groups[g.key],
+  }));
+}
+
+function scryfallImg(entry, name) {
+  const ci = entry?.card_images;
+  if (!ci) return null;
+  return (typeof ci.get === "function" ? ci.get(name) : ci[name]) ?? null;
+}
+
+function hasImages(entry) {
+  if (!entry?.card_images) return false;
+  const ci = entry.card_images;
+  if (typeof ci.size === "number") return ci.size > 0;
+  return Object.keys(ci).length > 0;
+}
+
+function openDeckViewer(entry) {
+  deckViewer.value = entry;
+  visualMode.value = false;
+}
+
 async function handleSave() {
   if (!auth.isLogged) {
     showNotif("Estás en modo invitado. Inicia sesión para interactuar.");
@@ -459,6 +533,13 @@ function handleClose() {
                     {{ myEntry.commander.join(" / ") }}
                   </p>
                   <button
+                    v-if="myEntry.cards?.length"
+                    class="btn-view-deck"
+                    @click="openDeckViewer(myEntry)"
+                  >
+                    Ver decklist
+                  </button>
+                  <button
                     v-if="myEntry.status !== 'accepted'"
                     class="btn-cancel-entry"
                     :disabled="cancelling"
@@ -536,6 +617,79 @@ function handleClose() {
 
     <Transition name="notif">
       <div v-if="notification" class="notification">{{ notification }}</div>
+    </Transition>
+
+    <Transition name="backdrop">
+      <div
+        v-if="deckViewer"
+        class="deck-backdrop"
+        @click.self="deckViewer = null"
+      >
+        <div class="deck-modal">
+          <div class="deck-modal__header">
+            <div>
+              <span class="eyebrow">Decklist</span>
+              <h2 class="deck-modal__title">{{ deckViewer.title }}</h2>
+              <p class="deck-modal__commander">
+                {{ deckViewer.commander?.join(" / ") }}
+              </p>
+            </div>
+            <div class="deck-modal__actions">
+              <button class="view-toggle-btn" @click="visualMode = !visualMode">
+                {{ visualMode ? "Ver lista" : "Ver imágenes" }}
+              </button>
+              <button class="close-btn" @click="deckViewer = null">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="deck-modal__body">
+            <div
+              v-for="g in groupedCards(deckViewer)"
+              :key="g.key"
+              class="deck-type-group"
+            >
+              <h3 class="deck-type-heading">
+                {{ g.label }}
+                <span class="deck-type-count">({{ g.cards.length }})</span>
+              </h3>
+              <div v-if="visualMode" class="deck-card-grid">
+                <div
+                  v-for="card in g.cards"
+                  :key="card"
+                  class="deck-card-tile"
+                  :title="card"
+                >
+                  <img
+                    v-if="scryfallImg(deckViewer, card)"
+                    :src="scryfallImg(deckViewer, card)"
+                    :alt="card"
+                  />
+                  <span v-else class="deck-card-fallback">{{ card }}</span>
+                </div>
+              </div>
+              <ul v-else class="deck-card-list">
+                <li v-for="card in g.cards" :key="card" class="deck-card-item">
+                  {{ card }}
+                </li>
+              </ul>
+            </div>
+            <p v-if="!deckViewer.cards?.length" class="state-msg">
+              Sin cartas registradas.
+            </p>
+          </div>
+        </div>
+      </div>
     </Transition>
   </Teleport>
 </template>
@@ -1055,6 +1209,201 @@ function handleClose() {
 .btn-cancel-entry:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.btn-view-deck {
+  align-self: flex-start;
+  background: none;
+  border: 0.5px solid rgba(175, 169, 236, 0.4);
+  color: #afa9ec;
+  font-family: "Cinzel", serif;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.btn-view-deck:hover {
+  background: rgba(83, 74, 183, 0.12);
+  border-color: #534ab7;
+}
+
+/* Deck viewer modal */
+.deck-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 24px;
+}
+.deck-modal {
+  background: #0d1b2a;
+  border: 0.5px solid #1c3a58;
+  border-radius: 12px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: "Crimson Pro", Georgia, serif;
+}
+.deck-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 0.5px solid #1c3a58;
+  gap: 12px;
+}
+.deck-modal__title {
+  font-family: "Cinzel", serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #e8e3d8;
+  margin: 4px 0 2px;
+}
+.deck-modal__commander {
+  font-size: 13px;
+  color: #6b8caa;
+  margin: 0;
+  font-style: italic;
+}
+.deck-modal__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.view-toggle-btn {
+  background: none;
+  border: 0.5px solid #1c3a58;
+  color: #6b8caa;
+  font-family: "Cinzel", serif;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
+}
+.view-toggle-btn:hover {
+  color: #afa9ec;
+  border-color: #534ab7;
+  background: rgba(83, 74, 183, 0.08);
+}
+.close-btn {
+  background: none;
+  border: none;
+  color: #6b8caa;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.close-btn svg {
+  width: 18px;
+  height: 18px;
+}
+.close-btn:hover {
+  color: #e0ddd8;
+}
+.deck-modal__body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+.deck-type-group {
+  margin-bottom: 20px;
+}
+.deck-type-heading {
+  font-family: "Cinzel", serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #afa9ec;
+  margin: 0 0 8px;
+}
+.deck-type-count {
+  color: #6b8caa;
+  font-weight: 400;
+}
+.deck-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.deck-card-item {
+  font-size: 13px;
+  color: #e0ddd8;
+  padding: 2px 0;
+  border-bottom: 0.5px solid rgba(28, 58, 88, 0.3);
+}
+.deck-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+.deck-card-tile {
+  aspect-ratio: 488 / 680;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #080f18;
+  border: 0.5px solid rgba(28, 58, 88, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.deck-card-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.deck-card-fallback {
+  font-size: 11px;
+  color: #6b8caa;
+  text-align: center;
+  padding: 8px;
+  word-break: break-word;
+}
+.eyebrow {
+  font-family: "Cinzel", serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #afa9ec;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  display: block;
+}
+.state-msg {
+  font-size: 15px;
+  color: #6b8caa;
+  font-style: italic;
+  padding: 20px 0;
+}
+.backdrop-enter-active,
+.backdrop-leave-active {
+  transition: opacity 0.25s ease;
+}
+.backdrop-enter-from,
+.backdrop-leave-to {
+  opacity: 0;
 }
 
 /* Notification */

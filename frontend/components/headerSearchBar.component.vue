@@ -232,7 +232,7 @@ onUnmounted(() => {
             <img src="../assets/images/legends-logo.png" alt="Legends cEDH" />
           </div>
           <div class="brand-text">
-            <span class="brand-name">Spain cEDH</span>
+            <span class="brand-name">Legends cEDH</span>
             <span class="brand-sub">Community</span>
           </div>
         </div>

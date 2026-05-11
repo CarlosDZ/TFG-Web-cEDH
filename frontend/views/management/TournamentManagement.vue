@@ -199,36 +199,75 @@ async function removeEntry(entry) {
 
 function openDeckViewer(entry) {
   deckViewer.value = entry;
+  visualMode.value = false;
 }
 
-function cardsByType(entry) {
-  if (!entry.card_types || !entry.cards?.length) return {};
-  const groups = {};
-  for (const card of entry.cards) {
-    const type = entry.card_types[card] ?? "Otros";
-    if (!groups[type]) groups[type] = [];
-    groups[type].push(card);
-  }
-  return groups;
-}
-
-const TYPE_ORDER = [
-  "Creature",
-  "Instant",
-  "Sorcery",
-  "Artifact",
-  "Enchantment",
-  "Planeswalker",
-  "Land",
-  "Otros",
+const TYPE_GROUPS = [
+  { key: "Creature", label: "Criaturas", match: (t) => t.includes("Creature") },
+  {
+    key: "Planeswalker",
+    label: "Planeswalkers",
+    match: (t) => t.includes("Planeswalker"),
+  },
+  {
+    key: "Instant",
+    label: "Instantáneos",
+    match: (t) => t.includes("Instant"),
+  },
+  { key: "Sorcery", label: "Conjuros", match: (t) => t.includes("Sorcery") },
+  {
+    key: "Artifact",
+    label: "Artefactos",
+    match: (t) => t.includes("Artifact"),
+  },
+  {
+    key: "Enchantment",
+    label: "Encantamientos",
+    match: (t) => t.includes("Enchantment"),
+  },
+  { key: "Land", label: "Tierras", match: (t) => t.includes("Land") },
+  { key: "Other", label: "Otros", match: () => true },
 ];
 
-function sortedTypes(entry) {
-  const groups = cardsByType(entry);
-  return TYPE_ORDER.filter((t) => groups[t]?.length).concat(
-    Object.keys(groups).filter((t) => !TYPE_ORDER.includes(t)),
-  );
+function getCardType(entry, name) {
+  const ct = entry?.card_types;
+  if (!ct) return "";
+  return (typeof ct.get === "function" ? ct.get(name) : ct[name]) ?? "";
 }
+
+function classifyCard(entry, name) {
+  const typeLine = getCardType(entry, name);
+  return TYPE_GROUPS.find((g) => g.match(typeLine))?.key ?? "Other";
+}
+
+function groupedCards(entry) {
+  if (!entry) return [];
+  const groups = {};
+  for (const card of entry.cards ?? []) {
+    const key = classifyCard(entry, card);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(card);
+  }
+  return TYPE_GROUPS.filter((g) => groups[g.key]).map((g) => ({
+    ...g,
+    cards: groups[g.key],
+  }));
+}
+
+function scryfallImg(entry, name) {
+  const ci = entry?.card_images;
+  if (!ci) return null;
+  return (typeof ci.get === "function" ? ci.get(name) : ci[name]) ?? null;
+}
+
+function hasImages(entry) {
+  if (!entry?.card_images) return false;
+  const ci = entry.card_images;
+  if (typeof ci.size === "number") return ci.size > 0;
+  return Object.keys(ci).length > 0;
+}
+
+const visualMode = ref(false);
 
 // ─── Resultados tab ───────────────────────────────────────────────────────────
 const resultForms = ref({});
@@ -1068,35 +1107,56 @@ function onTabChange(tab) {
                     {{ deckViewer.commander?.join(" / ") }}
                   </p>
                 </div>
-                <button class="close-btn" @click="deckViewer = null">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                <div class="deck-modal__actions">
+                  <button
+                    class="view-toggle-btn"
+                    @click="visualMode = !visualMode"
                   >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
+                    {{ visualMode ? "Ver lista" : "Ver imágenes" }}
+                  </button>
+                  <button class="close-btn" @click="deckViewer = null">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div class="deck-modal__body">
                 <div
-                  v-for="type in sortedTypes(deckViewer)"
-                  :key="type"
+                  v-for="g in groupedCards(deckViewer)"
+                  :key="g.key"
                   class="deck-type-group"
                 >
                   <h3 class="deck-type-heading">
-                    {{ type }}
-                    <span class="deck-type-count"
-                      >({{ cardsByType(deckViewer)[type].length }})</span
-                    >
+                    {{ g.label }}
+                    <span class="deck-type-count">({{ g.cards.length }})</span>
                   </h3>
-                  <ul class="deck-card-list">
+                  <div v-if="visualMode" class="deck-card-grid">
+                    <div
+                      v-for="card in g.cards"
+                      :key="card"
+                      class="deck-card-tile"
+                      :title="card"
+                    >
+                      <img
+                        v-if="scryfallImg(deckViewer, card)"
+                        :src="scryfallImg(deckViewer, card)"
+                        :alt="card"
+                      />
+                      <span v-else class="deck-card-fallback">{{ card }}</span>
+                    </div>
+                  </div>
+                  <ul v-else class="deck-card-list">
                     <li
-                      v-for="card in cardsByType(deckViewer)[type]"
+                      v-for="card in g.cards"
                       :key="card"
                       class="deck-card-item"
                     >
@@ -2038,6 +2098,13 @@ function onTabChange(tab) {
   display: flex;
   flex-direction: column;
   font-family: "Crimson Pro", Georgia, serif;
+  --accent: #534ab7;
+  --accent-muted: #afa9ec;
+  --accent-text: #eeedfe;
+  --border: #1c3a58;
+  --txt: #e0ddd8;
+  --txt-title: #e8e3d8;
+  --txt-muted: #6b8caa;
 }
 .deck-modal__header {
   display: flex;
@@ -2117,6 +2184,59 @@ function onTabChange(tab) {
   color: #e0ddd8;
   padding: 2px 0;
   border-bottom: 0.5px solid rgba(28, 58, 88, 0.3);
+}
+.deck-modal__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.view-toggle-btn {
+  background: none;
+  border: 0.5px solid var(--border);
+  color: var(--txt-muted);
+  font-family: "Cinzel", serif;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
+}
+.view-toggle-btn:hover {
+  color: var(--accent-muted);
+  border-color: var(--accent);
+  background: rgba(83, 74, 183, 0.08);
+}
+.deck-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+.deck-card-tile {
+  aspect-ratio: 488 / 680;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #080f18;
+  border: 0.5px solid rgba(28, 58, 88, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.deck-card-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.deck-card-fallback {
+  font-size: 11px;
+  color: #6b8caa;
+  text-align: center;
+  padding: 8px;
+  word-break: break-word;
 }
 
 .backdrop-enter-active,
