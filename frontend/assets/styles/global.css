@@ -1,132 +1,136 @@
 @font-face {
-  font-family: "Por Siempre Gotica";
-  src: url("../fonts/por-siempre-gotica.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Por Siempre Gotica";
+    src: url("../fonts/por-siempre-gotica.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
 }
 
 /*Env variables regarding color scheme*/
 @media (prefers-color-scheme: dark) {
-  #mainContainer-login,
-  #mainContainer-register {
-    --login-bg-color-1: #0d1b2a;
-    --login-txt-color: #e0e1dd;
-    --login-form-data-bg: #1b263b;
-    --login-form-border: #1c60dd;
-    --login-form-data-border: #778da9;
-    --login-form-outline-valid: rgb(11, 202, 11);
-    --login-form-outline-invalid: rgb(238, 18, 18);
-    --login-bg-color-percent: 45%;
-    --login-urls: #d72be7;
-  }
+    #mainContainer-login,
+    #mainContainer-register {
+        --login-bg-color-1: #0d1b2a;
+        --login-txt-color: #e0e1dd;
+        --login-form-data-bg: #1b263b;
+        --login-form-border: #1c60dd;
+        --login-form-data-border: #778da9;
+        --login-form-outline-valid: rgb(11, 202, 11);
+        --login-form-outline-invalid: rgb(238, 18, 18);
+        --login-bg-color-percent: 45%;
+        --login-urls: #d72be7;
+    }
 
-  #mainContainer-personalNavMenu {
-    --background-color: rgb(46, 42, 42);
-    --txt-color: white;
-    --button-hover-light: rgba(0, 150, 255, 0.6);
-  }
-  #mainContainer-sectionNavMenu {
-    --button-background-color: rgb(101, 89, 89);
-    --background-color: rgb(46, 42, 42);
-    --txt-color: white;
-    --button-hover-light: rgba(0, 150, 255, 0.6);
-    --button-background-color-hovered: rgb(34, 26, 26);
-  }
-  #mainContainer-dashboard main,
-  #mainContainer-decklists main,
-  #mainContainer-deckdetail main,
-  #mainContainer-commanderTechs main,
-  #mainContainer-tournaments main,
-  #mainContainer-misDecks main,
-  #mainContainer-misTechs main,
-  #mainContainer-jugadores main {
-    --background-color: #00171f;
-  }
-  #mainContainer-commentFeed {
-    .discusion {
-      --like-svg-background: red;
-      --like-svg-border: white;
-      --comment-border: rgb(100, 100, 231);
-      --txt-color: white;
+    #mainContainer-personalNavMenu {
+        --background-color: rgb(46, 42, 42);
+        --txt-color: white;
+        --button-hover-light: rgba(0, 150, 255, 0.6);
     }
-  }
-  #mainContainer-deckdetail {
-    --card-bg: #0d1b2a;
-    --comment-border: rgb(100, 100, 231);
-    --txt-color: #e0ddd8;
-    --txt-secondary: #8899aa;
-    --hover-bg: rgba(83, 74, 183, 0.08);
-  }
-  #mainContainer-commanderTechs {
-    .discusion {
-      --comment-border: rgb(100, 100, 231);
-      --txt-color: white;
+    #mainContainer-sectionNavMenu {
+        --button-background-color: rgb(101, 89, 89);
+        --background-color: rgb(46, 42, 42);
+        --txt-color: white;
+        --button-hover-light: rgba(0, 150, 255, 0.6);
+        --button-background-color-hovered: rgb(34, 26, 26);
     }
-  }
+    #mainContainer-dashboard main,
+    #mainContainer-decklists main,
+    #mainContainer-deckdetail main,
+    #mainContainer-commanderTechs main,
+    #mainContainer-tournaments main,
+    #mainContainer-misDecks main,
+    #mainContainer-misTechs main,
+    #mainContainer-tournamentManagement,
+    #mainContainer-jugadores main {
+        --background-color: #00171f;
+        background-color: var(--background-color);
+    }
+    #mainContainer-commentFeed {
+        .discusion {
+            --like-svg-background: red;
+            --like-svg-border: white;
+            --comment-border: rgb(100, 100, 231);
+            --txt-color: white;
+        }
+    }
+    #mainContainer-deckdetail {
+        --card-bg: #0d1b2a;
+        --comment-border: rgb(100, 100, 231);
+        --txt-color: #e0ddd8;
+        --txt-secondary: #8899aa;
+        --hover-bg: rgba(83, 74, 183, 0.08);
+    }
+    #mainContainer-commanderTechs {
+        .discusion {
+            --comment-border: rgb(100, 100, 231);
+            --txt-color: white;
+        }
+    }
 }
 
 @media (prefers-color-scheme: light) {
-  #mainContainer-login,
-  #mainContainer-register {
-    --login-bg-color-1: #b0c4d8;
-    --login-txt-color: black;
-    --login-form-data-bg: #aecbeb;
-    --login-form-border: black;
-    --login-form-data-border: #5893d3;
-    --login-form-outline-valid: rgb(11, 202, 11);
-    --login-form-outline-invalid: rgb(238, 18, 18);
-    --login-bg-color-percent: 25%;
-    --login-urls: blue;
-  }
-
-  #mainContainer-personalNavMenu {
-    --background-color: rgb(146, 146, 233);
-    --txt-color: black;
-    --button-hover-light: rgba(0, 0, 0, 0.7);
-  }
-
-  #mainContainer-sectionNavMenu {
-    --button-background-color: rgb(92, 92, 178);
-    --background-color: rgb(146, 146, 233);
-    --txt-color: black;
-    --button-hover-light: rgba(0, 0, 0, 0.7);
-    --button-background-color-hovered: rgb(154, 154, 228);
-  }
-  #mainContainer-dashboard main,
-  #mainContainer-decklists main,
-  #mainContainer-commanderTechs main,
-  #mainContainer-tournaments main,
-  #mainContainer-misDecks main,
-  #mainContainer-misTechs main,
-  #mainContainer-jugadores main {
-    --background-color: #a0c1b9;
-  }
-  #mainContainer-commentFeed {
-    .discusion {
-      --like-svg-background: red;
-      --like-svg-border: black;
-      --comment-border: black;
-      --txt-color: black;
+    #mainContainer-login,
+    #mainContainer-register {
+        --login-bg-color-1: #b0c4d8;
+        --login-txt-color: black;
+        --login-form-data-bg: #aecbeb;
+        --login-form-border: black;
+        --login-form-data-border: #5893d3;
+        --login-form-outline-valid: rgb(11, 202, 11);
+        --login-form-outline-invalid: rgb(238, 18, 18);
+        --login-bg-color-percent: 25%;
+        --login-urls: blue;
     }
-  }
-  #mainContainer-commanderTechs {
-    .discusion {
-      --comment-border: black;
-      --txt-color: black;
+
+    #mainContainer-personalNavMenu {
+        --background-color: rgb(146, 146, 233);
+        --txt-color: black;
+        --button-hover-light: rgba(0, 0, 0, 0.7);
     }
-  }
+
+    #mainContainer-sectionNavMenu {
+        --button-background-color: rgb(92, 92, 178);
+        --background-color: rgb(146, 146, 233);
+        --txt-color: black;
+        --button-hover-light: rgba(0, 0, 0, 0.7);
+        --button-background-color-hovered: rgb(154, 154, 228);
+    }
+    #mainContainer-dashboard main,
+    #mainContainer-decklists main,
+    #mainContainer-commanderTechs main,
+    #mainContainer-tournaments main,
+    #mainContainer-misDecks main,
+    #mainContainer-misTechs main,
+    #mainContainer-tournamentManagement,
+    #mainContainer-jugadores main {
+        --background-color: #a0c1b9;
+        background-color: var(--background-color);
+    }
+    #mainContainer-commentFeed {
+        .discusion {
+            --like-svg-background: red;
+            --like-svg-border: black;
+            --comment-border: black;
+            --txt-color: black;
+        }
+    }
+    #mainContainer-commanderTechs {
+        .discusion {
+            --comment-border: black;
+            --txt-color: black;
+        }
+    }
 }
 
 * {
-  margin: 0px;
-  padding: 0px;
-  min-width: 0;
+    margin: 0px;
+    padding: 0px;
+    min-width: 0;
 }
 html,
 body,
 #app {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }

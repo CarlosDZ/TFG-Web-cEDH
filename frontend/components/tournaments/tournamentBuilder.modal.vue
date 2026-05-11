@@ -19,6 +19,7 @@ const activeTab = ref("general");
 
 const TABS = [
   { id: "general", label: "General" },
+  { id: "registration", label: "Inscripciones" },
   { id: "prizes", label: "Premios" },
   { id: "rules", label: "Reglas" },
 ];
@@ -66,6 +67,10 @@ const form = reactive({
   prizes: init?.prizes?.length ? init.prizes.map((p) => ({ ...p })) : [{ range: "1", prize: "" }],
   ruling_markdown: init?.ruling_markdown ?? "",
   isFull: init?.isFull ?? false,
+  auto_accept_participants: init?.auto_accept_participants ?? false,
+  needs_decklist: init?.needs_decklist ?? false,
+  reserve_non_confirmed_places: init?.reserve_non_confirmed_places ?? true,
+  registration_deadline: toDatetimeLocal(init?.registration_deadline),
 });
 
 const bodyRef = ref(null);
@@ -145,6 +150,10 @@ async function save() {
       max_players: form.max_players ? Number(form.max_players) : null,
       prizes: form.prizes.filter((p) => p.range.trim() && p.prize.trim()),
       ruling_markdown: form.ruling_markdown.trim(),
+      auto_accept_participants: form.auto_accept_participants,
+      needs_decklist: form.needs_decklist,
+      reserve_non_confirmed_places: form.reserve_non_confirmed_places,
+      registration_deadline: form.registration_deadline ? new Date(form.registration_deadline).toISOString() : null,
       ...(isEditMode.value && { isFull: form.isFull }),
     };
     if (isEditMode.value) {
@@ -319,6 +328,54 @@ async function save() {
                         <span class="toggle-thumb" />
                       </span>
                       <span class="toggle-text">{{ form.isFull ? 'Completo' : 'Abierto' }}</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Tab: Registration -->
+                <div v-else-if="activeTab === 'registration'" class="tab-content">
+                  <p class="tab-hint">Configura cómo se gestionan las inscripciones al torneo.</p>
+
+                  <div class="field-group">
+                    <label class="field-label">Fecha límite de inscripción</label>
+                    <input
+                      class="field-input"
+                      type="datetime-local"
+                      v-model="form.registration_deadline"
+                    />
+                    <span class="field-hint">Opcional. Las inscripciones se cerrarán automáticamente en esta fecha.</span>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label">Aceptación automática</label>
+                    <label class="toggle-label">
+                      <input type="checkbox" class="toggle-input" v-model="form.auto_accept_participants" />
+                      <span class="toggle-track"><span class="toggle-thumb" /></span>
+                      <span class="toggle-text">
+                        {{ form.auto_accept_participants ? 'Las inscripciones se aceptan automáticamente' : 'El organizador debe confirmar cada inscripción' }}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label">Requiere decklist</label>
+                    <label class="toggle-label">
+                      <input type="checkbox" class="toggle-input" v-model="form.needs_decklist" />
+                      <span class="toggle-track"><span class="toggle-thumb" /></span>
+                      <span class="toggle-text">
+                        {{ form.needs_decklist ? 'Los participantes deben adjuntar una decklist' : 'No se requiere decklist' }}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div v-if="!form.auto_accept_participants" class="field-group">
+                    <label class="field-label">Reserva de plazas pendientes</label>
+                    <label class="toggle-label">
+                      <input type="checkbox" class="toggle-input" v-model="form.reserve_non_confirmed_places" />
+                      <span class="toggle-track"><span class="toggle-thumb" /></span>
+                      <span class="toggle-text">
+                        {{ form.reserve_non_confirmed_places ? 'Las inscripciones pendientes ocupan plaza' : 'Solo las inscripciones confirmadas ocupan plaza' }}
+                      </span>
                     </label>
                   </div>
                 </div>

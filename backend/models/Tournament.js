@@ -49,7 +49,22 @@ const tournament_schema = new mongoose.Schema({
     default: null,
   },
 
-  //i may put winner data on here if i have time to pull it off without it depending on decks and users not being changed.
+  auto_accept_participants: {
+    type: Boolean,
+    default: false,
+  },
+  needs_decklist: {
+    type: Boolean,
+    default: false,
+  },
+  reserve_non_confirmed_places: {
+    type: Boolean,
+    default: true,
+  },
+  registration_deadline: {
+    type: Date,
+    default: null,
+  },
 });
 
 module.exports = mongoose.model("Tournament", tournament_schema);
