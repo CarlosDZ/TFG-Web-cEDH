@@ -155,7 +155,6 @@ watch(() => route.query.q, loadCurrent);
 <style scoped>
 @media (prefers-color-scheme: dark) {
   #mainContainer-jugadores {
-    --bg: #0d0e1a;
     --surface: #1a1b2e;
     --surface-hover: #20213a;
     --txt: #e8e6f0;
@@ -170,7 +169,6 @@ watch(() => route.query.q, loadCurrent);
 }
 @media (prefers-color-scheme: light) {
   #mainContainer-jugadores {
-    --bg: #f0ede8;
     --surface: #ffffff;
     --surface-hover: #f4f0eb;
     --txt: #3a3541;
@@ -189,7 +187,6 @@ watch(() => route.query.q, loadCurrent);
   width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg);
   font-family: inherit;
 
   header {
@@ -208,6 +205,7 @@ watch(() => route.query.q, loadCurrent);
     display: flex;
     flex-direction: column;
     gap: 24px;
+    background-color: var(--background-color);
   }
 
   footer {

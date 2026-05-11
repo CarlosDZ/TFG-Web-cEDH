@@ -229,10 +229,7 @@ onUnmounted(() => {
       <div class="brand-inner" @click="router.push('/dashboard')">
         <div class="brand-content">
           <div class="logo-wrap">
-            <img
-              src="../assets/images/texture_placeholder.jpg"
-              alt="Spain cEDH"
-            />
+            <img src="../assets/images/legends-logo.png" alt="Legends cEDH" />
           </div>
           <div class="brand-text">
             <span class="brand-name">Spain cEDH</span>
@@ -443,17 +440,17 @@ onUnmounted(() => {
   gap: 10px;
 }
 .logo-wrap {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  overflow: hidden;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 .logo-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 .brand-text {
   display: flex;

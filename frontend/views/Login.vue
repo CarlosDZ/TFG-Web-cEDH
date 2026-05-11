@@ -62,6 +62,21 @@
               </div>
             </div>
 
+            <div v-if="verifyMessage" class="vf-message" :class="verifyKind">
+              <p style="margin: 0 0 8px">{{ verifyMessage }}</p>
+              <button
+                v-if="needsVerification"
+                type="button"
+                class="lg-resend"
+                :disabled="resending"
+                @click="resendVerification"
+              >
+                {{
+                  resending ? "Enviando…" : "Reenviar correo de verificación"
+                }}
+              </button>
+            </div>
+
             <div class="lg-divider"></div>
             <button type="submit" class="lg-submit">Entrar</button>
           </form>
@@ -87,23 +102,60 @@ import { useRouter } from "vue-router";
 
 const username = ref("");
 const password = ref("");
+const verifyMessage = ref("");
+const verifyKind = ref("error");
+const needsVerification = ref(false);
+const resending = ref(false);
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 const auth = authState();
 const router = useRouter();
 
 function login() {
-    axios
-        .post(`${backend_url}/api/auth/login`, {
-            nameOrMail: username.value,
-            password: password.value,
-        })
-        .then((response) => {
-            if (response.data.user) auth.setUser(response.data.user);
-            router.push("/dashboard");
-        })
-        .catch((error) => {
-            alert(error.response.data.error);
-        });
+  verifyMessage.value = "";
+  needsVerification.value = false;
+  axios
+    .post(`${backend_url}/api/auth/login`, {
+      nameOrMail: username.value,
+      password: password.value,
+    })
+    .then((response) => {
+      if (response.data.user) auth.setUser(response.data.user);
+      router.push("/dashboard");
+    })
+    .catch((error) => {
+      const data = error.response?.data || {};
+      if (data.requiresVerification) {
+        verifyKind.value = "error";
+        needsVerification.value = true;
+        verifyMessage.value = data.error;
+        return;
+      }
+      alert(data.error || "Error al iniciar sesión");
+    });
+}
+
+function resendVerification() {
+  if (!username.value) {
+    alert("Introduce tu usuario o email primero.");
+    return;
+  }
+  resending.value = true;
+  axios
+    .post(`${backend_url}/api/auth/resend-verification`, {
+      nameOrMail: username.value,
+    })
+    .then((response) => {
+      verifyKind.value = "success";
+      verifyMessage.value = response.data.message;
+      needsVerification.value = false;
+    })
+    .catch(() => {
+      verifyKind.value = "error";
+      verifyMessage.value = "No se ha podido reenviar el correo.";
+    })
+    .finally(() => {
+      resending.value = false;
+    });
 }
 </script>
 
@@ -112,7 +164,8 @@ function login() {
 @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap");
 
 #mainContainer-login,
-#mainContainer-register {
+#mainContainer-register,
+#mainContainer-verify {
   --accent: #534ab7;
   --accent-hover: #3c3489;
   --accent-text: #eeedfe;
@@ -329,6 +382,45 @@ form {
 
 .lg-footer-link:hover {
   color: var(--accent-muted);
+}
+
+.vf-message {
+  font-size: 13px;
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border);
+  margin-bottom: 16px;
+  color: var(--txt);
+}
+.vf-message.success {
+  border-color: #4ab78a;
+  color: #c8eedd;
+}
+.vf-message.error {
+  border-color: #b74a4a;
+  color: #eecccc;
+}
+.lg-resend {
+  background: transparent;
+  border: 0.5px solid var(--accent);
+  color: var(--accent-muted);
+  font-family: "Cinzel", serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.lg-resend:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+.lg-resend:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 849px) {

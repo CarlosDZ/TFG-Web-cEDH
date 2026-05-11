@@ -1,0 +1,66 @@
+services:
+  db:
+    container_name: legendscedh-db
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: change_this_password
+    healthcheck:
+      test:
+        ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  backend:
+    container_name: legendscedh-backend
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      MONGODB_URL: mongodb://admin:change_this_password@db:27017/cedh?authSource=admin
+      JWT_SECRET_KEY_MIDDLEWARE: change_this_to_a_random_secret
+      # Generate with: openssl rand -base64 32
+      PASSWORD_PEPPER: change_this_to_a_random_pepper
+      BACKEND_PORT: 3000
+      BACKEND_HOST: 0.0.0.0
+      # Public URL used to build the email verification links
+      APP_URL: https://your-domain.example
+      # SMTP — Resend used as an example. Any SMTP provider works.
+      SMTP_HOST: smtp.resend.com
+      SMTP_PORT: 465
+      SMTP_USER: resend
+      SMTP_PASS: your_resend_api_key
+      SMTP_FROM: no-reply@your-domain.example
+
+  frontend:
+    container_name: legendscedh-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        # Leave empty so all API calls go to /api/... (proxied by Nginx)
+        VITE_BACKEND_URL: ""
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - web
+      - default
+
+networks:
+  web:
+    external: true
+  default:
+
+volumes:
+  mongo_data:

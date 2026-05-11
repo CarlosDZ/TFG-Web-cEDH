@@ -1,6 +1,6 @@
 {
-    "name": "cedh-web",
-    "version": "0.5.4",
+    "name": "legends-cedh",
+    "version": "1.0.0",
     "description": "A community web aimed for the cEDH enjoyers of the Spanish MTG community",
     "main": "server.js",
     "scripts": {
@@ -38,6 +38,7 @@
         "jsonwebtoken": "^9.0.3",
         "marked": "^17.0.5",
         "mongoose": "^8.18.1",
+        "nodemailer": "^8.0.7",
         "p-queue": "^9.0.1",
         "pinia": "^3.0.4",
         "postcss": "^8.5.6",

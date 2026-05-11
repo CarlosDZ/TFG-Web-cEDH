@@ -13,6 +13,7 @@ import ProfileSettingsView from "../views/ProfileSettingsView.vue";
 import Tournaments from "../views/Tournaments.vue";
 import MisDecks from "../views/MisDecks.vue";
 import MisTechs from "../views/MisTechs.vue";
+import VerifyEmail from "../views/VerifyEmail.vue";
 
 const routes = [
   { path: "/", redirect: "/dashboard" },
@@ -31,6 +32,7 @@ const routes = [
 
   { path: "/login", name: "Login", component: Login },
   { path: "/register", name: "Registro", component: Register },
+  { path: "/verificar-correo", name: "VerifyEmail", component: VerifyEmail },
 
   { path: "/torneos", name: "Tournaments", component: Tournaments },
   { path: "/decklists", name: "Decklists", component: Decklists },
